@@ -26,6 +26,11 @@
             --dropdown-border: #3a3a4e;
             --selected: rgba(50, 205, 50, 0.2);
             --info: #4169e1;
+            --normal: #50c878;
+            --activation: #9b59b6;
+            --violation: #e74c3c;
+            --super: #3498db;
+            --danger: #f39c12;
         }
         
         body {
@@ -39,7 +44,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
@@ -138,7 +143,7 @@
             display: block;
         }
         
-        /* Селектор карт */
+        /* Селектор карт с категориями */
         .card-selector-container {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 12px;
@@ -210,11 +215,12 @@
             box-shadow: 0 4px 8px rgba(139, 0, 0, 0.3);
         }
         
+        /* Карточки с категориями */
         .cards-selector-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px;
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
             padding: 15px;
             background: rgba(255, 255, 255, 0.02);
@@ -224,32 +230,56 @@
         }
         
         .card-option {
-            display: flex;
-            align-items: center;
-            gap: 15px;
             padding: 15px;
             background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
             border: 2px solid var(--card-border);
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
+            border-left: 5px solid;
         }
         
         .card-option:hover {
             background: linear-gradient(145deg, #3a3a4e, #2a2a3e);
-            border-color: var(--accent);
             transform: translateY(-3px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
         
         .card-option.selected {
-            background: linear-gradient(145deg, rgba(50, 205, 50, 0.1), rgba(50, 205, 50, 0.05));
             border-color: var(--success);
             box-shadow: 0 0 20px rgba(50, 205, 50, 0.2);
         }
         
-        .card-option-emoji {
-            font-size: 2.5rem;
+        /* Цвета категорий */
+        .card-normal {
+            border-left-color: var(--normal);
+        }
+        
+        .card-activation {
+            border-left-color: var(--activation);
+        }
+        
+        .card-violation {
+            border-left-color: var(--violation);
+        }
+        
+        .card-super {
+            border-left-color: var(--super);
+        }
+        
+        .card-danger {
+            border-left-color: var(--danger);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .card-emoji {
+            font-size: 2.2rem;
             width: 50px;
             height: 50px;
             display: flex;
@@ -259,36 +289,77 @@
             border-radius: 10px;
         }
         
-        .card-option-info {
+        .card-title {
             flex: 1;
-            min-width: 0;
         }
         
-        .card-option-name {
-            font-size: 1rem;
+        .card-name {
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--text);
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         
-        .card-option-cost {
-            font-size: 0.9rem;
-            color: var(--accent);
+        .card-category {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
             font-weight: 500;
         }
         
-        .card-option-desc {
+        .category-normal {
+            background: rgba(80, 200, 120, 0.2);
+            color: var(--normal);
+        }
+        
+        .category-activation {
+            background: rgba(155, 89, 182, 0.2);
+            color: var(--activation);
+        }
+        
+        .category-violation {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--violation);
+        }
+        
+        .category-super {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--super);
+        }
+        
+        .category-danger {
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--danger);
+        }
+        
+        .card-info {
+            margin-top: 12px;
+        }
+        
+        .card-cost {
+            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .card-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .card-details {
             font-size: 0.8rem;
             color: var(--text-secondary);
-            margin-top: 5px;
-            line-height: 1.4;
+            line-height: 1.3;
+            opacity: 0.8;
         }
         
         /* Показ выбранной карты */
         .selected-card-display {
-            display: flex;
-            align-items: center;
-            gap: 20px;
             padding: 20px;
             background: linear-gradient(135deg, rgba(50, 205, 50, 0.1), rgba(50, 205, 50, 0.05));
             border-radius: 12px;
@@ -302,10 +373,17 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
+        .selected-card-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
         .selected-card-emoji {
-            font-size: 4rem;
-            width: 80px;
-            height: 80px;
+            font-size: 3.5rem;
+            width: 70px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -319,21 +397,47 @@
         
         .selected-card-info h4 {
             font-size: 1.4rem;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             color: var(--text);
+        }
+        
+        .selected-card-category {
+            font-size: 0.9rem;
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 8px;
+            font-weight: 500;
         }
         
         .selected-card-cost {
             font-size: 1.1rem;
             color: var(--accent);
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
         
-        .selected-card-desc {
-            font-size: 0.95rem;
+        .selected-card-details {
+            display: grid;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .detail-label {
+            min-width: 120px;
+            font-weight: 600;
             color: var(--text-secondary);
-            line-height: 1.5;
+        }
+        
+        .detail-value {
+            flex: 1;
+            color: var(--text);
+            line-height: 1.4;
         }
         
         /* Основная кнопка расчёта */
@@ -403,7 +507,7 @@
         /* Инвентарь */
         .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px;
             margin-bottom: 25px;
         }
@@ -413,7 +517,7 @@
             margin-top: 25px;
             margin-bottom: 10px;
             color: var(--accent);
-            font-size: 1.2rem; /* Увеличенный шрифт для заголовков групп */
+            font-size: 1.2rem;
             font-weight: 700;
             border-bottom: 2px solid rgba(218, 165, 32, 0.3);
             padding-bottom: 8px;
@@ -469,47 +573,6 @@
             text-align: center;
             font-size: 1rem;
             -webkit-appearance: none;
-        }
-        
-        /* Рецепты */
-        .recipes-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        
-        .recipe-item {
-            padding: 20px;
-            background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
-            border: 2px solid var(--card-border);
-            border-radius: 10px;
-            border-left: 5px solid var(--accent);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .recipe-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            border-color: var(--accent);
-        }
-        
-        .recipe-item:active {
-            transform: scale(0.98);
-        }
-        
-        .recipe-formula {
-            font-family: monospace;
-            font-size: 1.1rem;
-            color: var(--accent);
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        
-        .recipe-desc {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.5;
         }
         
         /* Результаты */
@@ -568,47 +631,6 @@
             font-size: 1.3rem;
         }
         
-        /* Новые стили для улучшенных результатов */
-        .result-conversion {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(65, 105, 225, 0.1);
-            border-radius: 8px;
-            border-left: 4px solid var(--info);
-        }
-        
-        .result-conversion-title {
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .result-conversion-list {
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-        
-        .conversion-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-        }
-        
-        .conversion-emoji {
-            font-size: 1.2rem;
-        }
-        
-        .conversion-text {
-            flex: 1;
-        }
-        
         /* Подвал */
         .footer {
             margin-top: 40px;
@@ -646,26 +668,6 @@
             }
         }
         
-        /* Стили для пояснений */
-        .hint {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            margin-top: 8px;
-            padding-left: 15px;
-            border-left: 3px solid rgba(218, 165, 32, 0.3);
-            line-height: 1.5;
-        }
-        
-        .cost-explanation {
-            background: rgba(139, 0, 0, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 1rem;
-            color: var(--text-secondary);
-            border-left: 4px solid var(--primary);
-        }
-        
         /* Кастомный скроллбар */
         .cards-selector-grid::-webkit-scrollbar {
             width: 8px;
@@ -681,6 +683,39 @@
             border-radius: 4px;
         }
         
+        /* Легенда категорий */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+        
+        .legend-normal { background: var(--normal); }
+        .legend-activation { background: var(--activation); }
+        .legend-violation { background: var(--violation); }
+        .legend-super { background: var(--super); }
+        .legend-danger { background: var(--danger); }
+        
         @media (min-width: 768px) {
             .main-header {
                 padding: 25px;
@@ -695,31 +730,18 @@
             }
             
             .cards-selector-grid {
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            }
-            
-            .inventory-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            }
-            
-            .recipes-list {
                 grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            }
-            
-            .inventory-category-title {
-                font-size: 1.3rem;
             }
         }
         
-        /* Фикс для Safari на iOS */
         @media (max-width: 768px) {
             .mode-btn, .calculate-btn, .category-tab {
                 min-height: 50px;
             }
             
             .cards-selector-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                max-height: 350px;
+                grid-template-columns: 1fr;
+                max-height: 400px;
             }
             
             .category-tabs {
@@ -732,7 +754,7 @@
                 white-space: nowrap;
             }
             
-            .selected-card-display {
+            .selected-card-header {
                 flex-direction: column;
                 text-align: center;
                 gap: 15px;
@@ -740,8 +762,8 @@
             
             .selected-card-emoji {
                 font-size: 3rem;
-                width: 70px;
-                height: 70px;
+                width: 60px;
+                height: 60px;
             }
             
             .inventory-category-title {
@@ -766,7 +788,6 @@
             <div class="mode-selector">
                 <button class="mode-btn active" id="modeSingleBtn">Одна карта</button>
                 <button class="mode-btn" id="modeInventoryBtn">Инвентарь</button>
-                <button class="mode-btn" id="modeRecipesBtn">Рецепты</button>
             </div>
             
             <div class="mode-content active" id="contentSingle">
@@ -782,14 +803,38 @@
                                    id="cardSearch">
                         </div>
                         
+                        <!-- Легенда категорий -->
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color legend-normal"></div>
+                                <span>🀄️ Обычные карты</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-activation"></div>
+                                <span>🎴 Карты активации</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-violation"></div>
+                                <span>🧧 Карты нарушений</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-super"></div>
+                                <span>🪟 Супер карты</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-danger"></div>
+                                <span>📱 Опасные карты</span>
+                            </div>
+                        </div>
+                        
                         <!-- Быстрые фильтры -->
                         <div class="category-tabs" id="categoryTabs">
                             <button class="category-tab active" data-category="all">Все карты</button>
-                            <button class="category-tab" data-category="basic">Основные</button>
-                            <button class="category-tab" data-category="middle">Средние</button>
-                            <button class="category-tab" data-category="high">Высшие</button>
-                            <button class="category-tab" data-category="special">Специальные</button>
-                            <button class="category-tab" data-category="elite">Элитные</button>
+                            <button class="category-tab" data-category="normal">🀄️ Обычные</button>
+                            <button class="category-tab" data-category="activation">🎴 Активации</button>
+                            <button class="category-tab" data-category="violation">🧧 Нарушения</button>
+                            <button class="category-tab" data-category="super">🪟 Супер</button>
+                            <button class="category-tab" data-category="danger">📱 Опасные</button>
                         </div>
                         
                         <!-- Сетка карт -->
@@ -799,12 +844,7 @@
                         
                         <!-- Показ выбранной карты -->
                         <div class="selected-card-display" id="selectedCardDisplay" style="display: none;">
-                            <div class="selected-card-emoji" id="selectedCardEmoji"></div>
-                            <div class="selected-card-info">
-                                <h4 id="selectedCardName"></h4>
-                                <div class="selected-card-cost" id="selectedCardCost"></div>
-                                <div class="selected-card-desc" id="selectedCardDesc"></div>
-                            </div>
+                            <!-- Заполняется через JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -812,7 +852,6 @@
                 <div class="input-group">
                     <label><span>🔢</span> Количество:</label>
                     <input type="number" id="cardCount" value="1" min="1" max="100">
-                    <div class="hint">Введите количество карт для расчёта (от 1 до 100)</div>
                 </div>
                 
                 <button class="calculate-btn" id="calculateSingleBtn">
@@ -821,7 +860,9 @@
             </div>
             
             <div class="mode-content" id="contentInventory">
-                <div class="hint">Укажите количество карт в вашем инвентаре:</div>
+                <div class="hint" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.95rem;">
+                    Укажите количество карт в вашем инвентаре:
+                </div>
                 
                 <div class="inventory-grid" id="inventoryGrid">
                     <!-- Заполняется через JavaScript -->
@@ -831,21 +872,13 @@
                 </button>
             </div>
             
-            <div class="mode-content" id="contentRecipes">
-                <div class="hint">Нажмите на рецепт для быстрого расчёта:</div>
-                
-                <div class="recipes-list" id="recipesList">
-                    <!-- Заполняется через JavaScript -->
-                </div>
-            </div>
-            
             <div class="results-section">
                 <h3 class="results-title"><span>📊</span> Результаты:</h3>
                 <div class="results-container" id="results">
                     <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
                         <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📊</div>
                         <p style="font-size: 1.1rem; margin-bottom: 10px;">Выберите карту и нажмите "Рассчитать"</p>
-                        <p style="font-size: 0.95rem; opacity: 0.7;">Или перейдите в раздел "Инвентарь" или "Рецепты"</p>
+                        <p style="font-size: 0.95rem; opacity: 0.7;">Или перейдите в раздел "Инвентарь"</p>
                     </div>
                 </div>
             </div>
@@ -853,136 +886,274 @@
         
         <footer class="footer">
             <p>Для оффлайн использования сохраните страницу</p>
-            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">Калькулятор для стрима • Обновлено 2026</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">Калькулятор для стрима • Обновлено 2024</p>
         </footer>
     </div>
 
     <script>
-        // Данные карт с категориями
+        // Данные карт с новыми категориями
         const cardData = {
-            "☑️": { 
-                name: "Серая карта", 
-                cost: 1, 
-                description: "Базовая карта. Съём спикера на 12 минут",
-                category: "basic"
+            "☑️": {
+                name: "Серая карта",
+                cost: 1,
+                category: "normal",
+                categoryName: "🀄️ Обычные карты",
+                description: "Базовая карта. Съём спикеров на 12 минут. Монолог 12 минут.",
+                effects: "Съём спикеров на 12 минут. Монолог 12 минут.",
+                application: "1 раз за эфир от каждого",
+                acquisition: "1 час продления. 🧿ТВ колесо. Первый на эфире. Передача. 🛐🏧",
+                features: "Способна к конвертации. ♻️🦎",
+                removes: "🅱️♎️🛐⚫️",
+                counters: "🏳️‍🌈🃏"
             },
-            "🟪": { 
-                name: "Розовая карта", 
-                cost: 2, 
-                description: "Предупреждение. Можно зайти повторно",
-                category: "basic"
+            "🟪": {
+                name: "Розовая карта",
+                cost: 2,
+                category: "violation",
+                categoryName: "🧧 Карты нарушений",
+                description: "Как предупреждение. Вас спускают вниз. Вы можете зайти повторно.",
+                effects: "Как предупреждение. Вас спускают вниз. Вы можете зайти повторно.",
+                application: "До 🟨",
+                acquisition: "Нарушение правил. ☑️➕☑️. От ⬜️🟧💎🚨🔲. 🧿ТВ колесо.",
+                features: "-",
+                removes: "☑️🛐",
+                counters: "🌈🟧💎🚨🔲🃏"
             },
-            "🟦": { 
-                name: "Синяя карта", 
-                cost: 3, 
-                description: "Снимает жёлтую 🟨",
-                category: "basic"
+            "🟦": {
+                name: "Синяя карта",
+                cost: 3,
+                category: "normal",
+                categoryName: "🀄️ Обычные карты",
+                description: "Снимает 🟨",
+                effects: "Снимает 🟨",
+                application: "На 🟨",
+                acquisition: "Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐🏧",
+                features: "-",
+                removes: "🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "🟩": { 
-                name: "Зелёная карта", 
-                cost: 6, 
-                description: "Снимает красную 🟥",
-                category: "basic"
+            "🟩": {
+                name: "Зелёная карта",
+                cost: 6,
+                category: "normal",
+                categoryName: "🀄️ Обычные карты",
+                description: "Снимает 🟥",
+                effects: "Снимает 🟥",
+                application: "На 🟥",
+                acquisition: "Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐🏧",
+                features: "-",
+                removes: "🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "⬜️": { 
-                name: "Белая карта", 
-                cost: 12, 
-                description: "Снимает чёрную ⬛️ или коричневую 🟫",
-                category: "middle"
+            "⬜️": {
+                name: "Белая карта",
+                cost: 12,
+                category: "normal",
+                categoryName: "🀄️ Обычные карты",
+                description: "Снимает ⬛️. Либо продлевает эфир на 30 минут.",
+                effects: "Снимает ⬛️. Либо продлевает эфир на 30 минут.",
+                application: "Каждый день. Продление 1 раз за эфир.",
+                acquisition: "Топ зрители. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐🏧",
+                features: "Конвертация. Превращается в 🟪🟥🟨🟫⬛️☮️🚾📜",
+                removes: "🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "🟧": { 
-                name: "Золотая карта", 
-                cost: 24, 
-                description: "Модерка на сутки или продление на 1 час",
-                category: "middle"
+            "🟧": {
+                name: "Золотая карта",
+                cost: 24,
+                category: "normal",
+                categoryName: "🀄️ Обычные карты",
+                description: "Модерка на сутки. Продление на 1 час.",
+                effects: "Модерка на сутки.",
+                application: "Каждый день. Продление 1 раз за эфир на 1 час.",
+                acquisition: "Топ спонсоры. Топ зрители. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐🏧",
+                features: "Работает с 💎🔲🚨 (Безлимитное количество 🟪🟥🟨🟫)",
+                removes: "🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "💎": { 
-                name: "Изумрудная карта", 
-                cost: 48, 
-                description: "Модерка на сутки + 3 часа продления",
-                category: "high"
+            "💎": {
+                name: "Изумрудная карта",
+                cost: 48,
+                category: "normal",
+                categoryName: "🀄️ Обычные карты",
+                description: "Модерка на сутки. Продление эфира на 3 часа.",
+                effects: "Модерка на сутки.",
+                application: "1 раз в 2 дня. Продление эфира на 3 часа.",
+                acquisition: "Топ спонсоры. Топ зрители. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐🏧",
+                features: "Работает с 🟧🚨. (Безлимитное количество 🟪🚾🟥🟨🟫)",
+                removes: "🅱️♎️⚫️🔲",
+                counters: "🏧🛐"
             },
-            "☮️": { 
-                name: "Пацифик", 
-                cost: 9, 
-                description: "Возвращает доступ к чату, иммунитет",
-                category: "special"
+            "🚨": {
+                name: "Рубиновая карта",
+                cost: 144,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Соведущий на 3 дня. Продление на 10 ч в запасное время.",
+                effects: "Соведущий на 3 дня. Продление на 10 ч в запасное время.",
+                application: "Активация 1 раз в 5 дней.",
+                acquisition: "Топ спонсор. Топ Лиги. Топ зритель. Топ Батлы. Получить. 🧿ТВ колесо. 🛐",
+                features: "Работает с 🟧💎. (Безлимитное количество 🟪🚾🟥🟨🟫⬛️)",
+                removes: "Ⓜ️🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "🃏": { 
-                name: "Джокер", 
-                cost: 7, 
-                description: "Дуэль/батл карта",
-                category: "special"
+            "🔲": {
+                name: "Чёрно-Белая карта",
+                cost: 199,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Соведущий на 1 неделю. Продление на 2 ч. 7 дней подряд.",
+                effects: "Соведущий на 1 неделю. Продление на 2 ч. 7 дней подряд.",
+                application: "Активация 1 раз в 10 дней.",
+                acquisition: "Топ Лиги. Получить. 🧿ТВ колесо. 🛐",
+                features: "Работает с 🟧. (Безлимитное количество 🟪🚾🟥🟨🟫⬛️🅾️)",
+                removes: "🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "📜": { 
-                name: "Пергамент", 
-                cost: 4, 
-                description: "Возвращает доступ к чату",
-                category: "special"
+            "🅱️": {
+                name: "Бита",
+                cost: 634,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Разбивает, снимает, деактивирует любые карты у любого спикера.",
+                effects: "Разбивает, снимает, деактивирует любые карты у любого спикера.",
+                application: "Разрешено 4 удара Битой по картам.",
+                acquisition: "🧿ТВ колесо. Собрать. 🛐. Передача.",
+                features: "1 Удар - 9 часов. 2 Удар - 7 часов. 3 Удар - 5 часов. 4 Удар - 3 часа в запас.",
+                removes: "Ⓜ️♎️⚫️",
+                counters: "🏧🛐."
             },
-            "🚾": { 
-                name: "Антиэкран", 
-                cost: 2, 
-                description: "Запрет проситься на экран",
-                category: "special"
+            "🃏": {
+                name: "Дуэт Джокер",
+                cost: 7,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Батл карта, позволяет нарушать правила по отношению к тем у кого активирована эта карта.",
+                effects: "Батл карта, позволяет нарушать правила.",
+                application: "Действует 20 минут батла и 12 часов обход правил.",
+                acquisition: "Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐",
+                features: "Нельзя снять. Нельзя выключать микрофон.",
+                removes: "🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "🎦": { 
-                name: "Карта контента", 
-                cost: 26, 
-                description: "Просмотр видеоматериала 1.5 часа",
-                category: "special"
+            "☮️": {
+                name: "Пацифик",
+                cost: 9,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Снимает 🟫 иммунитет к 🟫 и 🅾️.",
+                effects: "Снимает 🟫 иммунитет к 🟫 и 🅾️.",
+                application: "На 12 часов",
+                acquisition: "Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐",
+                features: "Возвращает доступ при 🅾️.",
+                removes: "🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "🎹": { 
-                name: "Музыкальная карта", 
-                cost: 13, 
-                description: "Прослушивание вашей музыки 30 мин",
-                category: "special"
+            "📜": {
+                name: "Пергамент",
+                cost: 4,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Снимает 🟫",
+                effects: "Снимает 🟫",
+                application: "1 раз",
+                acquisition: "Топ зрители. Получить. 🧿ТВ колесо. 🛐",
+                features: "-",
+                removes: "🟫 🅾️.🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "🏳️‍🌈": { 
-                name: "Радужная карта", 
-                cost: 122, 
-                description: "Иммунитет ко всем картам на 1 неделю",
-                category: "elite"
+            "🚾": {
+                name: "Антиэкран",
+                cost: 2,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Запрещает проситься на экран во время эфира.",
+                effects: "Запрещает проситься на экран во время эфира.",
+                application: "1 раз",
+                acquisition: "Топ зрители. Получить. 🧿ТВ колесо. 🛐",
+                features: "-",
+                removes: "🃏🅱️♎️⚫️",
+                counters: "🏧🛐 🌈🟧💎🚨🔲🃏"
             },
-            "🔴": { 
-                name: "Рубиновая карта", 
-                cost: 144, 
-                description: "Собирается из трёх изумрудных карт",
-                category: "elite"
+            "🌈": {
+                name: "Радужная карта",
+                cost: 122,
+                category: "super",
+                categoryName: "🪟 Супер карты",
+                description: "Иммунитет ко всем картам нарушения не от ведущего на 1 неделю.",
+                effects: "Иммунитет ко всем картам нарушения не от ведущего на 1 неделю. + 5 часов в запас.",
+                application: "Всегда",
+                acquisition: "Топ Батлы. Получить. 🧿ТВ колесо. 🛐",
+                features: "Иммунитет",
+                removes: "🅱️♎️⚫️",
+                counters: "🏧🛐"
             },
-            "🔲": { 
-                name: "Чёрно-Белая карта", 
-                cost: 199, 
-                description: "Соведущий на 1 неделю. Активация 1 раз в 10 дней",
-                category: "elite"
+            "🎦": {
+                name: "Карта контента",
+                cost: 26,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Просмотр видеоматериала не более 1.30 ч по времени.",
+                effects: "Просмотр видеоматериала не более 1.30 ч по времени.",
+                application: "1 раз за эфир",
+                acquisition: "Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐",
+                features: "Нельзя снять",
+                removes: "🅱️",
+                counters: "🏧🛐"
             },
-            "🅱️": { 
-                name: "Бейсбольная бита", 
-                cost: 634, 
-                description: "Сверхредкая карта. Самый сложный рецепт",
-                category: "elite"
+            "🎹": {
+                name: "Музыкальная карта",
+                cost: 13,
+                category: "activation",
+                categoryName: "🎴 Карты активации",
+                description: "Прослушивание вашей музыки 30 мин.",
+                effects: "Прослушивание вашей музыки 30 мин.",
+                application: "1 раз за эфир",
+                acquisition: "Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐",
+                features: "Нельзя снять",
+                removes: "🅱️",
+                counters: "🏧🛐"
             },
-            "🅾️": { 
-                name: "Обнуление спикера", 
-                cost: 56, 
-                description: "Запрет в гостевой и доступ к чату на 4 недели",
-                category: "special"
+            "🅾️": {
+                name: "Обнуление",
+                cost: 56,
+                category: "violation",
+                categoryName: "🧧 Карты нарушений",
+                description: "Отключение чата, запрет в гостевой на 4 недели.",
+                effects: "Отключение чата, запрет в гостевой на 4 недели.",
+                application: "Безлимитно",
+                acquisition: "Нарушение правил эфира. Собрать. От 🔲. 🧿ТВ колесо.",
+                features: "Можно открыть чат ☮️",
+                removes: "🅱️🌈🛐",
+                counters: "🌈☮️🃏🟧💎🚨🔲"
+            },
+            "🧿": {
+                name: "ТВ колесо",
+                cost: 10,
+                category: "super",
+                categoryName: "🪟 Супер карты",
+                description: "Даёт возможность выиграть любую карту или колесо.",
+                effects: "Даёт возможность выиграть любую карту или колесо.",
+                application: "Не более 3 колёс в день",
+                acquisition: "Топ спонсоры. Топ Лиги. Топ зрители. Топ Батлы. Передача. 🛐🏧🦎♻️⚫️",
+                features: "Риск",
+                removes: "♎️",
+                counters: "🏧🛐. Обычный счёт."
             }
         };
 
         // Рецепты сборки
-        const recipes = [
-            { symbol: "🟪", formula: "2 × ☑️", description: "Стоимость: 2 ☑️", name: "Розовая карта" },
-            { symbol: "🟦", formula: "3 × ☑️", description: "Стоимость: 3 ☑️", name: "Синяя карта" },
-            { symbol: "🟩", formula: "2 × 🟦", description: "Стоимость: 6 ☑️", name: "Зелёная карта" },
-            { symbol: "⬜️", formula: "2 × 🟩", description: "Стоимость: 12 ☑️", name: "Белая карта" },
-            { symbol: "🟧", formula: "2 × ⬜️", description: "Стоимость: 24 ☑️", name: "Золотая карта" },
-            { symbol: "💎", formula: "2 × 🟧", description: "Стоимость: 48 ☑️", name: "Изумрудная карта" },
-            { symbol: "🔴", formula: "3 × 💎", description: "Стоимость: 144 ☑️", name: "Рубиновая карта" },
-            { symbol: "🔲", formula: "3 × 💎 + 🟧 + ⬜️ + 🃏 + 🟩 + 🟦 + 🚾 + ☑️", description: "Стоимость: 199 ☑️", name: "Чёрно-Белая карта" },
-            { symbol: "🅾️", formula: "🟧 + ⬜️ + ☮️ + 🟩 + 🟦 + ☑️", description: "Запрет в гостевой и доступ к чату на 4 недели", name: "Обнуление спикера" },
-            { symbol: "🏳️‍🌈", formula: "💎 + 🟧 + ⬜️ + 🟩 + 🟦 + ☑️ + ☮️", description: "Иммунитет ко всем картам на 1 неделю", name: "Радужная карта" }
-        ];
+        const recipes = {
+            "🟪": { formula: "2 × ☑️", description: "Создание розовой карты" },
+            "🟩": { formula: "2 × 🟦", description: "Создание зелёной карты" },
+            "⬜️": { formula: "2 × 🟩", description: "Создание белой карты" },
+            "🟧": { formula: "2 × ⬜️", description: "Создание золотой карты" },
+            "💎": { formula: "2 × 🟧", description: "Создание изумрудной карты" },
+            "🚨": { formula: "3 × 💎", description: "Создание рубиновой карты" },
+            "🔲": { formula: "💎 + 🟧 + ⬜️ + 🟩 + 🟦 + ☑️ + 🧿", description: "Создание чёрно-белой карты" },
+            "🅾️": { formula: "🟧 + ⬜️ + 🟩 + 🟦 + ☑️ + 🧿", description: "Создание обнуления" },
+            "🅱️": { formula: "🔲 + 🚨 + 💎 + 🟧 + ⬜️ + 🧿 + 🧿 + 🧿", description: "Создание биты" }
+        };
 
         let selectedSingleCard = null;
 
@@ -993,13 +1164,24 @@
             
             Object.keys(cardData).forEach(symbol => {
                 const card = cardData[symbol];
+                const categoryClass = `card-${card.category}`;
+                const categoryLabelClass = `category-${card.category}`;
+                
                 html += `
-                    <div class="card-option" data-symbol="${symbol}" onclick="selectCardForSingle(this)">
-                        <div class="card-option-emoji">${symbol}</div>
-                        <div class="card-option-info">
-                            <div class="card-option-name">${card.name}</div>
-                            <div class="card-option-cost">${card.cost} ☑️</div>
-                            <div class="card-option-desc">${card.description}</div>
+                    <div class="card-option ${categoryClass}" data-symbol="${symbol}" onclick="selectCardForSingle(this)">
+                        <div class="card-header">
+                            <div class="card-emoji">${symbol}</div>
+                            <div class="card-title">
+                                <div class="card-name">${card.name}</div>
+                                <span class="card-category ${categoryLabelClass}">${card.categoryName}</span>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-cost">${card.cost} ☑️</div>
+                            <div class="card-description">${card.description}</div>
+                            <div class="card-details">
+                                📍 Эффекты: ${card.effects.substring(0, 60)}...
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1024,11 +1206,43 @@
             
             // Показываем информацию о выбранной карте
             const display = document.getElementById('selectedCardDisplay');
-            document.getElementById('selectedCardEmoji').textContent = symbol;
-            document.getElementById('selectedCardName').textContent = card.name;
-            document.getElementById('selectedCardCost').textContent = `Стоимость: ${card.cost} ☑️`;
-            document.getElementById('selectedCardDesc').textContent = card.description;
-            display.style.display = 'flex';
+            const categoryLabelClass = `category-${card.category}`;
+            
+            const detailItems = [
+                { label: "💰 Стоимость:", value: `${card.cost} ☑️` },
+                { label: "⚡ Эффекты:", value: card.effects },
+                { label: "🎯 Применение:", value: card.application },
+                { label: "📥 Получение:", value: card.acquisition },
+                { label: "✨ Особенности:", value: card.features },
+                { label: "🔄 Снимается:", value: card.removes },
+                { label: "🛡️ Контр:", value: card.counters }
+            ];
+            
+            let detailsHTML = '';
+            detailItems.forEach(item => {
+                detailsHTML += `
+                    <div class="detail-item">
+                        <span class="detail-label">${item.label}</span>
+                        <span class="detail-value">${item.value}</span>
+                    </div>
+                `;
+            });
+            
+            display.innerHTML = `
+                <div class="selected-card-header">
+                    <div class="selected-card-emoji">${symbol}</div>
+                    <div class="selected-card-info">
+                        <h4>${card.name}</h4>
+                        <span class="selected-card-category ${categoryLabelClass}">${card.categoryName}</span>
+                        <div class="selected-card-cost">${card.cost} ☑️</div>
+                    </div>
+                </div>
+                <div class="selected-card-details">
+                    ${detailsHTML}
+                </div>
+            `;
+            
+            display.style.display = 'block';
             
             // Автоматически фокусируемся на поле количества
             document.getElementById('cardCount').focus();
@@ -1040,99 +1254,41 @@
             }, 200);
         }
 
-        // Функция создания инвентаря с увеличенными заголовками
+        // Функция создания инвентаря
         function createInventoryGrid() {
             const inventoryGrid = document.getElementById('inventoryGrid');
             let html = '';
             
             // Группируем карты по категориям
-            const categories = [
-                { title: "📦 Базовые карты", symbols: ["☑️", "🟪", "🟦", "🟩"] },
-                { title: "⚡ Средние карты", symbols: ["⬜️", "🟧"] },
-                { title: "🏆 Высшие карты", symbols: ["💎"] },
-                { title: "🎭 Специальные карты", symbols: ["☮️", "🃏", "📜", "🚾", "🅾️"] },
-                { title: "🎵 Медиа карты", symbols: ["🎦", "🎹"] },
-                { title: "👑 Элитные карты", symbols: ["🏳️‍🌈", "🔴", "🔲"] },
-                { title: "🌟 Легендарные карты", symbols: ["🅱️"] }
-            ];
+            const categories = {
+                "normal": { title: "🀄️ Обычные карты", cards: ["☑️", "🟦", "🟩", "⬜️", "🟧", "💎"] },
+                "activation": { title: "🎴 Карты активации", cards: ["🚨", "🔲", "🅱️", "🃏", "☮️", "📜", "🚾", "🎦", "🎹"] },
+                "violation": { title: "🧧 Карты нарушений", cards: ["🟪", "🅾️"] },
+                "super": { title: "🪟 Супер карты", cards: ["🌈", "🧿"] }
+            };
             
-            categories.forEach(category => {
+            Object.keys(categories).forEach(categoryId => {
+                const category = categories[categoryId];
                 html += `<div class="inventory-category-title">${category.title}</div>`;
                 
-                category.symbols.forEach(symbol => {
+                category.cards.forEach(symbol => {
                     const card = cardData[symbol];
-                    html += `
-                        <div class="inventory-item">
-                            <span class="inventory-emoji">${symbol}</span>
-                            <div class="inventory-name">${card.name}</div>
-                            <input type="number" id="inv_${symbol}" value="0" min="0" max="999" placeholder="0">
-                        </div>
-                    `;
+                    if (card) {
+                        html += `
+                            <div class="inventory-item">
+                                <span class="inventory-emoji">${symbol}</span>
+                                <div class="inventory-name">${card.name}</div>
+                                <input type="number" id="inv_${symbol}" value="0" min="0" max="999" placeholder="0">
+                            </div>
+                        `;
+                    }
                 });
             });
             
             inventoryGrid.innerHTML = html;
         }
 
-        // Функция получения конверсий (например, 2 белых = 1 золотая)
-        function getConversions(inventory) {
-            const conversions = [];
-            
-            // Проверяем доступные конверсии
-            if (inventory["⬜️"] >= 2) {
-                const possible = Math.floor(inventory["⬜️"] / 2);
-                conversions.push({
-                    from: `${possible * 2} × ⬜️`,
-                    to: `${possible} × 🟧`,
-                    description: "Белые → Золотые",
-                    emoji: "🔄"
-                });
-            }
-            
-            if (inventory["🟧"] >= 2) {
-                const possible = Math.floor(inventory["🟧"] / 2);
-                conversions.push({
-                    from: `${possible * 2} × 🟧`,
-                    to: `${possible} × 💎`,
-                    description: "Золотые → Изумрудные",
-                    emoji: "💎"
-                });
-            }
-            
-            if (inventory["💎"] >= 3) {
-                const possible = Math.floor(inventory["💎"] / 3);
-                conversions.push({
-                    from: `${possible * 3} × 💎`,
-                    to: `${possible} × 🔴`,
-                    description: "Изумрудные → Рубиновые",
-                    emoji: "🔴"
-                });
-            }
-            
-            if (inventory["🟪"] >= 3) {
-                const possible = Math.floor(inventory["🟪"] / 3);
-                conversions.push({
-                    from: `${possible * 3} × 🟪`,
-                    to: `${possible} × 🟦`,
-                    description: "Розовые → Синие",
-                    emoji: "🔄"
-                });
-            }
-            
-            if (inventory["🟦"] >= 2) {
-                const possible = Math.floor(inventory["🟦"] / 2);
-                conversions.push({
-                    from: `${possible * 2} × 🟦`,
-                    to: `${possible} × 🟩`,
-                    description: "Синие → Зелёные",
-                    emoji: "🔄"
-                });
-            }
-            
-            return conversions;
-        }
-
-        // Функция расчета одной карты с улучшенными результатами
+        // Функция расчета одной карты
         function calculateSingle() {
             try {
                 if (!selectedSingleCard) {
@@ -1156,25 +1312,23 @@
                 
                 const totalCost = card.cost * count;
                 
-                // Рассчитываем возможные сборки
-                const possibleCards = [];
-                if (totalCost >= 634) possibleCards.push({ emoji: "🅱️", name: "Бейсбольная бита", count: Math.floor(totalCost / 634) });
-                if (totalCost >= 199) possibleCards.push({ emoji: "🔲", name: "Чёрно-Белая", count: Math.floor(totalCost / 199) });
-                if (totalCost >= 144) possibleCards.push({ emoji: "🔴", name: "Рубиновая", count: Math.floor(totalCost / 144) });
-                if (totalCost >= 48) possibleCards.push({ emoji: "💎", name: "Изумрудная", count: Math.floor(totalCost / 48) });
-                if (totalCost >= 24) possibleCards.push({ emoji: "🟧", name: "Золотая", count: Math.floor(totalCost / 24) });
-                if (totalCost >= 12) possibleCards.push({ emoji: "⬜️", name: "Белая", count: Math.floor(totalCost / 12) });
-                if (totalCost >= 6) possibleCards.push({ emoji: "🟩", name: "Зелёная", count: Math.floor(totalCost / 6) });
-                if (totalCost >= 3) possibleCards.push({ emoji: "🟦", name: "Синяя", count: Math.floor(totalCost / 3) });
-                if (totalCost >= 1) possibleCards.push({ emoji: "☑️", name: "Серая", count: totalCost });
+                // Проверяем рецепт для этой карты
+                const recipe = recipes[symbol];
+                let recipeHTML = '';
+                if (recipe) {
+                    recipeHTML = `
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(155, 89, 182, 0.1); border-radius: 8px; border-left: 4px solid var(--activation);">
+                            <strong style="font-size: 1rem;">🎴 Рецепт сборки:</strong>
+                            <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">
+                                ${symbol} ${card.name} = ${recipe.formula}<br>
+                                ${recipe.description}
+                            </div>
+                        </div>
+                    `;
+                }
                 
-                let possibleHTML = '';
-                possibleCards.forEach(card => {
-                    possibleHTML += `<div class="conversion-item">
-                        <span class="conversion-emoji">${card.emoji}</span>
-                        <span class="conversion-text">${card.count} × ${card.name}</span>
-                    </div>`;
-                });
+                // Рассчитываем возможные сборки
+                const possibleHTML = calculatePossibleCards(totalCost);
                 
                 const resultHTML = `
                     <div class="result-item">
@@ -1185,62 +1339,74 @@
                                 <div class="result-value">${totalCost} ☑️</div>
                             </div>
                         </div>
-                        <div style="margin-top: 10px; color: var(--text-secondary); font-size: 0.95rem;">
-                            <strong>Описание:</strong> ${card.description}
-                        </div>
                         
-                        <div class="result-conversion">
-                            <div class="result-conversion-title">
-                                <span>💡</span> Что можно собрать:
-                            </div>
-                            <div class="result-conversion-list">
+                        ${recipeHTML}
+                        
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; border-left: 4px solid var(--super);">
+                            <strong style="font-size: 1rem;">💡 Что можно собрать:</strong>
+                            <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">
                                 ${possibleHTML}
                             </div>
                         </div>
-                        
-                        ${totalCost >= 100 ? `
-                        <div style="margin-top: 15px; padding: 15px; background: rgba(218, 165, 32, 0.1); border-radius: 8px; border-left: 4px solid var(--accent);">
-                            <strong style="font-size: 1rem;">🎯 Рекомендации:</strong>
-                            <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">
-                                ${totalCost >= 634 ? '• Можно собрать легендарную карту! 🅱️<br>' : ''}
-                                ${totalCost >= 199 ? '• Рекомендуем собрать Чёрно-Белую карту (🔲)<br>' : ''}
-                                ${totalCost >= 144 && totalCost < 199 ? '• Рекомендуем собрать Рубиновую карту (🔴)<br>' : ''}
-                                ${totalCost >= 48 && totalCost < 144 ? '• Рекомендуем собрать Изумрудную карту (💎)<br>' : ''}
-                                • Эффективнее собирать более дорогие карты
-                            </div>
-                        </div>
-                        ` : ''}
                     </div>
                 `;
                 
                 document.getElementById('results').innerHTML = resultHTML;
                 showNotification('Расчёт выполнен', 'success');
                 
-                // Анимация кнопки
-                const btn = document.getElementById('calculateSingleBtn');
-                btn.classList.add('active');
-                setTimeout(() => {
-                    btn.classList.remove('active');
-                }, 200);
-                
             } catch (error) {
                 showNotification('Ошибка расчета', 'error');
             }
         }
 
-        // Функция расчета инвентаря с улучшенными результатами
+        // Функция расчета возможных карт
+        function calculatePossibleCards(totalCost) {
+            const possibleCards = [];
+            
+            // Карты отсортированы по стоимости
+            const cardsByCost = Object.keys(cardData)
+                .map(symbol => ({ symbol, cost: cardData[symbol].cost, name: cardData[symbol].name }))
+                .sort((a, b) => b.cost - a.cost);
+            
+            let remainingCost = totalCost;
+            let result = '';
+            
+            cardsByCost.forEach(card => {
+                if (card.cost > 0 && remainingCost >= card.cost) {
+                    const count = Math.floor(remainingCost / card.cost);
+                    if (count > 0) {
+                        possibleCards.push({ symbol: card.symbol, count: count, name: card.name });
+                        remainingCost -= count * card.cost;
+                    }
+                }
+            });
+            
+            if (possibleCards.length > 0) {
+                result = possibleCards.map(card => 
+                    `• ${card.count} × ${card.symbol} ${card.name}<br>`
+                ).join('');
+                
+                if (remainingCost > 0) {
+                    result += `• ${remainingCost} × ☑️ Серая карта<br>`;
+                }
+            } else {
+                result = `• ${totalCost} × ☑️ Серая карта<br>`;
+            }
+            
+            return result;
+        }
+
+        // Функция расчета инвентаря
         function calculateInventory() {
             try {
                 let totalValue = 0;
                 let details = [];
                 let itemCount = 0;
-                const inventory = {};
                 
                 Object.keys(cardData).forEach(symbol => {
                     const input = document.getElementById('inv_' + symbol);
                     if (input) {
                         const count = parseInt(input.value) || 0;
-                        inventory[symbol] = count;
                         if (count > 0) {
                             itemCount++;
                             const value = count * cardData[symbol].cost;
@@ -1249,7 +1415,8 @@
                                 symbol: symbol,
                                 name: cardData[symbol].name,
                                 count: count,
-                                value: value
+                                value: value,
+                                category: cardData[symbol].category
                             });
                         }
                     }
@@ -1263,45 +1430,66 @@
                 // Сортируем по стоимости
                 details.sort((a, b) => b.value - a.value);
                 
-                let detailsHTML = '';
+                // Группируем по категориям
+                const groupedDetails = {};
                 details.forEach(item => {
-                    detailsHTML += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                        <span>${item.count}× ${item.symbol} ${item.name}</span>
-                        <span style="font-weight: 600; color: var(--accent);">${item.value} ☑️</span>
-                    </div>`;
+                    if (!groupedDetails[item.category]) {
+                        groupedDetails[item.category] = [];
+                    }
+                    groupedDetails[item.category].push(item);
                 });
                 
-                // Получаем возможные конверсии
-                const conversions = getConversions(inventory);
-                let conversionsHTML = '';
-                if (conversions.length > 0) {
-                    conversions.forEach(conv => {
-                        conversionsHTML += `<div class="conversion-item">
-                            <span class="conversion-emoji">${conv.emoji}</span>
-                            <span class="conversion-text">${conv.from} → ${conv.to} (${conv.description})</span>
+                let detailsHTML = '';
+                Object.keys(groupedDetails).forEach(category => {
+                    const categoryName = cardData[groupedDetails[category][0].symbol].categoryName;
+                    detailsHTML += `<div style="margin-top: 15px; margin-bottom: 8px; color: var(--accent); font-weight: 600;">${categoryName}</div>`;
+                    
+                    groupedDetails[category].forEach(item => {
+                        detailsHTML += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span>${item.count}× ${item.symbol} ${item.name}</span>
+                            <span style="font-weight: 600; color: var(--accent);">${item.value} ☑️</span>
                         </div>`;
                     });
-                }
+                });
                 
                 // Рассчитываем возможные сборки
-                const possibleCards = [];
-                if (totalValue >= 634) possibleCards.push({ emoji: "🅱️", name: "Бейсбольная бита", count: Math.floor(totalValue / 634) });
-                if (totalValue >= 199) possibleCards.push({ emoji: "🔲", name: "Чёрно-Белая", count: Math.floor(totalValue / 199) });
-                if (totalValue >= 144) possibleCards.push({ emoji: "🔴", name: "Рубиновая", count: Math.floor(totalValue / 144) });
-                if (totalValue >= 48) possibleCards.push({ emoji: "💎", name: "Изумрудная", count: Math.floor(totalValue / 48) });
-                if (totalValue >= 24) possibleCards.push({ emoji: "🟧", name: "Золотая", count: Math.floor(totalValue / 24) });
-                if (totalValue >= 12) possibleCards.push({ emoji: "⬜️", name: "Белая", count: Math.floor(totalValue / 12) });
-                if (totalValue >= 6) possibleCards.push({ emoji: "🟩", name: "Зелёная", count: Math.floor(totalValue / 6) });
-                if (totalValue >= 3) possibleCards.push({ emoji: "🟦", name: "Синяя", count: Math.floor(totalValue / 3) });
-                if (totalValue >= 1) possibleCards.push({ emoji: "☑️", name: "Серая", count: totalValue });
+                const possibleHTML = calculatePossibleCards(totalValue);
                 
-                let possibleHTML = '';
-                possibleCards.forEach(card => {
-                    possibleHTML += `<div class="conversion-item">
-                        <span class="conversion-emoji">${card.emoji}</span>
-                        <span class="conversion-text">${card.count} × ${card.name}</span>
-                    </div>`;
+                // Проверяем доступные рецепты
+                let recipesHTML = '';
+                const availableRecipes = [];
+                
+                Object.keys(recipes).forEach(symbol => {
+                    const recipe = recipes[symbol];
+                    // Простая проверка - достаточно ли общей стоимости
+                    const card = cardData[symbol];
+                    if (card && totalValue >= card.cost) {
+                        const possibleCount = Math.floor(totalValue / card.cost);
+                        availableRecipes.push({
+                            symbol: symbol,
+                            name: card.name,
+                            formula: recipe.formula,
+                            description: recipe.description,
+                            possible: possibleCount
+                        });
+                    }
                 });
+                
+                if (availableRecipes.length > 0) {
+                    recipesHTML = `<div style="margin-top: 20px; padding: 15px; background: rgba(155, 89, 182, 0.1); border-radius: 8px; border-left: 4px solid var(--activation);">
+                        <strong style="font-size: 1rem;">🎴 Доступные рецепты:</strong>
+                        <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">`;
+                    
+                    availableRecipes.forEach(recipe => {
+                        recipesHTML += `<div style="margin-bottom: 8px;">
+                            <strong>${recipe.symbol} ${recipe.name}</strong> (до ${recipe.possible} шт.)<br>
+                            ${recipe.formula}<br>
+                            <small style="opacity: 0.8;">${recipe.description}</small>
+                        </div>`;
+                    });
+                    
+                    recipesHTML += `</div></div>`;
+                }
                 
                 const resultHTML = `
                     <div class="result-item">
@@ -1312,43 +1500,20 @@
                                 <div class="result-value">${totalValue} ☑️</div>
                             </div>
                         </div>
+                        
                         <div style="margin-top: 15px;">
                             <div style="font-weight: 600; margin-bottom: 10px; color: var(--text);">Содержимое:</div>
                             ${detailsHTML}
                         </div>
                         
-                        ${conversions.length > 0 ? `
-                        <div class="result-conversion">
-                            <div class="result-conversion-title">
-                                <span>🔄</span> Доступные конверсии:
-                            </div>
-                            <div class="result-conversion-list">
-                                ${conversionsHTML}
-                            </div>
-                        </div>
-                        ` : ''}
+                        ${recipesHTML}
                         
-                        <div class="result-conversion">
-                            <div class="result-conversion-title">
-                                <span>💡</span> Что можно собрать:
-                            </div>
-                            <div class="result-conversion-list">
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; border-left: 4px solid var(--super);">
+                            <strong style="font-size: 1rem;">💡 Что можно собрать:</strong>
+                            <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">
                                 ${possibleHTML}
                             </div>
                         </div>
-                        
-                        ${totalValue >= 100 ? `
-                        <div style="margin-top: 15px; padding: 15px; background: rgba(218, 165, 32, 0.1); border-radius: 8px; border-left: 4px solid var(--accent);">
-                            <strong style="font-size: 1rem;">🎯 Рекомендации:</strong>
-                            <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">
-                                ${totalValue >= 634 ? '• Можно собрать легендарную карту! 🅱️<br>' : ''}
-                                ${totalValue >= 199 ? '• Рекомендуем собрать Чёрно-Белую карту (🔲)<br>' : ''}
-                                ${totalValue >= 144 && totalValue < 199 ? '• Рекомендуем собрать Рубиновую карту (🔴)<br>' : ''}
-                                ${totalValue >= 48 && totalValue < 144 ? '• Рекомендуем собрать Изумрудную карту (💎)<br>' : ''}
-                                • Эффективнее собирать более дорогие карты
-                            </div>
-                        </div>
-                        ` : ''}
                     </div>
                 `;
                 
@@ -1358,34 +1523,9 @@
                 // Сохраняем инвентарь
                 saveInventory();
                 
-                // Анимация кнопки
-                const btn = document.getElementById('calculateInventoryBtn');
-                btn.classList.add('active');
-                setTimeout(() => {
-                    btn.classList.remove('active');
-                }, 200);
-                
             } catch (error) {
                 showNotification('Ошибка расчета инвентаря', 'error');
             }
-        }
-
-        // Функция создания списка рецептов
-        function createRecipesList() {
-            const recipesList = document.getElementById('recipesList');
-            let html = '';
-            
-            recipes.forEach(recipe => {
-                const card = cardData[recipe.symbol];
-                html += `
-                    <div class="recipe-item" data-symbol="${recipe.symbol}" onclick="selectRecipe(this)">
-                        <div class="recipe-formula">${recipe.symbol} ${recipe.name}</div>
-                        <div class="recipe-desc">${recipe.formula}<br>${recipe.description}</div>
-                    </div>
-                `;
-            });
-            
-            recipesList.innerHTML = html;
         }
 
         // Функция сохранения инвентаря
@@ -1457,7 +1597,7 @@
                     <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
                         <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📊</div>
                         <p style="font-size: 1.1rem; margin-bottom: 10px;">Выберите карту и нажмите "Рассчитать"</p>
-                        <p style="font-size: 0.95rem; opacity: 0.7;">Или перейдите в раздел "Инвентарь" или "Рецепты"</p>
+                        <p style="font-size: 0.95rem; opacity: 0.7;">Или перейдите в раздел "Инвентарь"</p>
                     </div>
                 `;
                 
@@ -1486,10 +1626,11 @@
                 const searchMatch = searchText === '' || 
                     card.name.toLowerCase().includes(searchText) ||
                     card.description.toLowerCase().includes(searchText) ||
+                    card.effects.toLowerCase().includes(searchText) ||
                     symbol.includes(searchText);
                 
                 // Показываем/скрываем карту
-                option.style.display = (categoryMatch && searchMatch) ? 'flex' : 'none';
+                option.style.display = (categoryMatch && searchMatch) ? 'block' : 'none';
             });
         }
 
@@ -1559,35 +1700,10 @@
             }
         }
 
-        // Функция выбора рецепта
-        function selectRecipe(element) {
-            const symbol = element.getAttribute('data-symbol');
-            setMode('single');
-            
-            // Находим и выбираем карту в селекторе
-            const cardOption = document.querySelector(`.card-option[data-symbol="${symbol}"]`);
-            if (cardOption) {
-                selectCardForSingle(cardOption);
-                
-                // Прокручиваем к выбранной карте
-                cardOption.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            
-            document.getElementById('cardCount').value = 1;
-            
-            // Анимация элемента
-            element.classList.add('active');
-            setTimeout(() => {
-                element.classList.remove('active');
-                calculateSingle();
-            }, 300);
-        }
-
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
-            // Создаем инвентарь, рецепты и селектор карт
+            // Создаем инвентарь и селектор карт
             createInventoryGrid();
-            createRecipesList();
             createCardSelectorGrid();
             
             // Загружаем сохраненный инвентарь
@@ -1601,7 +1717,6 @@
             // Назначаем обработчики для кнопок режимов
             document.getElementById('modeSingleBtn').addEventListener('click', function() { setMode('single'); });
             document.getElementById('modeInventoryBtn').addEventListener('click', function() { setMode('inventory'); });
-            document.getElementById('modeRecipesBtn').addEventListener('click', function() { setMode('recipes'); });
             
             // Назначаем обработчики для инвентаря
             document.getElementById('inventoryGrid').addEventListener('input', function(e) {
@@ -1625,14 +1740,6 @@
                     // Фильтруем карты
                     filterCards();
                 });
-            });
-            
-            // Назначаем обработчики для рецептов (делегирование)
-            document.getElementById('recipesList').addEventListener('click', function(e) {
-                const recipeItem = e.target.closest('.recipe-item');
-                if (recipeItem) {
-                    selectRecipe(recipeItem);
-                }
             });
             
             // Устанавливаем начальный режим
