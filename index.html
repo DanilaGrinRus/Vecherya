@@ -2,10 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🃏 Калькулятор карточек эфира</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
         
         :root {
             --bg-dark: #0a0a1f;
@@ -31,6 +36,13 @@
             --violation: #e74c3c;
             --super: #3498db;
             --danger: #f39c12;
+            --yellow-card: #FFD700;
+            --red-card: #FF0000;
+        }
+        
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
         }
         
         body {
@@ -38,77 +50,101 @@
             background: var(--bg-dark);
             color: var(--text);
             min-height: 100vh;
-            padding: 20px;
-            line-height: 1.6;
-            -webkit-tap-highlight-color: transparent;
+            padding: 12px;
+            line-height: 1.5;
+            overflow-x: hidden;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
+            padding: 0;
         }
         
-        /* Заголовок */
         .main-header {
             text-align: center;
-            padding: 20px;
-            margin-bottom: 30px;
+            padding: 16px;
+            margin-bottom: 20px;
             background: var(--card-bg);
             border: 2px solid var(--accent);
-            border-radius: 15px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-        
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: var(--accent);
-        }
-        
-        .subtitle {
-            font-size: 1rem;
-            color: var(--text-secondary);
-        }
-        
-        /* Калькулятор */
-        .calculator-section {
-            background: var(--card-bg);
-            border: 2px solid var(--card-border);
-            border-radius: 15px;
-            padding: 25px;
             width: 100%;
         }
         
-        .section-title {
-            font-size: 1.5rem;
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
             color: var(--accent);
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            line-height: 1.3;
         }
         
-        /* Селектор режимов */
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .reset-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px 16px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .reset-btn:active {
+            transform: scale(0.97);
+        }
+        
+        .calculator-section {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
         .mode-selector {
             display: flex;
             gap: 10px;
-            margin-bottom: 25px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            flex-wrap: wrap;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--dropdown-bg);
+            border: 2px solid var(--dropdown-border);
         }
         
         .mode-btn {
             flex: 1;
-            min-width: 120px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
             color: var(--text-secondary);
-            border-radius: 8px;
+            border-radius: 0;
             cursor: pointer;
             text-align: center;
             font-size: 1rem;
@@ -116,11 +152,7 @@
             -webkit-appearance: none;
             touch-action: manipulation;
             transition: all 0.2s ease;
-        }
-        
-        .mode-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
+            min-height: 54px;
         }
         
         .mode-btn:active {
@@ -130,11 +162,9 @@
         .mode-btn.active {
             background: var(--primary);
             color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+            font-weight: 600;
         }
         
-        /* Содержимое режимов */
         .mode-content {
             display: none;
         }
@@ -143,17 +173,16 @@
             display: block;
         }
         
-        /* Селектор карт с категориями */
         .card-selector-container {
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .search-box {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         
         .search-input {
@@ -178,34 +207,73 @@
             box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.2);
         }
         
-        .search-input::placeholder {
-            color: var(--text-secondary);
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        
+        .legend-normal { background: var(--normal); }
+        .legend-activation { background: var(--activation); }
+        .legend-violation { background: var(--violation); }
+        .legend-super { background: var(--super); }
+        .legend-danger { background: var(--danger); }
+        .legend-yellow { background: var(--yellow-card); }
+        .legend-red { background: var(--red-card); }
         
         .category-tabs {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            white-space: nowrap;
+        }
+        
+        .category-tabs::-webkit-scrollbar {
+            display: none;
         }
         
         .category-tab {
-            padding: 10px 20px;
+            padding: 10px 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
+            border-radius: 20px;
             color: var(--text-secondary);
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             transition: all 0.2s ease;
+            flex-shrink: 0;
         }
         
-        .category-tab:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+        .category-tab:active {
+            transform: scale(0.97);
         }
         
         .category-tab.active {
@@ -215,264 +283,121 @@
             box-shadow: 0 4px 8px rgba(139, 0, 0, 0.3);
         }
         
-        /* Карточки с категориями */
         .cards-selector-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-            max-height: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
             overflow-y: auto;
-            padding: 15px;
+            padding: 12px;
             background: rgba(255, 255, 255, 0.02);
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            -webkit-overflow-scrolling: touch;
         }
         
         .card-option {
-            padding: 15px;
+            padding: 14px;
             background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
             border: 2px solid var(--card-border);
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-left: 5px solid;
+            border-left: 4px solid;
         }
         
-        .card-option:hover {
-            background: linear-gradient(145deg, #3a3a4e, #2a2a3e);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        .card-option:active {
+            transform: scale(0.98);
         }
         
         .card-option.selected {
             border-color: var(--success);
-            box-shadow: 0 0 20px rgba(50, 205, 50, 0.2);
+            box-shadow: 0 0 15px rgba(50, 205, 50, 0.2);
         }
         
-        /* Цвета категорий */
-        .card-normal {
-            border-left-color: var(--normal);
-        }
-        
-        .card-activation {
-            border-left-color: var(--activation);
-        }
-        
-        .card-violation {
-            border-left-color: var(--violation);
-        }
-        
-        .card-super {
-            border-left-color: var(--super);
-        }
-        
-        .card-danger {
-            border-left-color: var(--danger);
-        }
+        .card-normal { border-left-color: var(--normal); }
+        .card-activation { border-left-color: var(--activation); }
+        .card-violation { border-left-color: var(--violation); }
+        .card-super { border-left-color: var(--super); }
+        .card-danger { border-left-color: var(--danger); }
+        .card-yellow { border-left-color: var(--yellow-card); }
+        .card-red { border-left-color: var(--red-card); }
         
         .card-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         
         .card-emoji {
-            font-size: 2.2rem;
-            width: 50px;
-            height: 50px;
+            font-size: 1.8rem;
+            width: 45px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
+            border-radius: 8px;
+            flex-shrink: 0;
         }
         
         .card-title {
             flex: 1;
+            min-width: 0;
         }
         
         .card-name {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--text);
-            margin-bottom: 3px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .card-category {
-            font-size: 0.8rem;
-            padding: 2px 8px;
-            border-radius: 10px;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 8px;
             display: inline-block;
             font-weight: 500;
         }
         
-        .category-normal {
-            background: rgba(80, 200, 120, 0.2);
-            color: var(--normal);
-        }
-        
-        .category-activation {
-            background: rgba(155, 89, 182, 0.2);
-            color: var(--activation);
-        }
-        
-        .category-violation {
-            background: rgba(231, 76, 60, 0.2);
-            color: var(--violation);
-        }
-        
-        .category-super {
-            background: rgba(52, 152, 219, 0.2);
-            color: var(--super);
-        }
-        
-        .category-danger {
-            background: rgba(243, 156, 18, 0.2);
-            color: var(--danger);
-        }
+        .category-normal { background: rgba(80, 200, 120, 0.2); color: var(--normal); }
+        .category-activation { background: rgba(155, 89, 182, 0.2); color: var(--activation); }
+        .category-violation { background: rgba(231, 76, 60, 0.2); color: var(--violation); }
+        .category-super { background: rgba(52, 152, 219, 0.2); color: var(--super); }
+        .category-danger { background: rgba(243, 156, 18, 0.2); color: var(--danger); }
+        .category-yellow { background: rgba(255, 215, 0, 0.2); color: var(--yellow-card); }
+        .category-red { background: rgba(255, 0, 0, 0.2); color: var(--red-card); }
         
         .card-info {
-            margin-top: 12px;
+            margin-top: 10px;
         }
         
         .card-cost {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--accent);
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .card-description {
             font-size: 0.85rem;
             color: var(--text-secondary);
             line-height: 1.4;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         
-        .card-details {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            line-height: 1.3;
-            opacity: 0.8;
-        }
-        
-        /* Показ выбранной карты */
-        .selected-card-display {
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(50, 205, 50, 0.1), rgba(50, 205, 50, 0.05));
-            border-radius: 12px;
-            border: 2px solid var(--success);
-            margin-top: 20px;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .selected-card-header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .selected-card-emoji {
-            font-size: 3.5rem;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-        }
-        
-        .selected-card-info {
-            flex: 1;
-        }
-        
-        .selected-card-info h4 {
-            font-size: 1.4rem;
-            margin-bottom: 5px;
-            color: var(--text);
-        }
-        
-        .selected-card-category {
-            font-size: 0.9rem;
-            padding: 4px 12px;
-            border-radius: 12px;
-            display: inline-block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        .selected-card-cost {
-            font-size: 1.1rem;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        
-        .selected-card-details {
-            display: grid;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        
-        .detail-item {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .detail-label {
-            min-width: 120px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        
-        .detail-value {
-            flex: 1;
-            color: var(--text);
-            line-height: 1.4;
-        }
-        
-        /* Основная кнопка расчёта */
-        .calculate-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-light));
-            color: #000;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 25px;
-            -webkit-appearance: none;
-            touch-action: manipulation;
-            transition: all 0.3s ease;
-        }
-        
-        .calculate-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(218, 165, 32, 0.3);
-        }
-        
-        .calculate-btn:active {
-            transform: scale(0.98);
-        }
-        
-        /* Поля ввода */
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         
         .input-group label {
@@ -483,47 +408,63 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .input-group input[type="number"] {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             background: var(--dropdown-bg);
             border: 2px solid var(--dropdown-border);
             border-radius: 10px;
             color: var(--text);
-            font-size: 1.1rem;
+            font-size: 1rem;
             -webkit-appearance: none;
             transition: all 0.3s ease;
         }
         
-        .input-group input[type="number"]:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.2);
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+            transition: all 0.3s ease;
         }
         
-        /* Инвентарь */
+        .calculate-btn:active {
+            transform: scale(0.97);
+        }
+        
         .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
         }
         
         .inventory-category-title {
-            grid-column: 1 / -1;
-            margin-top: 25px;
-            margin-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 8px;
             color: var(--accent);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             border-bottom: 2px solid rgba(218, 165, 32, 0.3);
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .inventory-category-title:first-child {
@@ -533,119 +474,203 @@
         .inventory-item {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 15px;
+            gap: 12px;
+            padding: 14px;
             background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
             border: 2px solid var(--card-border);
             border-radius: 10px;
             transition: all 0.2s ease;
         }
         
-        .inventory-item:hover {
-            border-color: var(--accent);
-        }
-        
         .inventory-emoji {
-            font-size: 2rem;
-            width: 50px;
-            height: 50px;
+            font-size: 1.8rem;
+            width: 45px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
+            border-radius: 8px;
+            flex-shrink: 0;
         }
         
         .inventory-name {
             flex: 1;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--text);
             font-weight: 500;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .inventory-item input {
-            width: 100px;
-            padding: 12px;
+            width: 80px;
+            padding: 10px;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             color: var(--text);
             text-align: center;
-            font-size: 1rem;
+            font-size: 0.95rem;
             -webkit-appearance: none;
+            flex-shrink: 0;
         }
         
-        /* Результаты */
         .results-section {
-            margin-top: 30px;
-            padding-top: 25px;
+            margin-top: 24px;
+            padding-top: 20px;
             border-top: 2px solid rgba(255, 255, 255, 0.1);
         }
         
         .results-title {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: var(--accent);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .results-container {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            min-height: 200px;
+            border-radius: 10px;
+            padding: 16px;
+            min-height: 150px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .result-item {
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 16px;
+            margin-bottom: 12px;
             background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
-            border-radius: 10px;
-            border-left: 5px solid var(--success);
-            animation: fadeIn 0.5s ease;
+            border-radius: 8px;
+            border-left: 4px solid var(--success);
         }
         
         .result-header {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
         
         .result-emoji {
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
         
         .result-text {
             color: var(--text);
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .result-value {
             color: var(--accent);
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
         }
         
-        /* Подвал */
+        .selected-card-display {
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(50, 205, 50, 0.1), rgba(50, 205, 50, 0.05));
+            border-radius: 10px;
+            border: 2px solid var(--success);
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+        
+        .selected-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .selected-card-emoji {
+            font-size: 2.5rem;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        
+        .selected-card-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .selected-card-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .selected-card-category {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .selected-card-cost {
+            font-size: 1rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .selected-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .detail-value {
+            color: var(--text);
+            line-height: 1.4;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+        
         .footer {
-            margin-top: 40px;
-            padding-top: 20px;
+            margin-top: 30px;
+            padding-top: 16px;
             border-top: 2px solid rgba(218, 165, 32, 0.3);
             text-align: center;
             color: var(--text-secondary);
+            font-size: 0.85rem;
         }
         
-        /* Уведомление */
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            padding: 14px 20px;
             background: var(--primary);
             color: white;
             border-radius: 10px;
@@ -655,120 +680,109 @@
             gap: 10px;
             animation: slideIn 0.3s ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-size: 0.95rem;
         }
         
         @keyframes slideIn {
             from {
-                transform: translateX(100%);
+                transform: translateY(-100%);
                 opacity: 0;
             }
             to {
-                transform: translateX(0);
+                transform: translateY(0);
                 opacity: 1;
             }
         }
         
-        /* Кастомный скроллбар */
         .cards-selector-grid::-webkit-scrollbar {
-            width: 8px;
+            width: 4px;
         }
         
         .cards-selector-grid::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
+            border-radius: 2px;
         }
         
         .cards-selector-grid::-webkit-scrollbar-thumb {
             background: var(--accent);
-            border-radius: 4px;
+            border-radius: 2px;
         }
         
-        /* Легенда категорий */
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        @media (max-width: 320px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .mode-btn {
+                min-height: 50px;
+                font-size: 0.95rem;
+            }
+            
+            .card-emoji {
+                font-size: 1.6rem;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .inventory-emoji {
+                font-size: 1.6rem;
+                width: 40px;
+                height: 40px;
+            }
         }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            border-radius: 3px;
-        }
-        
-        .legend-normal { background: var(--normal); }
-        .legend-activation { background: var(--activation); }
-        .legend-violation { background: var(--violation); }
-        .legend-super { background: var(--super); }
-        .legend-danger { background: var(--danger); }
         
         @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .container {
+                max-width: 1400px;
+            }
+            
             .main-header {
                 padding: 25px;
             }
             
             h1 {
-                font-size: 2.2rem;
+                font-size: 2rem;
             }
             
-            .section-title {
-                font-size: 1.6rem;
+            .subtitle {
+                font-size: 1rem;
             }
             
-            .cards-selector-grid {
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .mode-btn, .calculate-btn, .category-tab {
-                min-height: 50px;
+            .legend {
+                flex-direction: row;
+                flex-wrap: wrap;
             }
             
             .cards-selector-grid {
-                grid-template-columns: 1fr;
-                max-height: 400px;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                display: grid;
+                max-height: 500px;
             }
             
-            .category-tabs {
-                overflow-x: auto;
-                flex-wrap: nowrap;
-                padding-bottom: 15px;
-            }
-            
-            .category-tab {
-                white-space: nowrap;
-            }
-            
-            .selected-card-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-            
-            .selected-card-emoji {
-                font-size: 3rem;
-                width: 60px;
-                height: 60px;
+            .inventory-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                display: grid;
             }
             
             .inventory-category-title {
-                font-size: 1.1rem;
+                grid-column: 1 / -1;
             }
+            
+            .detail-item {
+                flex-direction: row;
+            }
+            
+            .detail-label {
+                min-width: 120px;
+            }
+        }
+        
+        input, select, textarea {
+            font-size: 16px !important;
         }
     </style>
 </head>
@@ -777,7 +791,7 @@
         <header class="main-header">
             <h1>🃏 Калькулятор карточек эфира</h1>
             <p class="subtitle">Расчёт стоимости карт и их комбинации</p>
-            <button class="reset-btn" id="resetAllBtn" style="margin-top: 15px; padding: 10px 20px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 100, 0, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+            <button class="reset-btn" id="resetAllBtn">
                 <span>🔄</span> Сбросить всё
             </button>
         </header>
@@ -786,7 +800,7 @@
             <h2 class="section-title">🧮 Калькулятор карточек</h2>
             
             <div class="mode-selector">
-                <button class="mode-btn active" id="modeSingleBtn">Одна карта</button>
+                <button class="mode-btn active" id="modeSingleBtn">Сборка</button>
                 <button class="mode-btn" id="modeInventoryBtn">Инвентарь</button>
             </div>
             
@@ -795,57 +809,56 @@
                     <label><span>🎯</span> Выберите карту:</label>
                     
                     <div class="card-selector-container">
-                        <!-- Поиск -->
                         <div class="search-box">
                             <input type="text" 
                                    class="search-input" 
-                                   placeholder="Найти карту по названию или описанию..." 
+                                   placeholder="Найти карту..." 
                                    id="cardSearch">
                         </div>
                         
-                        <!-- Легенда категорий -->
                         <div class="legend">
                             <div class="legend-item">
                                 <div class="legend-color legend-normal"></div>
-                                <span>🀄️ Обычные карты</span>
+                                <span>🀄️ Обычные</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color legend-activation"></div>
-                                <span>🎴 Карты активации</span>
+                                <span>🎴 Активации</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color legend-violation"></div>
-                                <span>🧧 Карты нарушений</span>
+                                <span>🧧 Нарушения</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-yellow"></div>
+                                <span>🟨 Жёлтая</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-red"></div>
+                                <span>🟥 Красная</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color legend-super"></div>
-                                <span>🪟 Супер карты</span>
+                                <span>🪟 Супер</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color legend-danger"></div>
-                                <span>📱 Опасные карты</span>
+                                <span>📱 Опасные</span>
                             </div>
                         </div>
                         
-                        <!-- Быстрые фильтры -->
                         <div class="category-tabs" id="categoryTabs">
-                            <button class="category-tab active" data-category="all">Все карты</button>
-                            <button class="category-tab" data-category="normal">🀄️ Обычные</button>
-                            <button class="category-tab" data-category="activation">🎴 Активации</button>
-                            <button class="category-tab" data-category="violation">🧧 Нарушения</button>
-                            <button class="category-tab" data-category="super">🪟 Супер</button>
-                            <button class="category-tab" data-category="danger">📱 Опасные</button>
+                            <button class="category-tab active" data-category="all">Все</button>
+                            <button class="category-tab" data-category="normal">🀄️</button>
+                            <button class="category-tab" data-category="activation">🎴</button>
+                            <button class="category-tab" data-category="violation">🧧</button>
+                            <button class="category-tab" data-category="super">🪟</button>
+                            <button class="category-tab" data-category="danger">📱</button>
                         </div>
                         
-                        <!-- Сетка карт -->
-                        <div class="cards-selector-grid" id="cardsSelectorGrid">
-                            <!-- Заполняется через JavaScript -->
-                        </div>
+                        <div class="cards-selector-grid" id="cardsSelectorGrid"></div>
                         
-                        <!-- Показ выбранной карты -->
-                        <div class="selected-card-display" id="selectedCardDisplay" style="display: none;">
-                            <!-- Заполняется через JavaScript -->
-                        </div>
+                        <div class="selected-card-display" id="selectedCardDisplay" style="display: none;"></div>
                     </div>
                 </div>
                 
@@ -860,13 +873,11 @@
             </div>
             
             <div class="mode-content" id="contentInventory">
-                <div class="hint" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.95rem;">
+                <div class="hint" style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.9rem;">
                     Укажите количество карт в вашем инвентаре:
                 </div>
                 
-                <div class="inventory-grid" id="inventoryGrid">
-                    <!-- Заполняется через JavaScript -->
-                </div>
+                <div class="inventory-grid" id="inventoryGrid"></div>
                 <button class="calculate-btn" id="calculateInventoryBtn">
                     <span>🔍</span> Проанализировать инвентарь
                 </button>
@@ -875,10 +886,10 @@
             <div class="results-section">
                 <h3 class="results-title"><span>📊</span> Результаты:</h3>
                 <div class="results-container" id="results">
-                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                        <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📊</div>
-                        <p style="font-size: 1.1rem; margin-bottom: 10px;">Выберите карту и нажмите "Рассчитать"</p>
-                        <p style="font-size: 0.95rem; opacity: 0.7;">Или перейдите в раздел "Инвентарь"</p>
+                    <div style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📊</div>
+                        <p style="font-size: 1rem; margin-bottom: 8px;">Выберите карту и нажмите "Рассчитать"</p>
+                        <p style="font-size: 0.85rem; opacity: 0.7;">Или перейдите в раздел "Инвентарь"</p>
                     </div>
                 </div>
             </div>
@@ -886,12 +897,11 @@
         
         <footer class="footer">
             <p>Для оффлайн использования сохраните страницу</p>
-            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">Калькулятор для стрима • Обновлено 2024</p>
+            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8;">Калькулятор для стрима • Обновлено 2024</p>
         </footer>
     </div>
 
     <script>
-        // Данные карт с новыми категориями
         const cardData = {
             "☑️": {
                 name: "Серая карта",
@@ -919,13 +929,39 @@
                 removes: "☑️🛐",
                 counters: "🌈🟧💎🚨🔲🃏"
             },
+            "🟨": {
+                name: "Жёлтая карта",
+                cost: 0,
+                category: "violation",
+                categoryName: "🧧 Карты нарушений",
+                description: "Второе нарушение. Вас спускают вниз, вы можете зайти повторно.",
+                effects: "Второе нарушение. Вас спускают вниз, вы можете зайти повторно.",
+                application: "После 🟪",
+                acquisition: "Повторное нарушение",
+                features: "Снимается 🟦",
+                removes: "-",
+                counters: "🟦"
+            },
+            "🟥": {
+                name: "Красная карта",
+                cost: 0,
+                category: "violation",
+                categoryName: "🧧 Карты нарушений",
+                description: "Третье нарушение. Вас снимают с эфира на 5 минут.",
+                effects: "Третье нарушение. Вас снимают с эфира на 5 минут.",
+                application: "После 🟨",
+                acquisition: "Третье нарушение",
+                features: "Снимается 🟩",
+                removes: "-",
+                counters: "🟩"
+            },
             "🟦": {
                 name: "Синяя карта",
                 cost: 3,
                 category: "normal",
                 categoryName: "🀄️ Обычные карты",
-                description: "Снимает 🟨",
-                effects: "Снимает 🟨",
+                description: "Снимает 🟨 (жёлтую карту)",
+                effects: "Снимает 🟨 (жёлтую карту)",
                 application: "На 🟨",
                 acquisition: "Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐🏧",
                 features: "-",
@@ -937,8 +973,8 @@
                 cost: 6,
                 category: "normal",
                 categoryName: "🀄️ Обычные карты",
-                description: "Снимает 🟥",
-                effects: "Снимает 🟥",
+                description: "Снимает 🟥 (красную карту)",
+                effects: "Снимает 🟥 (красную карту)",
                 application: "На 🟥",
                 acquisition: "Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐🏧",
                 features: "-",
@@ -1129,7 +1165,7 @@
             },
             "🧿": {
                 name: "ТВ колесо",
-                cost: 10,
+                cost: null,
                 category: "super",
                 categoryName: "🪟 Супер карты",
                 description: "Даёт возможность выиграть любую карту или колесо.",
@@ -1139,25 +1175,81 @@
                 features: "Риск",
                 removes: "♎️",
                 counters: "🏧🛐. Обычный счёт."
+            },
+            "🏦": {
+                name: "Банкрот",
+                cost: 0,
+                category: "danger",
+                categoryName: "📱 Опасные карты",
+                description: "Обнуляет все карты у игрока. Сброс прогресса.",
+                effects: "Обнуляет все карты у игрока. Полный сброс прогресса.",
+                application: "Активируется ведущим",
+                acquisition: "Критические нарушения. Розыгрыш",
+                features: "Необратимый эффект",
+                removes: "Все карты",
+                counters: "Нет"
             }
         };
 
-        // Рецепты сборки
         const recipes = {
-            "🟪": { formula: "2 × ☑️", description: "Создание розовой карты" },
-            "🟩": { formula: "2 × 🟦", description: "Создание зелёной карты" },
-            "⬜️": { formula: "2 × 🟩", description: "Создание белой карты" },
-            "🟧": { formula: "2 × ⬜️", description: "Создание золотой карты" },
-            "💎": { formula: "2 × 🟧", description: "Создание изумрудной карты" },
-            "🚨": { formula: "3 × 💎", description: "Создание рубиновой карты" },
-            "🔲": { formula: "💎 + 🟧 + ⬜️ + 🟩 + 🟦 + ☑️ + 🧿", description: "Создание чёрно-белой карты" },
-            "🅾️": { formula: "🟧 + ⬜️ + 🟩 + 🟦 + ☑️ + 🧿", description: "Создание обнуления" },
-            "🅱️": { formula: "🔲 + 🚨 + 💎 + 🟧 + ⬜️ + 🧿 + 🧿 + 🧿", description: "Создание биты" }
+            "🟪": { 
+                formula: "2 × ☑️", 
+                description: "Создание розовой карты",
+                costGrey: 2,
+                costGreen: "0 🟩 + 2 ☑️"
+            },
+            "🟩": { 
+                formula: "2 × 🟦", 
+                description: "Создание зелёной карты",
+                costGrey: 6,
+                costGreen: "1 🟩"
+            },
+            "⬜️": { 
+                formula: "2 × 🟩", 
+                description: "Создание белой карты",
+                costGrey: 12,
+                costGreen: "2 🟩"
+            },
+            "🟧": { 
+                formula: "2 × ⬜️", 
+                description: "Создание золотой карты",
+                costGrey: 24,
+                costGreen: "4 🟩"
+            },
+            "💎": { 
+                formula: "2 × 🟧", 
+                description: "Создание изумрудной карты",
+                costGrey: 48,
+                costGreen: "8 🟩"
+            },
+            "🚨": { 
+                formula: "3 × 💎", 
+                description: "Создание рубиновой карты",
+                costGrey: 144,
+                costGreen: "24 🟩"
+            },
+            "🔲": { 
+                formula: "💎 + 🟧 + ⬜️ + 🟩 + 🟦 + ☑️", 
+                description: "Создание чёрно-белой карты",
+                costGrey: 199,
+                costGreen: "33 🟩 + 1 ☑️"
+            },
+            "🅾️": { 
+                formula: "🟧 + ⬜️ + 🟩 + 🟦 + ☑️", 
+                description: "Создание обнуления",
+                costGrey: 97,
+                costGreen: "16 🟩 + 1 ☑️"
+            },
+            "🅱️": { 
+                formula: "🔲 + 🚨 + 💎 + 🟧 + ⬜️ + 🧿 + 🧿 + 🧿", 
+                description: "Создание биты",
+                costGrey: 634,
+                costGreen: "105 🟩 + 4 ☑️"
+            }
         };
 
         let selectedSingleCard = null;
 
-        // Функция создания сетки карт для селектора
         function createCardSelectorGrid() {
             const container = document.getElementById('cardsSelectorGrid');
             let html = '';
@@ -1167,49 +1259,52 @@
                 const categoryClass = `card-${card.category}`;
                 const categoryLabelClass = `category-${card.category}`;
                 
+                const costDisplay = card.cost !== null ? `${card.cost} ☑️` : "нет стоимости";
+                
                 html += `
-                    <div class="card-option ${categoryClass}" data-symbol="${symbol}" onclick="selectCardForSingle(this)">
+                    <div class="card-option ${categoryClass}" data-symbol="${symbol}">
                         <div class="card-header">
                             <div class="card-emoji">${symbol}</div>
                             <div class="card-title">
                                 <div class="card-name">${card.name}</div>
-                                <span class="card-category ${categoryLabelClass}">${card.categoryName}</span>
+                                <span class="card-category ${categoryLabelClass}">${card.categoryName.replace(' карты', '')}</span>
                             </div>
                         </div>
                         <div class="card-info">
-                            <div class="card-cost">${card.cost} ☑️</div>
+                            <div class="card-cost">${costDisplay}</div>
                             <div class="card-description">${card.description}</div>
-                            <div class="card-details">
-                                📍 Эффекты: ${card.effects.substring(0, 60)}...
-                            </div>
                         </div>
                     </div>
                 `;
             });
             
             container.innerHTML = html;
+            
+            container.querySelectorAll('.card-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectCardForSingle(this);
+                });
+            });
         }
 
-        // Функция выбора карты для режима "Одна карта"
         function selectCardForSingle(element) {
             const symbol = element.getAttribute('data-symbol');
             const card = cardData[symbol];
             
-            // Убираем выделение у всех карт
             document.querySelectorAll('.card-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
             
-            // Выделяем выбранную карту
             element.classList.add('selected');
             selectedSingleCard = symbol;
             
-            // Показываем информацию о выбранной карте
             const display = document.getElementById('selectedCardDisplay');
             const categoryLabelClass = `category-${card.category}`;
             
+            const costDisplay = card.cost !== null ? `${card.cost} ☑️` : "нет стоимости";
+            
             const detailItems = [
-                { label: "💰 Стоимость:", value: `${card.cost} ☑️` },
+                { label: "💰 Стоимость:", value: costDisplay },
                 { label: "⚡ Эффекты:", value: card.effects },
                 { label: "🎯 Применение:", value: card.application },
                 { label: "📥 Получение:", value: card.acquisition },
@@ -1234,7 +1329,7 @@
                     <div class="selected-card-info">
                         <h4>${card.name}</h4>
                         <span class="selected-card-category ${categoryLabelClass}">${card.categoryName}</span>
-                        <div class="selected-card-cost">${card.cost} ☑️</div>
+                        <div class="selected-card-cost">${costDisplay}</div>
                     </div>
                 </div>
                 <div class="selected-card-details">
@@ -1244,27 +1339,21 @@
             
             display.style.display = 'block';
             
-            // Автоматически фокусируемся на поле количества
-            document.getElementById('cardCount').focus();
-            
-            // Анимация
-            element.classList.add('active');
             setTimeout(() => {
-                element.classList.remove('active');
-            }, 200);
+                document.getElementById('cardCount').focus();
+            }, 100);
         }
 
-        // Функция создания инвентаря
         function createInventoryGrid() {
             const inventoryGrid = document.getElementById('inventoryGrid');
             let html = '';
             
-            // Группируем карты по категориям
             const categories = {
                 "normal": { title: "🀄️ Обычные карты", cards: ["☑️", "🟦", "🟩", "⬜️", "🟧", "💎"] },
                 "activation": { title: "🎴 Карты активации", cards: ["🚨", "🔲", "🅱️", "🃏", "☮️", "📜", "🚾", "🎦", "🎹"] },
-                "violation": { title: "🧧 Карты нарушений", cards: ["🟪", "🅾️"] },
-                "super": { title: "🪟 Супер карты", cards: ["🌈", "🧿"] }
+                "violation": { title: "🧧 Карты нарушений", cards: ["🟪", "🟨", "🟥", "🅾️"] },
+                "super": { title: "🪟 Супер карты", cards: ["🌈", "🧿"] },
+                "danger": { title: "📱 Опасные карты", cards: ["🏦"] }
             };
             
             Object.keys(categories).forEach(categoryId => {
@@ -1278,7 +1367,7 @@
                             <div class="inventory-item">
                                 <span class="inventory-emoji">${symbol}</span>
                                 <div class="inventory-name">${card.name}</div>
-                                <input type="number" id="inv_${symbol}" value="0" min="0" max="999" placeholder="0">
+                                <input type="number" id="inv_${symbol}" value="0" min="0" max="999" placeholder="0" inputmode="numeric">
                             </div>
                         `;
                     }
@@ -1288,7 +1377,6 @@
             inventoryGrid.innerHTML = html;
         }
 
-        // Функция расчета одной карты
         function calculateSingle() {
             try {
                 if (!selectedSingleCard) {
@@ -1310,25 +1398,28 @@
                     return;
                 }
                 
-                const totalCost = card.cost * count;
+                const totalCost = card.cost !== null ? card.cost * count : 0;
                 
-                // Проверяем рецепт для этой карты
-                const recipe = recipes[symbol];
                 let recipeHTML = '';
-                if (recipe) {
+                if (recipes[symbol]) {
+                    const recipe = recipes[symbol];
                     recipeHTML = `
-                        <div style="margin-top: 15px; padding: 15px; background: rgba(155, 89, 182, 0.1); border-radius: 8px; border-left: 4px solid var(--activation);">
-                            <strong style="font-size: 1rem;">🎴 Рецепт сборки:</strong>
-                            <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">
-                                ${symbol} ${card.name} = ${recipe.formula}<br>
-                                ${recipe.description}
+                        <div style="margin-top: 12px; padding: 12px; background: rgba(155, 89, 182, 0.1); border-radius: 8px; border-left: 4px solid var(--activation);">
+                            <strong style="font-size: 0.95rem;">🎴 Рецепт сборки:</strong>
+                            <div style="margin-top: 8px; font-size: 0.9rem; line-height: 1.5;">
+                                <div><strong>${symbol} ${card.name}</strong></div>
+                                <div>Формула: ${recipe.formula}</div>
+                                <div>Стоимость: ${recipe.costGrey} ☑️ (${recipe.costGreen})</div>
+                                <div><small style="opacity: 0.8;">${recipe.description}</small></div>
                             </div>
                         </div>
                     `;
                 }
                 
-                // Рассчитываем возможные сборки
-                const possibleHTML = calculatePossibleCards(totalCost);
+                let possibleHTML = '';
+                if (card.cost !== null && totalCost > 0) {
+                    possibleHTML = calculatePossibleCards(totalCost);
+                }
                 
                 const resultHTML = `
                     <div class="result-item">
@@ -1336,18 +1427,20 @@
                             <span class="result-emoji">${symbol}</span>
                             <div>
                                 <div class="result-text">${card.name} × ${count}</div>
-                                <div class="result-value">${totalCost} ☑️</div>
+                                <div class="result-value">${card.cost !== null ? totalCost + ' ☑️' : 'Нет стоимости'}</div>
                             </div>
                         </div>
                         
                         ${recipeHTML}
                         
-                        <div style="margin-top: 15px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; border-left: 4px solid var(--super);">
-                            <strong style="font-size: 1rem;">💡 Что можно собрать:</strong>
-                            <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">
+                        ${card.cost !== null && totalCost > 0 ? `
+                        <div style="margin-top: 12px; padding: 12px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; border-left: 4px solid var(--super);">
+                            <strong style="font-size: 0.95rem;">💡 Что можно собрать:</strong>
+                            <div style="margin-top: 8px; font-size: 0.9rem; line-height: 1.5;">
                                 ${possibleHTML}
                             </div>
                         </div>
+                        ` : ''}
                     </div>
                 `;
                 
@@ -1359,13 +1452,17 @@
             }
         }
 
-        // Функция расчета возможных карт
         function calculatePossibleCards(totalCost) {
             const possibleCards = [];
             
-            // Карты отсортированы по стоимости
             const cardsByCost = Object.keys(cardData)
-                .map(symbol => ({ symbol, cost: cardData[symbol].cost, name: cardData[symbol].name }))
+                .map(symbol => ({ 
+                    symbol, 
+                    cost: cardData[symbol].cost, 
+                    name: cardData[symbol].name,
+                    hasCost: cardData[symbol].cost !== null && cardData[symbol].cost > 0
+                }))
+                .filter(card => card.hasCost)
                 .sort((a, b) => b.cost - a.cost);
             
             let remainingCost = totalCost;
@@ -1389,14 +1486,15 @@
                 if (remainingCost > 0) {
                     result += `• ${remainingCost} × ☑️ Серая карта<br>`;
                 }
-            } else {
+            } else if (totalCost > 0) {
                 result = `• ${totalCost} × ☑️ Серая карта<br>`;
+            } else {
+                result = `Нет доступных карт для сборки<br>`;
             }
             
             return result;
         }
 
-        // Функция расчета инвентаря
         function calculateInventory() {
             try {
                 let totalValue = 0;
@@ -1409,14 +1507,16 @@
                         const count = parseInt(input.value) || 0;
                         if (count > 0) {
                             itemCount++;
-                            const value = count * cardData[symbol].cost;
+                            const card = cardData[symbol];
+                            const value = card.cost !== null ? count * card.cost : 0;
                             totalValue += value;
                             details.push({
                                 symbol: symbol,
-                                name: cardData[symbol].name,
+                                name: card.name,
                                 count: count,
                                 value: value,
-                                category: cardData[symbol].category
+                                category: card.category,
+                                hasCost: card.cost !== null
                             });
                         }
                     }
@@ -1427,10 +1527,6 @@
                     return;
                 }
                 
-                // Сортируем по стоимости
-                details.sort((a, b) => b.value - a.value);
-                
-                // Группируем по категориям
                 const groupedDetails = {};
                 details.forEach(item => {
                     if (!groupedDetails[item.category]) {
@@ -1442,48 +1538,52 @@
                 let detailsHTML = '';
                 Object.keys(groupedDetails).forEach(category => {
                     const categoryName = cardData[groupedDetails[category][0].symbol].categoryName;
-                    detailsHTML += `<div style="margin-top: 15px; margin-bottom: 8px; color: var(--accent); font-weight: 600;">${categoryName}</div>`;
+                    detailsHTML += `<div style="margin-top: 12px; margin-bottom: 6px; color: var(--accent); font-weight: 600;">${categoryName}</div>`;
                     
                     groupedDetails[category].forEach(item => {
-                        detailsHTML += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                        const valueDisplay = item.hasCost ? `${item.value} ☑️` : 'нет стоимости';
+                        detailsHTML += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem;">
                             <span>${item.count}× ${item.symbol} ${item.name}</span>
-                            <span style="font-weight: 600; color: var(--accent);">${item.value} ☑️</span>
+                            <span style="font-weight: 600; color: var(--accent);">${valueDisplay}</span>
                         </div>`;
                     });
                 });
                 
-                // Рассчитываем возможные сборки
-                const possibleHTML = calculatePossibleCards(totalValue);
+                let possibleHTML = '';
+                if (totalValue > 0) {
+                    possibleHTML = calculatePossibleCards(totalValue);
+                }
                 
-                // Проверяем доступные рецепты
                 let recipesHTML = '';
                 const availableRecipes = [];
                 
                 Object.keys(recipes).forEach(symbol => {
                     const recipe = recipes[symbol];
-                    // Простая проверка - достаточно ли общей стоимости
                     const card = cardData[symbol];
-                    if (card && totalValue >= card.cost) {
-                        const possibleCount = Math.floor(totalValue / card.cost);
+                    if (card && totalValue >= recipe.costGrey) {
+                        const possibleCount = Math.floor(totalValue / recipe.costGrey);
                         availableRecipes.push({
                             symbol: symbol,
                             name: card.name,
                             formula: recipe.formula,
                             description: recipe.description,
+                            costGrey: recipe.costGrey,
+                            costGreen: recipe.costGreen,
                             possible: possibleCount
                         });
                     }
                 });
                 
                 if (availableRecipes.length > 0) {
-                    recipesHTML = `<div style="margin-top: 20px; padding: 15px; background: rgba(155, 89, 182, 0.1); border-radius: 8px; border-left: 4px solid var(--activation);">
-                        <strong style="font-size: 1rem;">🎴 Доступные рецепты:</strong>
-                        <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">`;
+                    recipesHTML = `<div style="margin-top: 16px; padding: 12px; background: rgba(155, 89, 182, 0.1); border-radius: 8px; border-left: 4px solid var(--activation);">
+                        <strong style="font-size: 0.95rem;">🎴 Доступные рецепты:</strong>
+                        <div style="margin-top: 8px; font-size: 0.9rem; line-height: 1.5;">`;
                     
                     availableRecipes.forEach(recipe => {
                         recipesHTML += `<div style="margin-bottom: 8px;">
                             <strong>${recipe.symbol} ${recipe.name}</strong> (до ${recipe.possible} шт.)<br>
                             ${recipe.formula}<br>
+                            Стоимость: ${recipe.costGrey} ☑️ (${recipe.costGreen})<br>
                             <small style="opacity: 0.8;">${recipe.description}</small>
                         </div>`;
                     });
@@ -1497,30 +1597,31 @@
                             <span class="result-emoji">📦</span>
                             <div>
                                 <div class="result-text">Общая стоимость инвентаря</div>
-                                <div class="result-value">${totalValue} ☑️</div>
+                                <div class="result-value">${totalValue > 0 ? totalValue + ' ☑️' : 'Карты без стоимости'}</div>
                             </div>
                         </div>
                         
-                        <div style="margin-top: 15px;">
-                            <div style="font-weight: 600; margin-bottom: 10px; color: var(--text);">Содержимое:</div>
+                        <div style="margin-top: 12px;">
+                            <div style="font-weight: 600; margin-bottom: 8px; color: var(--text);">Содержимое:</div>
                             ${detailsHTML}
                         </div>
                         
                         ${recipesHTML}
                         
-                        <div style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; border-left: 4px solid var(--super);">
-                            <strong style="font-size: 1rem;">💡 Что можно собрать:</strong>
-                            <div style="margin-top: 10px; font-size: 0.95rem; line-height: 1.6;">
+                        ${totalValue > 0 ? `
+                        <div style="margin-top: 16px; padding: 12px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; border-left: 4px solid var(--super);">
+                            <strong style="font-size: 0.95rem;">💡 Что можно собрать:</strong>
+                            <div style="margin-top: 8px; font-size: 0.9rem; line-height: 1.5;">
                                 ${possibleHTML}
                             </div>
                         </div>
+                        ` : ''}
                     </div>
                 `;
                 
                 document.getElementById('results').innerHTML = resultHTML;
                 showNotification('Инвентарь оценён', 'success');
                 
-                // Сохраняем инвентарь
                 saveInventory();
                 
             } catch (error) {
@@ -1528,7 +1629,6 @@
             }
         }
 
-        // Функция сохранения инвентаря
         function saveInventory() {
             try {
                 const inventory = {};
@@ -1540,12 +1640,9 @@
                 });
                 
                 localStorage.setItem('etherInventory', JSON.stringify(inventory));
-            } catch (e) {
-                // Если localStorage недоступен, просто продолжаем
-            }
+            } catch (e) {}
         }
 
-        // Функция загрузки инвентаря
         function loadInventory() {
             try {
                 const saved = localStorage.getItem('etherInventory');
@@ -1558,50 +1655,40 @@
                         }
                     });
                 }
-            } catch (e) {
-                // Если не удалось загрузить, оставляем значения по умолчанию
-            }
+            } catch (e) {}
         }
 
-        // Функция сброса всего
         function resetAll() {
             try {
-                // Сброс выбранной карты в селекторе
                 selectedSingleCard = null;
                 document.querySelectorAll('.card-option.selected').forEach(opt => {
                     opt.classList.remove('selected');
                 });
                 document.getElementById('selectedCardDisplay').style.display = 'none';
                 
-                // Сброс инвентаря
                 Object.keys(cardData).forEach(symbol => {
                     const input = document.getElementById('inv_' + symbol);
                     if (input) input.value = 0;
                 });
                 
-                // Сброс формы
                 document.getElementById('cardSearch').value = '';
                 document.getElementById('cardCount').value = 1;
                 
-                // Сброс фильтров
                 document.querySelectorAll('.category-tab').forEach(tab => {
                     tab.classList.remove('active');
                 });
                 document.querySelector('.category-tab[data-category="all"]').classList.add('active');
                 
-                // Показываем все карты
                 filterCards();
                 
-                // Сброс результатов
                 document.getElementById('results').innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                        <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📊</div>
-                        <p style="font-size: 1.1rem; margin-bottom: 10px;">Выберите карту и нажмите "Рассчитать"</p>
-                        <p style="font-size: 0.95rem; opacity: 0.7;">Или перейдите в раздел "Инвентарь"</p>
+                    <div style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📊</div>
+                        <p style="font-size: 1rem; margin-bottom: 8px;">Выберите карту и нажмите "Рассчитать"</p>
+                        <p style="font-size: 0.85rem; opacity: 0.7;">Или перейдите в раздел "Инвентарь"</p>
                     </div>
                 `;
                 
-                // Сохраняем очищенный инвентарь
                 saveInventory();
                 showNotification('Все данные сброшены', 'info');
                 
@@ -1610,7 +1697,6 @@
             }
         }
 
-        // Функция фильтрации карт по поиску
         function filterCards() {
             const searchText = document.getElementById('cardSearch').value.toLowerCase();
             const activeCategory = document.querySelector('.category-tab.active').getAttribute('data-category');
@@ -1619,38 +1705,30 @@
                 const symbol = option.getAttribute('data-symbol');
                 const card = cardData[symbol];
                 
-                // Проверяем категорию
                 const categoryMatch = activeCategory === 'all' || card.category === activeCategory;
                 
-                // Проверяем поиск
                 const searchMatch = searchText === '' || 
                     card.name.toLowerCase().includes(searchText) ||
                     card.description.toLowerCase().includes(searchText) ||
                     card.effects.toLowerCase().includes(searchText) ||
                     symbol.includes(searchText);
                 
-                // Показываем/скрываем карту
-                option.style.display = (categoryMatch && searchMatch) ? 'block' : 'none';
+                option.style.display = (categoryMatch && searchMatch) ? 'flex' : 'none';
             });
         }
 
-        // Функция установки режима
         function setMode(mode) {
-            // Убрать активный класс со всех кнопок
             document.querySelectorAll('.mode-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Убрать активный класс со всех контентов
             document.querySelectorAll('.mode-content').forEach(content => {
                 content.classList.remove('active');
             });
             
-            // Активировать выбранный режим
             document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1) + 'Btn').classList.add('active');
             document.getElementById('content' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
             
-            // При переключении в режим одной карты, очищаем выбор
             if (mode === 'single') {
                 document.querySelectorAll('.card-option').forEach(opt => {
                     opt.classList.remove('selected');
@@ -1660,14 +1738,11 @@
             }
         }
 
-        // Функция показа уведомления
         function showNotification(message, type) {
             try {
-                // Удаляем старое уведомление
                 const oldNote = document.querySelector('.notification');
                 if (oldNote) oldNote.remove();
                 
-                // Создаем новое
                 const notification = document.createElement('div');
                 notification.className = 'notification';
                 
@@ -1689,68 +1764,50 @@
                 notification.innerHTML = `${emoji} ${message}`;
                 document.body.appendChild(notification);
                 
-                // Удаляем через 3 секунды
                 setTimeout(() => {
                     if (notification.parentNode) {
                         notification.remove();
                     }
                 }, 3000);
-            } catch (e) {
-                console.error('Ошибка уведомления:', e);
-            }
+            } catch (e) {}
         }
 
-        // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
-            // Создаем инвентарь и селектор карт
             createInventoryGrid();
             createCardSelectorGrid();
             
-            // Загружаем сохраненный инвентарь
             loadInventory();
             
-            // Назначаем обработчики для кнопок
             document.getElementById('calculateSingleBtn').addEventListener('click', calculateSingle);
             document.getElementById('calculateInventoryBtn').addEventListener('click', calculateInventory);
             document.getElementById('resetAllBtn').addEventListener('click', resetAll);
             
-            // Назначаем обработчики для кнопок режимов
             document.getElementById('modeSingleBtn').addEventListener('click', function() { setMode('single'); });
             document.getElementById('modeInventoryBtn').addEventListener('click', function() { setMode('inventory'); });
             
-            // Назначаем обработчики для инвентаря
             document.getElementById('inventoryGrid').addEventListener('input', function(e) {
                 if (e.target.tagName === 'INPUT') {
                     saveInventory();
                 }
             });
             
-            // Назначаем обработчики для поиска и фильтров
             document.getElementById('cardSearch').addEventListener('input', filterCards);
             
-            // Назначаем обработчики для категорий
             document.querySelectorAll('.category-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Убираем активный класс у всех вкладок
                     document.querySelectorAll('.category-tab').forEach(t => {
                         t.classList.remove('active');
                     });
-                    // Добавляем активный класс текущей вкладке
                     this.classList.add('active');
-                    // Фильтруем карты
                     filterCards();
                 });
             });
             
-            // Устанавливаем начальный режим
             setMode('single');
-            
-            // Фильтруем карты (показываем все)
             filterCards();
             
-            // Показываем сообщение о готовности
             setTimeout(() => {
-                showNotification('Калькулятор готов к работе! Выберите карту для начала', 'success');
+                showNotification('Калькулятор готов к работе!', 'success');
             }, 500);
         });
     </script>
