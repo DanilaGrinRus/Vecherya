@@ -236,6 +236,9 @@
             font-weight: 500;
             transition: all 0.2s ease;
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .category-tab:active {
@@ -261,6 +264,34 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             margin-bottom: 16px;
             -webkit-overflow-scrolling: touch;
+        }
+        
+        .category-section {
+            margin-bottom: 20px;
+        }
+        
+        .category-title {
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .category-title-normal { border-color: var(--normal); color: var(--normal); }
+        .category-title-activation { border-color: var(--activation); color: var(--activation); }
+        .category-title-violation { border-color: var(--violation); color: var(--violation); }
+        .category-title-super { border-color: var(--super); color: var(--super); }
+        .category-title-danger { border-color: var(--danger); color: var(--danger); }
+        .category-title-freeze { border-color: var(--freeze); color: var(--freeze); }
+        
+        .category-cards-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
         .card-option {
@@ -752,6 +783,15 @@
                 font-size: 0.75rem;
                 -webkit-line-clamp: 2;
             }
+            
+            .category-tab {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .category-title {
+                font-size: 0.95rem;
+            }
         }
         
         @media (min-width: 768px) {
@@ -776,8 +816,6 @@
             }
             
             .cards-selector-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                display: grid;
                 max-height: 500px;
             }
             
@@ -835,13 +873,27 @@
                         </div>
                         
                         <div class="category-tabs" id="categoryTabs">
-                            <button class="category-tab active" data-category="all">Все</button>
-                            <button class="category-tab" data-category="normal">🀄️</button>
-                            <button class="category-tab" data-category="activation">🎴</button>
-                            <button class="category-tab" data-category="violation">🧧</button>
-                            <button class="category-tab" data-category="super">🪟</button>
-                            <button class="category-tab" data-category="danger">📱</button>
-                            <button class="category-tab" data-category="freeze">💠</button>
+                            <button class="category-tab active" data-category="all">
+                                <span>📁</span> Все
+                            </button>
+                            <button class="category-tab" data-category="normal">
+                                <span>🀄️</span> Обычные
+                            </button>
+                            <button class="category-tab" data-category="activation">
+                                <span>🎴</span> Активации
+                            </button>
+                            <button class="category-tab" data-category="violation">
+                                <span>🧧</span> Нарушения
+                            </button>
+                            <button class="category-tab" data-category="super">
+                                <span>🪟</span> Супер
+                            </button>
+                            <button class="category-tab" data-category="danger">
+                                <span>📱</span> Опасные
+                            </button>
+                            <button class="category-tab" data-category="freeze">
+                                <span>💠</span> Заморозка
+                            </button>
                         </div>
                         
                         <div class="cards-selector-grid" id="cardsSelectorGrid"></div>
@@ -1272,41 +1324,138 @@
 
         function createCardSelectorGrid() {
             const container = document.getElementById('cardsSelectorGrid');
+            const activeCategory = document.querySelector('.category-tab.active').getAttribute('data-category');
+            
+            if (activeCategory === 'all') {
+                createAllCategoriesView(container);
+            } else {
+                createSingleCategoryView(container, activeCategory);
+            }
+        }
+
+        function createAllCategoriesView(container) {
             let html = '';
             
-            Object.keys(cardData).forEach(symbol => {
-                const card = cardData[symbol];
-                const categoryClass = `card-${card.category}`;
-                const categoryLabelClass = `category-${card.category}`;
-                
-                let costDisplay = '';
-                if (card.cost === null) {
-                    costDisplay = "нет";
-                } else if (card.cost === 0) {
-                    if (symbol === "🟨" || symbol === "🟥") {
-                        costDisplay = "";
-                    } else {
-                        costDisplay = "0 ☑️";
-                    }
-                } else {
-                    costDisplay = `${card.cost} ☑️`;
-                }
+            const categories = {
+                "normal": { title: "🀄️ Обычные карты", cards: ["☑️", "🔘", "🟦", "🟩", "⬜️", "🟧", "💎"] },
+                "activation": { title: "🎴 Карты активации", cards: ["🚨", "🔲", "🅱️", "🃏", "☮️", "📜", "🚾", "🎦", "🎹"] },
+                "violation": { title: "🧧 Карты нарушений", cards: ["🟪", "🟨", "🟥", "🅾️"] },
+                "super": { title: "🪟 Супер карты", cards: ["🌈", "🧿"] },
+                "danger": { title: "📱 Опасные карты", cards: ["🏦"] },
+                "freeze": { title: "💠 Карты заморозки", cards: ["💠"] }
+            };
+            
+            Object.keys(categories).forEach(categoryId => {
+                const category = categories[categoryId];
+                const categoryClass = `category-title-${categoryId}`;
                 
                 html += `
-                    <div class="card-option ${categoryClass}" data-symbol="${symbol}">
-                        <div class="card-emoji">${symbol}</div>
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-name-wrapper">
-                                    <div class="card-name">${card.name}</div>
-                                    <span class="card-category ${categoryLabelClass}">${card.categoryName.replace(' карты', '').replace(' карты', '')}</span>
+                    <div class="category-section">
+                        <div class="category-title ${categoryClass}">${category.title}</div>
+                        <div class="category-cards-grid">
+                `;
+                
+                category.cards.forEach(symbol => {
+                    const card = cardData[symbol];
+                    if (card) {
+                        const cardCategoryClass = `card-${card.category}`;
+                        const categoryLabelClass = `category-${card.category}`;
+                        
+                        let costDisplay = '';
+                        if (card.cost === null) {
+                            costDisplay = "нет";
+                        } else if (card.cost === 0) {
+                            if (symbol === "🟨" || symbol === "🟥") {
+                                costDisplay = "";
+                            } else {
+                                costDisplay = "0 ☑️";
+                            }
+                        } else {
+                            costDisplay = `${card.cost} ☑️`;
+                        }
+                        
+                        html += `
+                            <div class="card-option ${cardCategoryClass}" data-symbol="${symbol}">
+                                <div class="card-emoji">${symbol}</div>
+                                <div class="card-content">
+                                    <div class="card-header">
+                                        <div class="card-name-wrapper">
+                                            <div class="card-name">${card.name}</div>
+                                            <span class="card-category ${categoryLabelClass}">${card.categoryName.replace(' карты', '').replace(' карты', '')}</span>
+                                        </div>
+                                        ${costDisplay && costDisplay !== "" ? `<div class="card-cost">${costDisplay}</div>` : ''}
+                                    </div>
+                                    <div class="card-description">${card.description}</div>
                                 </div>
-                                ${costDisplay && costDisplay !== "" ? `<div class="card-cost">${costDisplay}</div>` : ''}
                             </div>
-                            <div class="card-description">${card.description}</div>
+                        `;
+                    }
+                });
+                
+                html += `
                         </div>
                     </div>
                 `;
+            });
+            
+            container.innerHTML = html;
+            
+            container.querySelectorAll('.card-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectCardForSingle(this);
+                });
+            });
+        }
+
+        function createSingleCategoryView(container, categoryId) {
+            let html = '';
+            
+            const categoryCards = {
+                "normal": ["☑️", "🔘", "🟦", "🟩", "⬜️", "🟧", "💎"],
+                "activation": ["🚨", "🔲", "🅱️", "🃏", "☮️", "📜", "🚾", "🎦", "🎹"],
+                "violation": ["🟪", "🟨", "🟥", "🅾️"],
+                "super": ["🌈", "🧿"],
+                "danger": ["🏦"],
+                "freeze": ["💠"]
+            };
+            
+            const cards = categoryCards[categoryId] || [];
+            
+            cards.forEach(symbol => {
+                const card = cardData[symbol];
+                if (card) {
+                    const categoryClass = `card-${card.category}`;
+                    const categoryLabelClass = `category-${card.category}`;
+                    
+                    let costDisplay = '';
+                    if (card.cost === null) {
+                        costDisplay = "нет";
+                    } else if (card.cost === 0) {
+                        if (symbol === "🟨" || symbol === "🟥") {
+                            costDisplay = "";
+                        } else {
+                            costDisplay = "0 ☑️";
+                        }
+                    } else {
+                        costDisplay = `${card.cost} ☑️`;
+                    }
+                    
+                    html += `
+                        <div class="card-option ${categoryClass}" data-symbol="${symbol}">
+                            <div class="card-emoji">${symbol}</div>
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-name-wrapper">
+                                        <div class="card-name">${card.name}</div>
+                                        <span class="card-category ${categoryLabelClass}">${card.categoryName.replace(' карты', '').replace(' карты', '')}</span>
+                                    </div>
+                                    ${costDisplay && costDisplay !== "" ? `<div class="card-cost">${costDisplay}</div>` : ''}
+                                </div>
+                                <div class="card-description">${card.description}</div>
+                            </div>
+                        </div>
+                    `;
+                }
             });
             
             container.innerHTML = html;
@@ -1748,20 +1897,43 @@
             const searchText = document.getElementById('cardSearch').value.toLowerCase();
             const activeCategory = document.querySelector('.category-tab.active').getAttribute('data-category');
             
-            document.querySelectorAll('.card-option').forEach(option => {
-                const symbol = option.getAttribute('data-symbol');
-                const card = cardData[symbol];
-                
-                const categoryMatch = activeCategory === 'all' || card.category === activeCategory;
-                
-                const searchMatch = searchText === '' || 
-                    card.name.toLowerCase().includes(searchText) ||
-                    card.description.toLowerCase().includes(searchText) ||
-                    card.effects.toLowerCase().includes(searchText) ||
-                    symbol.includes(searchText);
-                
-                option.style.display = (categoryMatch && searchMatch) ? 'flex' : 'none';
-            });
+            if (activeCategory === 'all') {
+                document.querySelectorAll('.category-section').forEach(section => {
+                    section.style.display = 'block';
+                    
+                    let hasVisibleCards = false;
+                    section.querySelectorAll('.card-option').forEach(option => {
+                        const symbol = option.getAttribute('data-symbol');
+                        const card = cardData[symbol];
+                        
+                        const searchMatch = searchText === '' || 
+                            card.name.toLowerCase().includes(searchText) ||
+                            card.description.toLowerCase().includes(searchText) ||
+                            card.effects.toLowerCase().includes(searchText) ||
+                            symbol.includes(searchText);
+                        
+                        option.style.display = searchMatch ? 'flex' : 'none';
+                        if (searchMatch) hasVisibleCards = true;
+                    });
+                    
+                    section.style.display = hasVisibleCards ? 'block' : 'none';
+                });
+            } else {
+                document.querySelectorAll('.card-option').forEach(option => {
+                    const symbol = option.getAttribute('data-symbol');
+                    const card = cardData[symbol];
+                    
+                    const categoryMatch = card.category === activeCategory;
+                    
+                    const searchMatch = searchText === '' || 
+                        card.name.toLowerCase().includes(searchText) ||
+                        card.description.toLowerCase().includes(searchText) ||
+                        card.effects.toLowerCase().includes(searchText) ||
+                        symbol.includes(searchText);
+                    
+                    option.style.display = (categoryMatch && searchMatch) ? 'flex' : 'none';
+                });
+            }
         }
 
         function setMode(mode) {
@@ -1782,6 +1954,7 @@
                 });
                 document.getElementById('selectedCardDisplay').style.display = 'none';
                 selectedSingleCard = null;
+                createCardSelectorGrid();
             }
         }
 
@@ -1846,6 +2019,7 @@
                         t.classList.remove('active');
                     });
                     this.classList.add('active');
+                    createCardSelectorGrid();
                     filterCards();
                 });
             });
