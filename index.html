@@ -388,9 +388,7 @@
         }
         input,select,textarea{font-size:16px!important}
 
-        /* =========================
-           ДОБАВЛЕНО: LIVE стили + навигация в памятке
-           ========================= */
+        /* Стили для навигации в памятке */
         .cheatsheet-nav{
             display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px
         }
@@ -407,15 +405,7 @@
             border:1px solid rgba(218,165,32,0.25);
             flex-shrink:0
         }
-
-
-
-
-/* LIVE мониторинг */
-
-
-
-</style>
+    </style>
 </head>
 <body>
     <div class="container">
@@ -426,18 +416,17 @@
                 <span>🕐</span>Московское время: <span id="timeDisplay">00:00:00</span>
             </div>
             <div class="night-warning" id="nightWarning">⚠️ После 23:00 использование карт активации для продления эфира запрещено!</div>
-            </div>
-<button class="reset-btn" id="resetAllBtn"><span>🔄</span> Сбросить всё</button>
+            <button class="reset-btn" id="resetAllBtn"><span>🔄</span> Сбросить всё</button>
         </header>
 
-<section class="calculator-section">
+        <section class="calculator-section">
             <h2 class="section-title">🧮 Калькулятор карточек</h2>
 
             <div class="mode-selector">
                 <button class="mode-btn active" id="modeSingleBtn">Сборка</button>
                 <button class="mode-btn" id="modeInventoryBtn">Инвентарь</button>
                 <button class="mode-btn" id="modeParserBtn">АвтоЛень</button>
-</div>
+            </div>
 
             <div class="mode-content active" id="contentSingle">
                 <div class="input-group">
@@ -551,24 +540,18 @@
             <button class="close-cheatsheet" id="closeCheatsheet">×</button>
         </div>
 
-        <!-- ДОБАВЛЕНО: Навигация по разделам -->
+        <!-- Навигация по разделам -->
         <div class="cheatsheet-nav">
             <button class="parser-btn" id="navSingleBtn">🧩 Сборка</button>
             <button class="parser-btn" id="navInventoryBtn">📦 Инвентарь</button>
             <button class="parser-btn" id="navParserBtn">🧠 АвтоЛень</button>
-</div>
+        </div>
 
         <div id="cheatsheetContent"></div>
     </div>
 
     <script>
-        // =========================
-        //
-        // Пример:
-        // =========================
-
-
-        // Данные карт (ВАШ ОРИГИНАЛ — без изменений)
+        // Данные карт
         const d = {
             "🔘": { n: "Комиссия", c: null, cat: "normal", cn: "🀄️ Обычные карты", d: "Оплата передачи карт между спикерами", e: "Оплата передачи карт между спикерами", a: "Для передачи карт между спикерами", ac: "Разделение 1 ☑️. Получить. Собрать.", f: "Нельзя передать", r: "нет", t: "нет", s: "Нет", tr: "Нет", conv: "Нет", p: "🏧🛐", cu: "нет" },
             "☑️": { n: "Серая карта", c: 1, cat: "normal", cn: "🀄️ Обычные карты", d: "Съём спикера или всех на 12 минут, либо монолог 12 минут", e: "Съём спикера или всех на 12 минут, либо монолог 12 минут", a: "1 раз за эфир от каждого. Действует на всех кроме 🏳️‍🌈", ac: "1 час продления. 🧿ТВ колесо. Первый на эфире. Получить. Собрать.", f: "Базовая карта. Передаётся с остатком времени", r: "🟪", t: "Ⓜ️♎️⚫️", s: "Да", tr: "Да", conv: "Да", p: "🏧🛐", cu: "в зависимости от правил эфира" },
@@ -604,7 +587,7 @@
             "🎁": { n: "Супер подарок", c: null, cat: "super", cn: "⭐ Супер карты", d: "Особый подарок с ценными наградами", e: "Ценные награды", a: "Особые события", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "нет" },
             "🦎": { n: "Хамелеон", c: null, cat: "super", cn: "⭐ Супер карты", d: "Все ☑️ карты всех спикеров преобразуются в 🧿ТВ колёса", e: "Преобразование серых карт в колёса", a: "Массовая конвертация", ac: "Редкие события. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Да", p: "🏧🛐", cu: "нет" },
             "🛐": { n: "Храм", c: null, cat: "super", cn: "⭐ Супер карты", d: "Защитная карта от определённых эффектов", e: "Защита от некоторых карт", a: "Для защиты", ac: "Достижения, покупка. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
-            "🏧": { n: "Банк", c: null, cat: "super", cn: "⭐ Супер карты", d: "Карта для финансовных операций с картами", e: "Финансовые операции с картами", a: "Обмен, покупка карт", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🏧": { n: "Банк", c: null, cat: "super", cn: "⭐ Супер карты", d: "Карта для финансовых операций с картами", e: "Финансовые операции с картами", a: "Обмен, покупка карт", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
             "🧺": { n: "Ведро Егора", c: null, cat: "super", cn: "⭐ Супер карты", d: "Ведущий забирает 1 обычную🀄️карту у любого спикера и кладёт себе в ведро", e: "Забирает обычную карту у спикера", a: "Сразу же при выпадении", ac: "🧿ТВ колесо", f: "Безлимитное накопление, активация, складывание, передача, разделение, накладывание на спикеров, хранение 🎴🀄️ карт", r: "Нет", t: "Ⓜ️♎️", s: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🎴⭐🛐🏧" },
             "🌋": { n: "Преисподняя", c: null, cat: "super", cn: "⭐ Супер карты", d: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", e: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", a: "Ведущим при выпадении с 🧿ТВ колеса или строительстве. Спикерами при строительстве. Покупке. Получении.", ac: "🧿ТВ колесо. Постройка. Покупка. Получение.", f: "Работает по принципу 🏧Банка и 🛐Храма. Может использовать как ведущий так и спикеры. Можно построить за 6 🚨. Построить можно 1 раз.", r: "Нет", t: "Нет", s: "Да. Раз в 2 месяца.", tr: "Да. Раз в 2 месяца.", conv: "Нет", p: "Да", cu: "🛐🏧" }
         };
@@ -642,35 +625,7 @@
         });
         const recipes = r;
 
-            catch (e) { return ''; }
-        })();
-
         let parsedUsers = [];
-
-        // =========================
-        // ДОБАВЛЕНО: LIVE состояние
-        // =========================
-
-        function updateMoscowTime() {
-            const now = new Date();
-            const moscowTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
-            const h = moscowTime.getHours().toString().padStart(2, '0');
-            const m = moscowTime.getMinutes().toString().padStart(2, '0');
-            const sec = moscowTime.getSeconds().toString().padStart(2, '0');
-            const timeStr = `${h}:${m}:${sec}`;
-            document.getElementById('timeDisplay').textContent = timeStr;
-
-            const timeDisplay = document.getElementById('moscowTime');
-            const warning = document.getElementById('nightWarning');
-
-            if (h >= 23 || h < 6) {
-                timeDisplay.classList.add('night-mode');
-                warning.classList.add('show');
-            } else {
-                timeDisplay.classList.remove('night-mode');
-                warning.classList.remove('show');
-            }
-        }
 
         // Основные функции калькулятора
         function createCardSelectorGrid() {
@@ -1062,32 +1017,32 @@
         }
 
         function setMode(m) {
-    const valid = { single: true, inventory: true, parser: true };
-    if (!valid[m]) m = 'single';
+            const valid = { single: true, inventory: true, parser: true };
+            if (!valid[m]) m = 'single';
 
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
 
-    const btnId = 'mode' + m.charAt(0).toUpperCase() + m.slice(1) + 'Btn';
-    const contentId = 'content' + m.charAt(0).toUpperCase() + m.slice(1);
+            const btnId = 'mode' + m.charAt(0).toUpperCase() + m.slice(1) + 'Btn';
+            const contentId = 'content' + m.charAt(0).toUpperCase() + m.slice(1);
 
-    const btn = document.getElementById(btnId);
-    const content = document.getElementById(contentId);
-    if (btn) btn.classList.add('active');
-    if (content) content.classList.add('active');
+            const btn = document.getElementById(btnId);
+            const content = document.getElementById(contentId);
+            if (btn) btn.classList.add('active');
+            if (content) content.classList.add('active');
 
-    if (m === 'single') {
-        document.querySelectorAll('.card-option').forEach(o => o.classList.remove('selected'));
-        const scd = document.getElementById('selectedCardDisplay');
-        if (scd) scd.style.display = 'none';
-        s = null;
-        createCardSelectorGrid();
-    }
+            if (m === 'single') {
+                document.querySelectorAll('.card-option').forEach(o => o.classList.remove('selected'));
+                const scd = document.getElementById('selectedCardDisplay');
+                if (scd) scd.style.display = 'none';
+                s = null;
+                createCardSelectorGrid();
+            }
 
-    if (m === 'inventory') {
-        if (document.getElementById('compactInventoryContainer')) createCompactInventoryGrid();
-    }
-}
+            if (m === 'inventory') {
+                if (document.getElementById('compactInventoryContainer')) createCompactInventoryGrid();
+            }
+        }
 
         function showNotification(m, t) {
             const on = document.querySelector('.notification');
@@ -1183,6 +1138,210 @@
             t.classList.toggle('active');
         }
 
+        // Функции парсера
+        function parseText() {
+            const text = document.getElementById('parserText').value.trim();
+            if (!text) {
+                showNotification('Введите текст для анализа', 'warning');
+                return;
+            }
+
+            // Простая обработка текста
+            const cardCounts = {};
+            const userCards = {};
+
+            // Разделяем по строкам
+            const lines = text.split('\n');
+            let currentUser = null;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+
+                // Проверяем, является ли строка заголовком пользователя
+                if (line.includes(':') || line.includes('-')) {
+                    // Ищем имя пользователя
+                    const nameMatch = line.match(/^([^:\-]+)[:\-]/);
+                    if (nameMatch) {
+                        currentUser = nameMatch[1].trim();
+                        if (!userCards[currentUser]) {
+                            userCards[currentUser] = {};
+                        }
+                    }
+                }
+
+                // Ищем эмодзи карт
+                for (const symbol in d) {
+                    const regex = new RegExp(symbol, 'g');
+                    const matches = line.match(regex);
+                    if (matches) {
+                        const count = matches.length;
+                        
+                        // Общая статистика
+                        cardCounts[symbol] = (cardCounts[symbol] || 0) + count;
+                        
+                        // Статистика по пользователю
+                        if (currentUser) {
+                            userCards[currentUser][symbol] = (userCards[currentUser][symbol] || 0) + count;
+                        }
+                    }
+                }
+            }
+
+            // Показываем результаты
+            showParserResults(cardCounts, userCards);
+        }
+
+        function showParserResults(cardCounts, userCards) {
+            const resultsDiv = document.getElementById('parserResults');
+            const statsDiv = document.getElementById('parserStats');
+            const cardsListDiv = document.getElementById('parserCardsList');
+            const usersSection = document.getElementById('parserUsersSection');
+            const usersListDiv = document.getElementById('parserUsersList');
+
+            // Общая статистика
+            let totalCards = 0;
+            let totalValue = 0;
+            
+            for (const symbol in cardCounts) {
+                totalCards += cardCounts[symbol];
+                if (d[symbol].c !== null) {
+                    totalValue += cardCounts[symbol] * d[symbol].c;
+                }
+            }
+
+            statsDiv.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${totalCards}</div>
+                    <div class="stat-label">Всего карт</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Object.keys(cardCounts).length}</div>
+                    <div class="stat-label">Типов карт</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${totalValue}</div>
+                    <div class="stat-label">☑️ Стоимость</div>
+                </div>
+            `;
+
+            // Список карт
+            if (Object.keys(cardCounts).length === 0) {
+                cardsListDiv.innerHTML = '<div class="parser-no-cards">Карты не найдены</div>';
+            } else {
+                let cardsHtml = '';
+                for (const symbol in cardCounts) {
+                    const count = cardCounts[symbol];
+                    const card = d[symbol];
+                    const value = card.c !== null ? count * card.c : null;
+                    
+                    cardsHtml += `
+                        <div class="parser-card-item parser-card-item-${card.cat}">
+                            <div class="parser-card-emoji">${symbol}</div>
+                            <div class="parser-card-info">
+                                <div class="parser-card-name">${card.n}</div>
+                                <div class="parser-card-count">${count} шт.</div>
+                                ${value !== null ? `<div class="parser-card-cost">${value} ☑️</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+                cardsListDiv.innerHTML = cardsHtml;
+            }
+
+            // Список пользователей
+            if (Object.keys(userCards).length > 0) {
+                usersSection.style.display = 'block';
+                let usersHtml = '';
+                
+                for (const userName in userCards) {
+                    const userCardCounts = userCards[userName];
+                    let userTotalCards = 0;
+                    let userTotalValue = 0;
+                    
+                    for (const symbol in userCardCounts) {
+                        userTotalCards += userCardCounts[symbol];
+                        if (d[symbol].c !== null) {
+                            userTotalValue += userCardCounts[symbol] * d[symbol].c;
+                        }
+                    }
+                    
+                    usersHtml += `
+                        <div class="parser-user-item">
+                            <div class="parser-user-info">
+                                <div class="parser-user-name">${userName}</div>
+                                <div class="parser-user-stats">${userTotalCards} карт, ${userTotalValue} ☑️</div>
+                            </div>
+                            <div class="parser-user-actions">
+                                <button class="parser-user-btn" onclick="addUserToInventory('${userName}', ${JSON.stringify(userCardCounts).replace(/'/g, "\\'")})">📥 В инвентарь</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                usersListDiv.innerHTML = usersHtml;
+            } else {
+                usersSection.style.display = 'none';
+            }
+
+            resultsDiv.classList.add('active');
+            showNotification('Текст проанализирован', 'success');
+        }
+
+        function addUserToInventory(userName, cardCounts) {
+            for (const symbol in cardCounts) {
+                inventory[symbol] = (inventory[symbol] || 0) + cardCounts[symbol];
+            }
+            
+            saveInventory();
+            
+            if (document.getElementById('compactInventoryContainer')) {
+                createCompactInventoryGrid();
+            }
+            
+            showNotification(`Карты ${userName} добавлены в инвентарь`, 'success');
+            setMode('inventory');
+        }
+
+        function clearParser() {
+            document.getElementById('parserText').value = '';
+            document.getElementById('parserResults').classList.remove('active');
+            showNotification('Текст очищен', 'info');
+        }
+
+        function loadExample() {
+            const example = `Иван: 🟦🟦🟩☑️☑️☑️
+Мария: 🟧💎🚨
+Петя: ☑️☑️☑️☑️
+
+Список карт у спикеров:
+Анна - 🟦🟦🟩
+Борис - ☑️☑️☑️☑️☑️`;
+
+            document.getElementById('parserText').value = example;
+            showNotification('Пример загружен', 'info');
+        }
+
+        function updateMoscowTime() {
+            const now = new Date();
+            const moscowTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+            const h = moscowTime.getHours().toString().padStart(2, '0');
+            const m = moscowTime.getMinutes().toString().padStart(2, '0');
+            const sec = moscowTime.getSeconds().toString().padStart(2, '0');
+            const timeStr = `${h}:${m}:${sec}`;
+            document.getElementById('timeDisplay').textContent = timeStr;
+
+            const timeDisplay = document.getElementById('moscowTime');
+            const warning = document.getElementById('nightWarning');
+
+            if (h >= 23 || h < 6) {
+                timeDisplay.classList.add('night-mode');
+                warning.classList.add('show');
+            } else {
+                timeDisplay.classList.remove('night-mode');
+                warning.classList.remove('show');
+            }
+        }
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
@@ -1232,14 +1391,8 @@
                 if (p.classList.contains('active') && !p.contains(e.target) && !t.contains(e.target)) toggleCheatsheet();
             });
 
-            // LIVE
-
             setMode('single');
             filterCards();
-            
-            // Инициализация LIVE
-            checkLiveOnce();
-            startLiveAutoPoll();
             
             setTimeout(() => { showNotification('Калькулятор готов к работе!', 'success'); }, 500);
         });
