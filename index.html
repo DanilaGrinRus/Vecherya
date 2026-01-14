@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -160,6 +159,8 @@
             align-items:center;justify-content:center;gap:10px;margin-top:20px;-webkit-appearance:none;
             touch-action:manipulation;transition:all 0.3s ease
         }
+        /* Кнопки инвентаря "Сборка / Разбор / Сводка" должны быть не жирными */
+        .inv-main-btn{font-weight:400}
         .calculate-btn:active{transform:scale(0.97)}
         .compact-inventory-container{
             background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.05);
@@ -406,152 +407,155 @@
             border:1px solid rgba(218,165,32,0.25);
             flex-shrink:0
         }
-    </style>
+    
+/* Inventory: 3 buttons in a row */
+.inventory-actions-3{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.inventory-actions-3 .calculate-btn{flex:1 1 260px;min-width:220px}
+@media (min-width:980px){
+  .inventory-actions-3 .calculate-btn{flex:1 1 calc(33.333% - 14px)}
+}
+
+/* Parser: show only users */
+        /* parserStats должен отображаться (в нём показываем количество уникальных пользователей) */
+        #parserCardsList{display:none !important}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <header class="main-header">
-            <h1>🃏 Калькулятор стрима "Тайная Вечеря"</h1>
-            <p class="subtitle">Расчёт стоимости карт и автоматический анализ инвентаря</p>
-            <div class="time-display" id="moscowTime">
-                <span>🕐</span>Московское время: <span id="timeDisplay">00:00:00</span>
+  <div class="container">
+    <header class="main-header">
+      <h1>🃏 Калькулятор стрима "Тайная Вечеря"</h1>
+      <p class="subtitle">Расчёт стоимости карт и автоматический анализ инвентаря</p>
+      <div class="time-display" id="moscowTime">
+        <span>🕐</span>Московское время: <span id="timeDisplay">00:00:00</span>
+      </div>
+      <div class="night-warning" id="nightWarning">⚠️ После 23:00 использование карт активации для продления эфира запрещено!</div>
+    </header>
+
+    <section class="calculator-section">
+      <h2 class="section-title">🧮 Калькулятор карточек</h2>
+
+      <div class="mode-selector">
+        <button class="mode-btn active" id="modeSingleBtn">Сборка</button>
+        <button class="mode-btn" id="modeInventoryBtn">Инвентарь</button>
+        <button class="mode-btn" id="modeParserBtn">АвтоЛень</button>
+      </div>
+
+      <!-- Single -->
+      <div class="mode-content active" id="contentSingle">
+        <div class="card-selector-container">
+          <div class="search-box">
+            <input class="search-input" id="cardSearch" type="text" placeholder="Поиск по картам" autocomplete="off">
+          </div>
+
+          <div class="category-tabs" id="categoryTabs">
+            <button class="category-tab active" data-category="all">Все</button>
+            <button class="category-tab" data-category="normal">🀄️ Обычные</button>
+            <button class="category-tab" data-category="activation">🎴 Активации</button>
+            <button class="category-tab" data-category="violation">🧧 Нарушения</button>
+            <button class="category-tab" data-category="super">⭐ Супер</button>
+            <button class="category-tab" data-category="danger">📱 Опасные</button>
+          </div>
+
+          <div class="cards-selector-grid" id="cardsSelectorGrid"></div>
+
+          <div class="input-group">
+            <label for="cardCount"><span>🔢</span> Количество:</label>
+            <input type="number" id="cardCount" value="1" min="1" max="100" inputmode="numeric">
+          </div>
+
+          <button class="calculate-btn" id="calculateSingleBtn"><span>🧩</span> Рассчитать</button>
+
+          <div class="selected-card-display" id="selectedCardDisplay" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- Inventory -->
+      <div class="mode-content" id="contentInventory">
+        <div class="card-selector-container">
+          <div id="compactInventoryContainer"></div>
+
+          <div class="inventory-actions-3">
+            <button class="calculate-btn inv-main-btn" id="buildInventoryBtn"><span>🧱</span> Сборка</button>
+            <button class="calculate-btn inv-main-btn" id="breakdownInventoryBtn"><span>🧩</span> Разбор</button>
+            <button class="calculate-btn inv-main-btn" id="calculateInventoryBtn"><span>📊</span> Сводка</button>
+          </div>
+
+          <button class="reset-btn" id="resetAllBtn"><span>🧹</span> Сбросить всё</button>
+        </div>
+      </div>
+
+      <!-- Parser -->
+      <div class="mode-content" id="contentParser">
+        <div class="parser-container">
+          <div class="parser-input-container">
+            <div class="input-group">
+              <label><span>📝</span> Введите текст для анализа:</label>
+              <textarea class="parser-textarea" id="parserText" placeholder="Вставьте сюда текст с карточками"></textarea>
             </div>
-            <div class="night-warning" id="nightWarning">⚠️ После 23:00 использование карт активации для продления эфира запрещено!</div>
-            <button class="reset-btn" id="resetAllBtn"><span>🔄</span> Сбросить всё</button>
-        </header>
-
-        <section class="calculator-section">
-            <h2 class="section-title">🧮 Калькулятор карточек</h2>
-
-            <div class="mode-selector">
-                <button class="mode-btn active" id="modeSingleBtn">Сборка</button>
-                <button class="mode-btn" id="modeInventoryBtn">Инвентарь</button>
-                <button class="mode-btn" id="modeParserBtn">АвтоЛень</button>
+            <div class="parser-buttons">
+              <button class="parser-btn primary" id="parseTextBtn"><span>🔮</span> Магия</button>
+              <button class="parser-btn" id="clearParserBtn"><span>🧹</span> Очистить</button>
+              <button class="parser-btn" id="loadExampleBtn"><span>📋</span> Пример</button>
             </div>
+          </div>
 
-            <div class="mode-content active" id="contentSingle">
-                <div class="input-group">
-                    <label><span>🎯</span> Выберите карту:</label>
-
-                    <div class="card-selector-container">
-                        <div class="search-box">
-                            <input type="text" class="search-input" placeholder="Найти карту..." id="cardSearch">
-                        </div>
-
-                        <div class="category-tabs" id="categoryTabs">
-                            <button class="category-tab active" data-category="all"><span>📁</span> Все</button>
-                            <button class="category-tab" data-category="normal"><span>🀄️</span> Обычные</button>
-                            <button class="category-tab" data-category="activation"><span>🎴</span> Активации</button>
-                            <button class="category-tab" data-category="violation"><span>🧧</span> Нарушения</button>
-                            <button class="category-tab" data-category="super"><span>⭐</span> Супер</button>
-                            <button class="category-tab" data-category="danger"><span>📱</span> Опасные</button>
-                        </div>
-
-                        <div class="cards-selector-grid" id="cardsSelectorGrid"></div>
-
-                        <div class="selected-card-display" id="selectedCardDisplay" style="display:none"></div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label><span>🔢</span> Количество:</label>
-                    <input type="number" id="cardCount" value="1" min="1" max="100">
-                </div>
-
-                <button class="calculate-btn" id="calculateSingleBtn"><span>✨</span> Скока?</button>
+          <div class="parser-results" id="parserResults">
+            <h4 class="parser-results-title"><span>📊</span> Результаты анализа:</h4>
+            <div class="parser-stats" id="parserStats"></div>
+            <div class="parser-cards-list" id="parserCardsList"></div>
+            <div class="parser-users-section" id="parserUsersSection" style="display:none">
+              <h5 class="parser-users-title"><span>👥</span> Найденные пользователи:</h5>
+              <div class="parser-users-list" id="parserUsersList"></div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div class="mode-content" id="contentInventory">
-                <div class="hint" style="color:var(--text-secondary);margin-bottom:16px;font-size:0.9rem">Укажите количество карт в вашем инвентаре:</div>
-                <div id="compactInventoryContainer"></div>
-                <button class="calculate-btn" id="calculateInventoryBtn"><span>🔍</span> Проанализировать инвентарь</button>
-            </div>
+      <div class="results-section">
+        <h3 class="results-title"><span>📊</span> Результаты:</h3>
+        <div class="results-container" id="results">
+          <div style="text-align:center;padding:30px;color:var(--text-secondary)">
+            <div style="font-size:3rem;margin-bottom:16px;opacity:0.5">📊</div>
+            <p style="font-size:1rem;margin-bottom:8px">Выберите карту и нажмите "Рассчитать"</p>
+            <p style="font-size:0.85rem;opacity:0.7">Или перейдите в раздел "Инвентарь" или "АвтоЛень"</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <div class="mode-content" id="contentParser">
-                <div class="parser-container">
-                    <div class="parser-input-container">
-                        <div class="input-group">
-                            <label><span>📝</span> Введите текст для анализа:</label>
-                            <textarea class="parser-textarea" id="parserText" placeholder="Вставьте сюда текст с карточками...
+    <footer class="footer">
+      <p style="margin-top:8px;font-size:0.8rem;opacity:0.8">2026 год от Рождества Христова</p>
+    </footer>
+  </div>
 
-Примеры форматов:
+  <button class="cheatsheet-toggle" id="cheatsheetToggle">📋</button>
 
-1. Списки инвентаря:
-⚡️🎴🀄️Список карт у спикеров
-⚡️🧿ТВ колесо
-Ева - 8
-Ирчик - 2
-Шпрота - 2
-
-🟦Синяя
-Бальтазар - 19
-Кащей - 8
-Эмбер🇧🇾 - 9
-
-🟩Зелёная
-Тара - 1
-Бальтазар - 3
-Дашенька - 14
-
-2. Простой формат:
-Иван: 🟦🟦🟩☑️☑️☑️
-Мария: 🟧💎🚨
-Петя: ☑️☑️☑️☑️"></textarea>
-                        </div>
-                        <div class="parser-buttons">
-                            <button class="parser-btn primary" id="parseTextBtn"><span>🔮</span> Магия</button>
-                            <button class="parser-btn" id="clearParserBtn"><span>🧹</span> Очистить</button>
-                            <button class="parser-btn" id="loadExampleBtn"><span>📋</span> Пример</button>
-                        </div>
-                    </div>
-                    <div class="parser-results" id="parserResults">
-                        <h4 class="parser-results-title"><span>📊</span> Результаты анализа:</h4>
-                        <div class="parser-stats" id="parserStats"></div>
-                        <div class="parser-cards-list" id="parserCardsList"></div>
-                        <div class="parser-users-section" id="parserUsersSection" style="display:none">
-                            <h5 class="parser-users-title"><span>👥</span> Найденные пользователи:</h5>
-                            <div class="parser-users-list" id="parserUsersList"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="results-section">
-                <h3 class="results-title"><span>📊</span> Результаты:</h3>
-                <div class="results-container" id="results">
-                    <div style="text-align:center;padding:30px;color:var(--text-secondary)">
-                        <div style="font-size:3rem;margin-bottom:16px;opacity:0.5">📊</div>
-                        <p style="font-size:1rem;margin-bottom:8px">Выберите карту и нажмите "Рассчитать"</p>
-                        <p style="font-size:0.85rem;opacity:0.7">Или перейдите в раздел "Инвентарь" или "АвтоЛень"</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <footer class="footer">
-            <p style="margin-top:8px;font-size:0.8rem;opacity:0.8">2026 год от Рождества Христова, </p>
-        </footer>
+  <div class="cheatsheet-panel" id="cheatsheetPanel">
+    <div class="cheatsheet-header">
+      <h3 class="cheatsheet-title"><span>📋</span> Памятка карт</h3>
+      <button class="close-cheatsheet" id="closeCheatsheet">×</button>
     </div>
 
-    <button class="cheatsheet-toggle" id="cheatsheetToggle">📋</button>
-
-    <div class="cheatsheet-panel" id="cheatsheetPanel">
-        <div class="cheatsheet-header">
-            <h3 class="cheatsheet-title"><span>📋</span> Памятка карт</h3>
-            <button class="close-cheatsheet" id="closeCheatsheet">×</button>
-        </div>
-
-        <!-- Навигация по разделам -->
-        <div class="cheatsheet-nav">
-            <button class="parser-btn" id="navSingleBtn">🧩 Сборка</button>
-            <button class="parser-btn" id="navInventoryBtn">📦 Инвентарь</button>
-            <button class="parser-btn" id="navParserBtn">🧠 АвтоЛень</button>
-        </div>
-
-        <div id="cheatsheetContent"></div>
+    <div class="cheatsheet-nav">
+      <button class="parser-btn" id="navSingleBtn">🧩 Сборка</button>
+      <button class="parser-btn" id="navInventoryBtn">📦 Инвентарь</button>
+      <button class="parser-btn" id="navParserBtn">🧠 АвтоЛень</button>
     </div>
 
-    <script>
+    <div id="cheatsheetContent"></div>
+  </div>
+
+  <script>
+
+
+  // Safe DOM binding helpers (prevents script crash if an element is absent)
+  const $id = (id) => document.getElementById(id);
+  const bind = (id, evt, handler, opts) => {
+    const el = $id(id);
+    if (el) el.addEventListener(evt, handler, opts);
+  };
+
         // Данные карт
         const d = {
             "🔘": { n: "Комиссия", c: null, cat: "normal", cn: "🀄️ Обычные карты", d: "Оплата передачи карт между спикерами", e: "Оплата передачи карт между спикерами", a: "Для передачи карт между спикерами", ac: "Разделение 1 ☑️. Получить. Собрать.", f: "Нельзя передать", r: "нет", t: "нет", s: "Нет", tr: "Нет", conv: "Нет", p: "🏧🛐", cu: "нет" },
@@ -575,7 +579,7 @@
             "🎦": { n: "Карта Контента", c: 26, cat: "activation", cn: "🎴 Карты активаций", d: "Просмотр видеоматериала не более 1.30 ч по времени", e: "Просмотр видеоматериала", a: "1 раз за эфир", ac: "Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Нельзя снять", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
             "🎹": { n: "Музыкальная карта", c: 13, cat: "activation", cn: "🎴 Карты активаций", d: "Прослушивание вашей музыки 30 мин", e: "Прослушивание музыки", a: "1 раз за эфир", ac: "Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Нельзя снять", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
             "🟪": { n: "Розовая карта", c: 2, cat: "violation", cn: "🧧 Карты нарушений", d: "Как предупреждение. Вас спускают вниз. Вы можете зайти повторно", e: "Предупреждение, спуск вниз", a: "Первое нарушение", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
-            "🟥": { n: "Красная карта", c: 0, cat: "violation", cn: "🧧 Карты нарушений", d: "Вас снимают с эфира на 5 минут", e: "Снятие с эфира на 5 минут", a: "Третье нарушение", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
+            "🟥": { n: "Красная карта", c: 0, cat: "violation", cn: "🧧 Карты нарушений", d: "Снятие спикера с эфира до конца эфира", e: "Снятие спикера с эфира до конца эфира", a: "Третье нарушение", ac: "Нарушение правил. Получить.", f: "нет", r: "🟩", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
             "🟨": { n: "Жёлтая карта", c: 0, cat: "violation", cn: "🧧 Карты нарушений", d: "Вас спускают вниз на 30 минут. Вы можете зайти повторно", e: "Спуск вниз на 30 минут", a: "Второе нарушение", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
             "⬛️": { n: "Чёрная карта", c: 15, cat: "violation", cn: "🧧 Карты нарушений", d: "Блок на 1 неделю", e: "Блокировка на 1 неделю", a: "За серьёзные нарушения", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
             "🟫": { n: "Коричневая карта", c: 8, cat: "violation", cn: "🧧 Карты нарушений", d: "Отключение комментариев на весь период эфира", e: "Отключение комментариев", a: "Действует 1 эфир на 1 аккаунт", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
@@ -590,10 +594,11 @@
             "🛐": { n: "Храм", c: null, cat: "super", cn: "⭐ Супер карты", d: "Защитная карта от определённых эффектов", e: "Защита от некоторых карт", a: "Для защиты", ac: "Достижения, покупка. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
             "🏧": { n: "Банк", c: null, cat: "super", cn: "⭐ Супер карты", d: "Карта для финансовых операций с картами", e: "Финансовые операции с картами", a: "Обмен, покупка карт", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
             "🧺": { n: "Ведро Егора", c: null, cat: "super", cn: "⭐ Супер карты", d: "Ведущий забирает 1 обычную🀄️карту у любого спикера и кладёт себе в ведро", e: "Забирает обычную карту у спикера", a: "Сразу же при выпадении", ac: "🧿ТВ колесо", f: "Безлимитное накопление, активация, складывание, передача, разделение, накладывание на спикеров, хранение 🎴🀄️ карт", r: "Нет", t: "Ⓜ️♎️", s: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🎴⭐🛐🏧" },
-            "🌋": { n: "Преисподняя", c: null, cat: "super", cn: "⭐ Супер карты", d: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", e: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", a: "Ведущим при выпадении с 🧿ТВ колеса или строительстве. Спикерами при строительстве. Покупке. Получении.", ac: "🧿ТВ колесо. Постройка. Покупка. Получение.", f: "Работает по принципу 🏧Банка и 🛐Храма. Может использовать как ведущий так и спикеры. Можно построить за 6 🚨. Построить можно 1 раз.", r: "Нет", t: "Нет", s: "Да. Раз в 2 месяца.", tr: "Да. Раз в 2 месяца.", conv: "Нет", p: "Да", cu: "🛐🏧" }
+            "🌋": { n: "Преисподняя", c: null, cat: "super", cn: "⭐ Супер карты", d: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", e: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", a: "Ведущим при выпадении с 🧿ТВ колеса или строительстве. Спикерами при строительстве. Покупке. Получении.", ac: "🧿ТВ колесо. Постройка. Покупка. Получение.", f: "Работает по принципу 🏧Банка и 🛐Храма. Может использовать как ведущий так и спикеры. Можно построить за 6 🚨. Построить можно 1 раз.", r: "Нет", t: "Нет", s: "Да. Раз в 2 месяца.", tr: "Да. Раз в 2 месяца.", conv: "Нет", p: "Да", cu: "🛐🏧" },
+            "🥷📱": { n: "Грабители", c: null, cat: "danger", cn: "📱 Опасные карты", d: "Грабит 🏧Банк с наибольшим количеством 🀄️🎴карт и крадёт половину (или больше). Ограбленный получает 5 🧿ТВ колёс.", e: "Грабит 🏧Банк в котором больше всего 🀄️🎴карт. Крадёт половину или больше половины карт. Ограбленный получает 5 🧿ТВ колёс", a: "1 раз. Активируется с 🧿ТВ колеса.", ac: "🧿ТВ колесо. Сборка. Получение.", f: "Можно снять залогом. Может использовать ведущий.", r: "3🚨 от одного спикера после вращения колеса. Выбивает из инвентаря при наличии у спикера или ведущего.", t: "Нет", s: "Нет", tr: "Да", conv: "Нет", p: "Да", cu: "🛐🪣🌋" }
         };
-
-        const r = {
+        const cardData = d;
+const r = {
             "🟪": { f: "☑️ + ☑️", d: "Создание розовой карты", cg: 2, cd: "2 ☑️" },
             "🟦": { f: "☑️ + ☑️ + ☑️", d: "Создание синей карты", cg: 3, cd: "3 ☑️" },
             "🟩": { f: "🟦 + 🟦", d: "Создание зелёной карты", cg: 6, cd: "2 🟦 (6 ☑️)" },
@@ -601,7 +606,7 @@
             "☮️": { f: "🟩 + 🟦", d: "Создание карты Пацифик", cg: 9, cd: "1 🟩 + 1 🟦" },
             "📜": { f: "🟦 + ☑️", d: "Создание карты Пергамент", cg: 4, cd: "1 🟦 + 1 ☑️" },
             "🚾": { f: "☑️ + ☑️", d: "Создание карты Антиэкран", cg: 2, cd: "2 ☑️" },
-            "⬜️": { f: "🟩 + 🟩", d: "Создание белой карты", cg: 12, cd: "2 🟩" },
+            "⬜️": { f: "🟩 + 🟩", d: "Создание белой карта", cg: 12, cd: "2 🟩" },
             "🟧": { f: "⬜️ + ⬜️", d: "Создание золотой карты", cg: 24, cd: "2 ⬜️" },
             "💎": { f: "🟧 + 🟧", d: "Создание изумрудной карты", cg: 48, cd: "2 🟧" },
             "🎦": { f: "🟧 + ⬜️ + ☑️", d: "Создание карты контента", cg: 37, cd: "1 🟧 + 1 ⬜️ + 1 ☑️" },
@@ -612,6 +617,8 @@
             "🚨": { f: "💎 + 💎 + 💎", d: "Создание рубиновой карты", cg: 144, cd: "3 💎" },
             "🅱️": { f: "🔲 + 🏳️‍🌈 + 🚨 + 💎 + 🟧 + ⬜️ + 🎦 + 🎹 + 🃏 + 🚾 + 📜 + ☮️ + 🟩 + 🟦 + ☑️", d: "Создание биты", cg: 634, cd: "1 🔲 + 1 🏳️‍🌈 + 1 🚨 + 1 💎 + 1 🟧 + 1 ⬜️ + 1 🎦 + 1 🎹 + 1 🃏 + 1 🚾 + 1 📜 + 1 ☮️ + 1 🟩 + 1 🟦 + 1 ☑️" },
             "🌋": { f: "🚨 + 🚨 + 🚨 + 🚨 + 🚨 + 🚨", d: "Создание Преисподней", cg: 864, cd: "6 🚨" }
+        ,
+            "🥷📱": { f: "⚫️ + 💣", d: "Сборка карты «Грабители»" }
         };
 
         let s = null, i = {};
@@ -625,13 +632,81 @@
             set(v) { i = v || {}; }
         });
         const recipes = r;
+        // Алиас для парсера/старого кода
+        // cardData уже объявлен выше
 
         let parsedUsers = [];
 
         // Основные функции калькулятора
+        function convertToHigherCards(totalValue) {
+            if (!totalValue || totalValue <= 0) return "0 ☑️";
+            
+            let result = "";
+            let remaining = totalValue;
+            
+            // Сортируем карты по стоимости (от большей к меньшей)
+            const cardsWithCost = Object.keys(d)
+                .map(sym => ({ sym, cost: d[sym].c, name: d[sym].n }))
+                .filter(c => c.cost !== null && c.cost > 0)
+                .sort((a, b) => b.cost - a.cost);
+            
+            cardsWithCost.forEach(card => {
+                if (remaining >= card.cost) {
+                    const count = Math.floor(remaining / card.cost);
+                    if (count > 0) {
+                        if (result) result += ", ";
+                        result += `${count}×${card.sym}`;
+                        remaining -= count * card.cost;
+                    }
+                }
+            });
+            
+            if (remaining > 0) {
+                if (result) result += ", ";
+                result += `${remaining}×☑️`;
+            }
+            
+            return result || `${totalValue} ☑️`;
+        }
+
+        function clearParser() {
+            document.getElementById('parserText').value = '';
+            document.getElementById('parserResults').classList.remove('active');
+            showNotification('Текст очищен', 'info');
+        }
+
+        function loadExample() {
+            const exampleText = `Пример инвентаря:
+
+⚡️🎴🀄️Список карт у спикеров
+⚡️🧿ТВ колесо
+Ева - 8
+Ирчик - 2
+Шпрота - 2
+
+🟦Синяя карта
+Бальтазар - 19
+Кащей - 8
+Эмбер🇧🇾 - 9
+
+🟩Зелёная карта
+Тара - 1
+Бальтазар - 3
+Дашенька - 14
+
+Пример простого формата:
+Иван: 🟦🟦🟩☑️☑️☑️
+Мария: 🟧💎🚨
+Петя: ☑️☑️☑️☑️`;
+            
+            document.getElementById('parserText').value = exampleText;
+            showNotification('Пример загружен', 'info');
+        }
+
         function createCardSelectorGrid() {
             const c = document.getElementById('cardsSelectorGrid');
-            const a = document.querySelector('.category-tab.active').getAttribute('data-category');
+            const activeTab = document.querySelector('.category-tab.active') || document.querySelector('.category-tab');
+            const a = activeTab ? activeTab.getAttribute('data-category') : 'all';
             let h = '';
 
             const cats = {
@@ -639,7 +714,7 @@
                 "activation": { t: "🎴 Карты активаций", c: ["🚨", "Ⓜ️", "🅱️", "♎️", "♻️", "🃏", "☮️", "📜", "🚾", "🔲", "🏳️‍🌈", "🎦", "🎹"] },
                 "violation": { t: "🧧 Карты нарушений", c: ["🟪", "🟥", "🟨", "⬛️", "🟫", "🅾️", "💠"] },
                 "super": { t: "⭐ Супер карты", c: ["🎰", "🍫", "🎁", "🦎", "🛐", "🏧", "🧺", "🌋"] },
-                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣"] }
+                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣", "🥷📱"] }
             };
 
             if (a === 'all') {
@@ -734,7 +809,7 @@
                 "activation": { t: "🎴 Карты активаций", c: ["🚨", "Ⓜ️", "🅱️", "♎️", "♻️", "🃏", "☮️", "📜", "🚾", "🔲", "🏳️‍🌈", "🎦", "🎹"] },
                 "violation": { t: "🧧 Карты нарушений", c: ["🟪", "🟥", "🟨", "⬛️", "🟫", "🅾️", "💠"] },
                 "super": { t: "⭐ Супер карты", c: ["🎰", "🍫", "🎁", "🦎", "🛐", "🏧", "🧺", "🌋"] },
-                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣"] }
+                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣", "🥷📱"] }
             };
 
             Object.keys(cats).forEach(k => {
@@ -852,11 +927,344 @@
             return out || 'Нет доступных карт для сборки<br>';
         }
 
-        function calculateInventory() {
+
+        // Разбор карт на более мелкие по обратным рецептам (C -> ингредиенты)
+        function parseRecipeFormulaToCounts(formula) {
+            // ожидаем формат "A + B + C"
+            const parts = String(formula || '').split('+').map(p => p.trim()).filter(Boolean);
+            const out = {};
+            parts.forEach(p => { out[p] = (out[p] || 0) + 1; });
+            return out;
+        }
+
+        function disassembleInventory(inv) {
+            const work = { ...(inv || {}) };
+            // Собираем обратные рецепты: продукт -> {ингредиенты}
+            const reverse = {};
+            Object.keys(recipes).forEach(prod => {
+                const f = recipes[prod]?.f;
+                if (!f) return;
+                reverse[prod] = parseRecipeFormulaToCounts(f);
+            });
+
+            // Итеративно разбираем, чтобы пройти цепочки (например 💎 -> 🟧 -> ⬜️ -> 🟩 -> 🟦 -> ☑️)
+            const MAX_ITERS = 1000;
+            for (let iter = 0; iter < MAX_ITERS; iter++) {
+                let changed = false;
+                Object.keys(work).forEach(sym => {
+                    const cnt = work[sym] || 0;
+                    if (cnt <= 0) return;
+                    const ing = reverse[sym];
+                    if (!ing) return;
+
+                    work[sym] = work[sym] - cnt;
+                    Object.keys(ing).forEach(k => {
+                        work[k] = (work[k] || 0) + ing[k] * cnt;
+                    });
+                    changed = true;
+                });
+                if (!changed) break;
+            }
+            return work;
+        }
+
+        function normalizeSymbol(sym){
+            // Remove variation selectors and zero-width chars that often break emoji key matching
+            return String(sym || '')
+                .replace(/\uFE0F/g, '')
+                .replace(/[\u200B-\u200D]/g, '')
+                .trim();
+        }
+
+
+
+        
+        function buildTierBreakdownLines(inv) {
+            const getQty = (s) => Number(inv?.[s] || 0);
+            const cost = (s) => {
+                const key = String(s || '');
+                const nk = normalizeSymbol(key);
+                const v1 = d?.[key]?.c;
+                const v2 = (nk !== key) ? d?.[nk]?.c : undefined;
+                const v = (typeof v1 === 'number' && isFinite(v1)) ? v1
+                        : ((typeof v2 === 'number' && isFinite(v2)) ? v2 : 0);
+                return v;
+            };
+
+            // 1) Переводим весь инвентарь в базовую стоимость (☑️)
+            let totalGrey = 0;
+            Object.keys(inv || {}).forEach(sym => {
+                const q = getQty(sym);
+                if (q <= 0) return;
+                const c = cost(sym);
+                if (c <= 0) return;
+                totalGrey += q * c;
+            });
+
+            const blueCost = cost("🟦") || 3; // 1 🟦 = 3 ☑️ (по вашим правилам)
+            const totalBlues = Math.floor(totalGrey / blueCost);
+            const remGrey = totalGrey - totalBlues * blueCost; // 0..(blueCost-1)
+
+            // 2) Разбираем итог в 🟦 вниз по "лестнице" старших карт (в синие единицы)
+            // 1🚨 = 48🟦, 1💎 = 16🟦, 1🟧 = 8🟦, 1⬜️ = 4🟦, 1🟩 = 2🟦, 1🟦 = 1🟦
+            const denom = [
+                { sym: "🚨", blues: 48 },
+                { sym: "💎", blues: 16 },
+                { sym: "🟧", blues: 8 },
+                { sym: "⬜️", blues: 4 },
+                { sym: "🟩", blues: 2 },
+                { sym: "🟦", blues: 1 },
+            ];
+
+            let rem = totalBlues;
+            const parts = {};
+            denom.forEach(dn => {
+                const n = Math.floor(rem / dn.blues);
+                if (n > 0) parts[dn.sym] = n;
+                rem = rem - n * dn.blues;
+            });
+
+            const lines = [];
+
+            // Строка 1: общий эквивалент в ☑️ / 🟦 и сдача в 🔘
+            const comm = remGrey * 2; // 1 ☑️ = 2 🔘
+            const baseLine = remGrey > 0
+                ? `${totalGrey} ☑️ = ${totalBlues} 🟦 + ${remGrey} ☑️ (${comm} 🔘)`
+                : `${totalGrey} ☑️ = ${totalBlues} 🟦`;
+            lines.push(baseLine);
+
+            // Строка 2: разбор в старшие/младшие (сдача внутри 🟦 уже учтена)
+            const partStr = denom
+                .map(dn => parts[dn.sym] ? `${parts[dn.sym]} ${dn.sym}` : null)
+                .filter(Boolean)
+                .join(' + ');
+            lines.push(partStr.length ? `Разбор: ${partStr}` : `Разбор: 0`);
+
+            // Строка 3: справочный "курс" (как раньше)
+            lines.push(`По курсу: 🚨×48, 💎×16, 🟧×8, ⬜️×4, 🟩×2, 🟦×1 (1 🟦 = ${blueCost} ☑️, 1 ☑️ = 2 🔘)`);
+
+            return { lines, totalBlues, totalGrey, remGrey };
+        }
+
+        
+        
+        function formatValueEquivalences(totalGray){
+            const n = Math.max(0, Math.floor(Number(totalGray || 0)));
+            if (!n) return "";
+            // Без потерь: дроби не показываем. Остаток приводим к ☑️ (и дополнительно к 🔘 как 1☑️=2🔘).
+            const tiers = [
+                {sym:"☑️", cost:1},
+                {sym:"🟦", cost:3},
+                {sym:"🟩", cost:6},
+                {sym:"⬜️", cost:12},
+                {sym:"🟧", cost:24},
+                {sym:"💎", cost:48},
+                {sym:"🚨", cost:144}
+            ];
+
+            const fmtRemainder = (rem) => rem > 0 ? ` + ${rem} ☑️ (${rem*2} 🔘)` : ``;
+
+            return tiers.map(t => {
+                if (t.sym === "☑️") return `${n} ☑️`;
+                const q = Math.floor(n / t.cost);
+                const rem = n - q * t.cost;
+                return `${q} ${t.sym}${fmtRemainder(rem)}`;
+            }).join(' = ');
+        }
+
+function showInventoryBreakdown() {
+            const inv = { ...(inventory || {}) };
+            const any = Object.values(inv).some(v => Number(v) > 0);
+            if (!any) { showNotification('Инвентарь пуст', 'warning'); return; }
+
+            const { lines, totalBlues } = buildTierBreakdownLines(inv);
+
+            const list = `<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+                            <div class="calc-result-card">
+                                <div style="font-weight:700;margin-bottom:6px">🧩 Разбор</div>
+                                <div style="line-height:1.6">${lines.map(l=>`<div>${escapeHtml(l)}</div>`).join('')}</div>
+                            </div>
+                          </div>`;
+
+            const summary = `<div class="calc-result-card" style="border:1px solid rgba(50,205,50,0.35)">
+                                <div style="font-weight:800;margin-bottom:6px">Итог в синих</div>
+                                <div style="font-size:1.2rem;font-weight:800">${totalBlues} 🟦</div>
+                             </div>`;
+
+            document.getElementById('results').innerHTML = `<div style="display:flex;flex-direction:column;gap:12px">${summary}${list}</div>`;
+        }
+
+
+        
+function buildInventoryUpgrades(mode = 'max') {
+    // Режимы:
+    //  - max  : собрать всё возможное (жадно, от дорогого к дешёвому)
+    //  - best : не собирать всё, а предложить один лучший вариант (и его количество), показать "сдачу"
+
+    const inv = { ...(inventory || {}) };
+
+    // Вариативные "быстрые" сборки (считаем их допустимыми правилами игры).
+    // Эти рецепты нужны, чтобы из верхних карт можно было собрать топовые спецкарты.
+    const _virtualRecipes = [
+        { prod: "🅱️", need: { "🚨": 3 } },
+        { prod: "🔲", need: { "🚨": 3 } },
+        { prod: "🔲", need: { "🚨": 2 } },
+        { prod: "🏳️‍🌈", need: { "🚨": 1 } },
+        { prod: "🅱️", need: { "🚨": 2, "💎": 1 } }
+    ];
+
+    const get = (s) => Number(inv?.[s] || 0);
+    const add = (s, v) => { inv[s] = get(s) + v; };
+    const sub = (s, v) => { inv[s] = Math.max(0, get(s) - v); };
+
+    // Парсим рецепты в форму: {prod, cost, need:{}}
+    const parsedRecipes = [];
+
+    const pushRecipe = (prod, need) => {
+        const cost = (cardData?.[prod]?.c ?? recipes?.[prod]?.cg);
+        if (cost === null || cost === undefined) return;
+        if (!need || Object.keys(need).length === 0) return;
+        parsedRecipes.push({ prod, cost: Number(cost), need });
+    };
+
+    _virtualRecipes.forEach(vr => pushRecipe(vr.prod, vr.need));
+
+    Object.keys(recipes).forEach(prod => {
+        const rc = recipes[prod];
+        if (!rc || !rc.f) return;
+        const need = parseRecipeFormulaToCounts(rc.f);
+        pushRecipe(prod, need);
+    });
+
+    // Сортируем по дороговизне результата (сверху вниз)
+    parsedRecipes.sort((a, b) => (b.cost || 0) - (a.cost || 0));
+
+    const made = {};
+
+    const canCraft = (pr) => {
+        let can = Infinity;
+        for (const ing in pr.need) {
+            const have = get(ing);
+            const req = pr.need[ing];
+            can = Math.min(can, Math.floor(have / req));
+        }
+        if (!Number.isFinite(can) || can <= 0) return 0;
+        return can;
+    };
+
+    const applyCraft = (pr, times) => {
+        if (!times || times <= 0) return 0;
+        for (const ing in pr.need) sub(ing, pr.need[ing] * times);
+        add(pr.prod, times);
+        made[pr.prod] = (made[pr.prod] || 0) + times;
+        return times;
+    };
+
+    let picked = null;
+
+    if (mode === 'best') {
+        // "Лучший вариант": выбираем один рецепт, который даёт максимум ценности из доступного.
+        // Выбираем по: 1) максимальная суммарная ценность (can * cost)
+        //             2) максимальная ценность одной карты (cost)
+        //             3) максимальное количество (can)
+        for (const pr of parsedRecipes) {
+            const can = canCraft(pr);
+            if (can <= 0) continue;
+            const score = can * (pr.cost || 0);
+            if (!picked) picked = { pr, can, score };
+            else if (score > picked.score) picked = { pr, can, score };
+            else if (score === picked.score && (pr.cost || 0) > (picked.pr.cost || 0)) picked = { pr, can, score };
+            else if (score === picked.score && (pr.cost || 0) === (picked.pr.cost || 0) && can > picked.can) picked = { pr, can, score };
+        }
+
+        if (picked) {
+            applyCraft(picked.pr, picked.can);
+        }
+    } else {
+        // "Максимальная сборка": жадно собираем всё возможное, от дорогого к дешёвому
+        for (const pr of parsedRecipes) {
+            const can = canCraft(pr);
+            if (can <= 0) continue;
+            applyCraft(pr, can);
+        }
+    }
+
+    // Формируем вывод
+    const craftedLines = Object.keys(made)
+        .sort((a, b) => (cardData[b]?.c || 0) - (cardData[a]?.c || 0))
+        .map(sym => `${made[sym]} ${sym}`);
+
+    const remainder = Object.keys(inv)
+        .filter(sym => get(sym) > 0)
+        .sort((a, b) => (cardData[b]?.c || 0) - (cardData[a]?.c || 0))
+        .map(sym => `${get(sym)} ${sym}`)
+        .join('  ');
+
+    // Эквивалент — справочно, вниз по уровням до 🟦
+    const tierMult = { "🚨": 48, "💎": 16, "🟧": 8, "⬜️": 4, "🟩": 2, "🟦": 1 };
+    const tierOrder = ["🚨", "💎", "🟧", "⬜️", "🟩", "🟦"];
+
+    const chainLines = [];
+    for (const top of tierOrder) {
+        const cnt = get(top);
+        if (!cnt) continue;
+
+        const eq = [];
+        if (top === "🚨") { eq.push(`${cnt} 🚨`, `${cnt * 3} 💎`, `${cnt * 6} 🟧`, `${cnt * 12} ⬜️`, `${cnt * 24} 🟩`, `${cnt * 48} 🟦`); }
+        else if (top === "💎") { eq.push(`${cnt} 💎`, `${cnt * 2} 🟧`, `${cnt * 4} ⬜️`, `${cnt * 8} 🟩`, `${cnt * 16} 🟦`); }
+        else if (top === "🟧") { eq.push(`${cnt} 🟧`, `${cnt * 2} ⬜️`, `${cnt * 4} 🟩`, `${cnt * 8} 🟦`); }
+        else if (top === "⬜️") { eq.push(`${cnt} ⬜️`, `${cnt * 2} 🟩`, `${cnt * 4} 🟦`); }
+        else if (top === "🟩") { eq.push(`${cnt} 🟩`, `${cnt * 2} 🟦`); }
+        else if (top === "🟦") { eq.push(`${cnt} 🟦`); }
+
+        if (eq.length) chainLines.push(eq.join(' = '));
+    }
+
+    const pickedBlock = (mode === 'best')
+        ? (picked
+            ? `<div class="calc-result-card" style="border:1px solid rgba(255,215,0,0.35)">
+                    <div style="font-weight:800;margin-bottom:6px">💡 Лучший вариант</div>
+                    <div style="line-height:1.6">Собрать: <b>${picked.can} ${picked.pr.prod}</b></div>
+               </div>`
+            : `<div class="calc-result-card" style="border:1px solid rgba(255,215,0,0.25)">
+                    <div style="line-height:1.6">💡 Лучший вариант: из текущего инвентаря нет доступных сборок.</div>
+               </div>`)
+        : '';
+
+    const craftedBlock = craftedLines.length
+        ? `<div class="calc-result-card"><div style="font-weight:800;margin-bottom:6px">🧱 Собрано</div><div style="line-height:1.6">${craftedLines.join('<br>')}</div></div>`
+        : `<div class="calc-result-card"><div style="line-height:1.6">Нечего собирать по рецептам из текущего инвентаря.</div></div>`;
+
+    const remainderBlock = remainder
+        ? `<div class="calc-result-card" style="border:1px solid rgba(255,255,255,0.15)"><div style="font-weight:800;margin-bottom:6px">📦 Сдача</div><div style="line-height:1.6">${remainder}</div></div>`
+        : '';
+
+    const chainsBlock = chainLines.length
+        ? `<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+                ${chainLines.map(l => `<div class="calc-result-card"><div style="font-weight:800;margin-bottom:6px">🔁 Эквивалент</div><div style="line-height:1.6">${l}</div></div>`).join('')}
+           </div>`
+        : '';
+
+    document.getElementById('results').innerHTML = `
+        <div class="results-grid">
+            ${pickedBlock}
+            ${craftedBlock}
+            ${remainderBlock}
+        </div>
+        ${chainsBlock}
+    `;
+
+    showNotification(mode === 'best' ? 'Лучший вариант рассчитан' : 'Сборка выполнена', 'success');
+}
+
+
+function calculateInventory() {
+            const inv = { ...(inventory || {}) };
+
             let total = 0, details = [], itemsCount = 0;
 
             Object.keys(d).forEach(sym => {
-                const cnt = inventory[sym] || 0;
+                const cnt = inv[sym] || 0;
                 if (cnt > 0) {
                     itemsCount++;
                     const card = d[sym];
@@ -922,6 +1330,7 @@
                     <div>
                         <div class="result-text">Общая стоимость инвентаря</div>
                         <div class="result-value">${total > 0 ? total + ' ☑️' : 'Карты без стоимости'}</div>
+                        ${total > 0 ? `<div class="result-text" style="margin-top:6px;color:var(--text-secondary);font-size:0.9rem;line-height:1.4;">${formatValueEquivalences(total)}</div>` : ""}
                     </div>
                 </div>
                 <div style="margin-top:12px;">
@@ -950,6 +1359,21 @@
                 const saved = localStorage.getItem('etherInventory');
                 if (saved) inventory = JSON.parse(saved);
             } catch (e) { inventory = {}; }
+
+            // Migrate keys to canonical emoji (handles old saves without variation selectors)
+            try {
+                const migrated = {};
+                Object.keys(d || {}).forEach(k => { migrated[k] = 0; });
+                Object.keys(inventory || {}).forEach(k => {
+                    const v = Number(inventory[k] || 0);
+                    if (!v) return;
+                    const nk = normalizeSymbol(k);
+                    const ck = (d?.[k] ? k : (d?.[nk] ? nk : (__normToKey?.[nk] || k)));
+                    if (migrated[ck] == null) migrated[ck] = 0;
+                    migrated[ck] += v;
+                });
+                inventory = migrated;
+            } catch (e) {}
         }
 
         function resetAll() {
@@ -983,8 +1407,10 @@
         }
 
         function filterCards() {
-            const st = document.getElementById('cardSearch').value.toLowerCase();
-            const ac = document.querySelector('.category-tab.active').getAttribute('data-category');
+            const searchEl = document.getElementById('cardSearch');
+            const st = (searchEl ? searchEl.value : '').toLowerCase();
+            const activeTab = document.querySelector('.category-tab.active') || document.querySelector('.category-tab');
+            const ac = activeTab ? activeTab.getAttribute('data-category') : 'all';
 
             if (ac === 'all') {
                 document.querySelectorAll('.category-section').forEach(sec => {
@@ -1081,7 +1507,7 @@
                 "activation": { t: "🎴 Карты активаций", c: ["🚨", "Ⓜ️", "🅱️", "♎️", "♻️", "🃏", "☮️", "📜", "🚾", "🔲", "🏳️‍🌈", "🎦", "🎹"] },
                 "violation": { t: "🧧 Карты нарушений", c: ["🟪", "🟥", "🟨", "⬛️", "🟫", "🅾️", "💠"] },
                 "super": { t: "⭐ Супер карты", c: ["🎰", "🍫", "🎁", "🦎", "🛐", "🏧", "🧺", "🌋"] },
-                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣"] }
+                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣", "🥷📱"] }
             };
 
             Object.keys(cats).forEach(k => {
@@ -1140,101 +1566,197 @@
         }
 
         // Функции парсера
-       function parseText() {
+        function parseText() {
     const text = document.getElementById('parserText').value.trim();
     if (!text) {
-        showNotification('Скопируй пост с карточками из ВИП чата Егора(обычно их 2)', 'warning');
+        showNotification('Введите текст для анализа', 'warning');
         return;
     }
 
     const cardCounts = {};
+    // userCards[key][symbol] = qty
     const userCards = {};
-    
-    // Сначала найдем все известные эмодзи карт
-    const allSymbols = Object.keys(d);
-    
-    // Разделяем по строкам
-    const lines = text.split('\n');
-    let currentUser = null;
+    // key -> display
+    const userDisplay = {};
 
-    for (let line of lines) {
-        line = line.trim();
+    const currentDate = new Date();
+
+    const allSymbols = Object.keys(cardData);
+    const sortedSymbols = [allSymbols].sort((a,b) => b.length - a.length);
+
+    let scopeText = text;
+
+// Ограничиваем парсинг только блоком "Список карт у спикеров"
+const startMarker = 'Список карт у спикеров';
+const startPos = scopeText.indexOf(startMarker);
+if (startPos !== -1) scopeText = scopeText.slice(startPos);
+
+// Обрезаем всё после ссылок на банк/храм (служебная часть после списка)
+const endRe = /(?:\n|^)🏧Банк\s*-\s*https?:\/\/\S+/m;
+const mEnd = scopeText.match(endRe);
+if (mEnd && typeof mEnd.index === 'number') scopeText = scopeText.slice(0, mEnd.index);
+
+const lines = scopeText.split(/\r?\n/);
+
+    let currentCardSymbol = null;
+
+    const timestampPattern = /^LIFTADOR,\s*\[\d{2}\.\d{2}\.\d{4}\s+\d{2}:\d{2}\]/;
+    const urlPattern = /https?:\/\/\S+|t\.me\/\S+/;
+    const separatorPattern = /^[---===___]+$/;
+
+    const datePattern = /\bдо\s+\d{2}\.\d{2}(?:\.\d{2,4})?/i;
+    const futureDatePattern = /до\s+(\d{2})\.(\d{2})(?:\.(\d{2,4}))?/i;
+
+    const forbiddenName = /(обычн|карты|карта|список|итого|всего|тв\s*колес|активац|наруш|опасн|супер|банк|храм|лимит|открыт|отправк)/i;
+
+    const putUser = (nameRaw, symbol, qty) => {
+        const display = cleanUserName(nameRaw);
+        const key = normalizeUserKey(display);
+        if (!key || key.length < 3) return;
+        if (forbiddenName.test(display)) return;
+
+        if (!userDisplay[key]) userDisplay[key] = display;
+        if (!userCards[key]) userCards[key] = {};
+        userCards[key][symbol] = (userCards[key][symbol] || 0) + qty;
+        cardCounts[symbol] = (cardCounts[symbol] || 0) + qty;
+    };
+
+    for (let idx = 0; idx < lines.length; idx++) {
+        let line = lines[idx].trim();
         if (!line) continue;
 
-        // 1. Проверяем, является ли строка заголовком пользователя с количеством
-        // Форматы: "Ева - 8", "Иван: 5", "Мария: 🟦🟦"
-        const userMatch = line.match(/^([^:\-]+)[:\-]\s*(.+)$/);
-        
-        if (userMatch) {
-            const userName = userMatch[1].trim();
-            const userData = userMatch[2].trim();
-            
-            // Если есть числовое значение (например "Ева - 8")
-            const numberMatch = userData.match(/^(\d+)$/);
-            if (numberMatch) {
-                // Это количество серых карт (☑️)
-                const count = parseInt(numberMatch[1]);
-                if (count > 0) {
-                    if (!userCards[userName]) {
-                        userCards[userName] = {};
+        if (timestampPattern.test(line) || urlPattern.test(line) || separatorPattern.test(line)) continue;
+
+        // Игнорируем строки, где "до XX.XX" — это не количество карт
+        if (datePattern.test(line) && !/\s*[-—]\s*\d+/.test(line)) {
+            // при этом если в строке дата просрочена — всё равно пропускаем
+            const dm = line.match(futureDatePattern);
+            if (dm) {
+                const day = parseInt(dm[1], 10);
+                const month = parseInt(dm[2], 10);
+                const year = dm[3] ? parseInt(dm[3], 10) : currentDate.getFullYear();
+                const exp = new Date(year < 100 ? 2000 + year : year, month - 1, day);
+                if (exp < currentDate) continue;
+            }
+        }
+
+        // Заголовок карты: начинается с символа карты (например "☑️Серая", "🟦Синяя", "🔲Чёрно-Белая")
+        let headerDetected = false;
+        // Заголовок секции карты: начинается с эмодзи карты и НЕ похож на строку пользователя
+        for (const sym of sortedSymbols) {
+            if (!line.startsWith(sym)) continue;
+            const rest = line.slice(sym.length).trim();
+            if (!rest) continue;
+
+            // Заголовок не должен содержать разделители пользовательских строк и цифры
+            if (line.includes('-') || line.includes('—') || line.includes(':')) continue;
+            if (/\d/.test(line)) continue;
+
+            currentCardSymbol = sym;
+            headerDetected = true;
+            break;
+        }
+        if (headerDetected) continue;
+
+        // Формат "Имя: 🟦🟦🟩☑️"
+        if (line.includes(':')) {
+            const pos = line.indexOf(':');
+            const left = line.slice(0, pos).trim();
+            const right = line.slice(pos + 1).trim();
+            const display = cleanUserName(left);
+            const key = normalizeUserKey(display);
+            if (key && !userDisplay[key]) userDisplay[key] = display;
+
+            if (right) {
+                let any = false;
+                sortedSymbols.forEach(sym => {
+                    const cnt = (right.split(sym).length - 1);
+                    if (cnt > 0) {
+                        any = true;
+                        putUser(display, sym, cnt);
                     }
-                    userCards[userName]['☑️'] = (userCards[userName]['☑️'] || 0) + count;
-                    cardCounts['☑️'] = (cardCounts['☑️'] || 0) + count;
-                }
-                currentUser = userName;
-                continue;
+                });
+                if (any) continue;
             }
-            
-            // Если есть эмодзи в строке
-            currentUser = userName;
-            if (!userCards[currentUser]) {
-                userCards[currentUser] = {};
-            }
-            
-            // Ищем эмодзи карт в строке
-            for (const symbol of allSymbols) {
-                const regex = new RegExp(symbol, 'g');
-                const matches = userData.match(regex);
-                if (matches) {
-                    const count = matches.length;
-                    userCards[currentUser][symbol] = (userCards[currentUser][symbol] || 0) + count;
-                    cardCounts[symbol] = (cardCounts[symbol] || 0) + count;
-                }
-            }
+        }
+
+        // Пользователь с количеством: "Имя - 12" (+ допускаем хвост в скобках)
+        if (currentCardSymbol && (line.includes('-') || line.includes('—'))) {
+            const mm = line.match(/^(.{1,80}?)\s*[-—]\s*(\d+)\s*(?:\(|$)/u);
+            if (!mm) continue;
+
+            const nameRaw = mm[1];
+            const qty = parseInt(mm[2], 10);
+            if (!Number.isFinite(qty) || qty <= 0) continue;
+
+            putUser(nameRaw, currentCardSymbol, qty);
             continue;
         }
 
-        // 2. Проверяем, содержит ли строка только эмодзи карт
-        let hasSymbols = false;
-        for (const symbol of allSymbols) {
-            if (line.includes(symbol)) {
-                hasSymbols = true;
-                const regex = new RegExp(symbol, 'g');
-                const matches = line.match(regex);
-                if (matches) {
-                    const count = matches.length;
-                    cardCounts[symbol] = (cardCounts[symbol] || 0) + count;
-                    
-                    // Если есть текущий пользователь, добавляем ему
-                    if (currentUser) {
-                        userCards[currentUser][symbol] = (userCards[currentUser][symbol] || 0) + count;
-                    }
-                }
+        // Одиночный пользователь без количества (редко): "Имя"
+        if (currentCardSymbol && line.length > 1 && line.length < 50 && !line.includes('-') && !line.includes('—') && !/\d/.test(line)) {
+            // не карта
+            let isCard = false;
+            for (const sym of sortedSymbols) {
+                if (line.includes(sym)) { isCard = true; break; }
             }
-        }
-        
-        // 3. Если строка не содержит эмодзи и не является пользователем, сбрасываем текущего пользователя
-        if (!hasSymbols && !userMatch) {
-            currentUser = null;
+            if (isCard) continue;
+
+            if (forbiddenName.test(line)) continue;
+            putUser(line, currentCardSymbol, 1);
         }
     }
 
-    // Показываем результаты
-    showParserResults(cardCounts, userCards);
+    // Приводим к формату вывода: {displayName: {sym: qty}}
+    const outUsers = {};
+    Object.keys(userCards).forEach(key => {
+        const disp = userDisplay[key] || key;
+        outUsers[disp] = userCards[key];
+    });
+
+    showParserResults(cardCounts, outUsers);
 }
 
-        
-        function showParserResults(cardCounts, userCards) {
+// Вспомогательная функция для очистки имён пользователей
+        function cleanUserName(name) {
+            let s = String(name || '').trim();
+
+            // Убираем Telegram-приписки вида "LIFTADOR, [13.01.2026 23:40]"
+            s = s.replace(/\s*,\s*\[\d{2}\.\d{2}\.\d{4}[\s\S]*?\]\s*$/u, '').trim();
+
+            // Убираем хвостовые двоеточия/тире
+            s = s.replace(/[:\-—]+$/u, '').trim();
+
+            // Убираем эмодзи-флаги (пары региональных индикаторов)
+            s = s.replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '');
+
+            // Убираем невидимые пробелы
+            s = s.replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ');
+
+            // Сжимаем пробелы
+            s = s.replace(/\s+/g, ' ').trim();
+
+            return s;
+        }
+
+        function normalizeUserKey(name) {
+            let s = cleanUserName(name).toLowerCase();
+
+            // Unicode normal form + удаление диакритики
+            s = s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+
+            // Оставляем только буквы/цифры (любой язык)
+            try {
+                s = s.replace(/[^\p{L}\p{N}]/gu, '');
+            } catch (e) {
+                s = s.replace(/[^a-z0-9а-яё]/gi, '');
+            }
+
+            return s;
+        }
+
+
+        function showParserResults(cardCounts, userCards, userDisplay) {
             const resultsDiv = document.getElementById('parserResults');
             const statsDiv = document.getElementById('parserStats');
             const cardsListDiv = document.getElementById('parserCardsList');
@@ -1244,139 +1766,106 @@
             // Общая статистика
             let totalCards = 0;
             let totalValue = 0;
-
+            
             for (const symbol in cardCounts) {
                 totalCards += cardCounts[symbol];
-                if (d[symbol] && d[symbol].c !== null) {
-                    totalValue += cardCounts[symbol] * d[symbol].c;
+                if (cardData[symbol] && cardData[symbol].c !== null) {
+                    totalValue += cardCounts[symbol] * cardData[symbol].c;
                 }
             }
 
+            // Конвертируем стоимость в высшие карты
+            const convertedValue = convertToHigherCards(totalValue);
+            
+            // В блоке статистики оставляем только количество уникальных пользователей
             statsDiv.innerHTML = `
-                <div class="stat-item">
-                    <div class="stat-value">${totalCards}</div>
-                    <div class="stat-label">Всего карт</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${Object.keys(cardCounts).length}</div>
-                    <div class="stat-label">Типов карт</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${totalValue}</div>
-                    <div class="stat-label">☑️ Стоимость</div>
+                <div class="stat-item" style="width:100%">
+                    <div class="stat-value">${Object.keys(userCards).length}</div>
+                    <div class="stat-label">Уникальных пользователей</div>
                 </div>
             `;
 
-            // Список карт
-            if (Object.keys(cardCounts).length === 0) {
-                cardsListDiv.innerHTML = '<div class="parser-no-cards">Карты не найдены</div>';
-            } else {
-                const sorted = Object.keys(cardCounts).sort((a, b) => {
-                    const ca = d[a]?.c === null ? -1 : (d[a]?.c || 0);
-                    const cb = d[b]?.c === null ? -1 : (d[b]?.c || 0);
-                    return cb - ca;
-                });
-
-                let cardsHtml = '';
-                for (const symbol of sorted) {
-                    const count = cardCounts[symbol];
-                    const card = d[symbol];
-                    if (!card) continue;
-                    const value = card.c !== null ? count * card.c : null;
-
-                    cardsHtml += `
-                        <div class="parser-card-item parser-card-item-${card.cat}">
-                            <div class="parser-card-emoji">${symbol}</div>
-                            <div class="parser-card-info">
-                                <div class="parser-card-name">${escapeHtml(card.n)}</div>
-                                <div class="parser-card-count">Всего: ${count} шт.</div>
-                                ${value !== null ? `<div class="parser-card-cost">Стоимость: ${value} ☑️</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                }
-                cardsListDiv.innerHTML = cardsHtml;
-            }
+            // Список карт (скрываем)
+            cardsListDiv.innerHTML = '';
+            cardsListDiv.style.display = 'none';
 
             // Список пользователей
-            const userNames = Object.keys(userCards || {});
-            if (userNames.length > 0) {
+            if (Object.keys(userCards).length > 0) {
                 usersSection.style.display = 'block';
-
+                
+                // Сортируем пользователей по имени
+                const sortedUsers = Object.keys(userCards).sort();
+                
                 let usersHtml = '';
-                for (const userName of userNames) {
-                    const userCardCounts = userCards[userName] || {};
+                
+                sortedUsers.forEach(userName => {
+                    const userCardCounts = userCards[userName];
                     let userTotalCards = 0;
                     let userTotalValue = 0;
-
+                    
                     for (const symbol in userCardCounts) {
                         userTotalCards += userCardCounts[symbol];
-                        if (d[symbol] && d[symbol].c !== null) {
-                            userTotalValue += userCardCounts[symbol] * d[symbol].c;
+                        if (cardData[symbol] && cardData[symbol].c !== null) {
+                            userTotalValue += userCardCounts[symbol] * cardData[symbol].c;
                         }
                     }
-
-                    const encodedCounts = encodeURIComponent(JSON.stringify(userCardCounts));
-
+                    
                     usersHtml += `
                         <div class="parser-user-item">
                             <div class="parser-user-info">
                                 <div class="parser-user-name">${escapeHtml(userName)}</div>
-                                <div class="parser-user-stats">${userTotalCards} карт, стоимость: ${userTotalValue} ☑️</div>
+                                <div class="parser-user-stats">
+                                    <div>${userTotalCards} карт, ${userTotalValue} ☑️</div>
+                                    <div style="font-size:0.75rem;color:var(--accent);">${convertToHigherCards(userTotalValue)}</div>
+                                </div>
                             </div>
                             <div class="parser-user-actions">
-                                <button class="parser-user-btn js-add-user"
-                                        data-username="${escapeHtml(userName)}"
-                                        data-counts="${encodedCounts}">
-                                    📥 В инвентарь
-                                </button>
+                                <button class="parser-user-btn primary" onclick="addUserToInventory('${escapeHtml(userName)}', '${escapeHtml(JSON.stringify(userCardCounts))}')">📥 В инвентарь</button>
                             </div>
                         </div>
                     `;
-                }
-
+                });
                 usersListDiv.innerHTML = usersHtml;
             } else {
                 usersSection.style.display = 'none';
-                usersListDiv.innerHTML = '';
+                usersListDiv.innerHTML = '<div class="parser-no-users">Пользователи не найдены</div>';
             }
 
             resultsDiv.classList.add('active');
-            showNotification('Текст проанализирован', 'success');
+            showNotification(`Найдено ${Object.keys(userCards).length} пользователей`, 'success');
         }
 
-
-        function addUserToInventory(userName, cardCounts) {
-            for (const symbol in cardCounts) {
-                inventory[symbol] = (inventory[symbol] || 0) + cardCounts[symbol];
+        function addUserToInventory(userName, cardCountsStr) {
+            try {
+                // Парсим строку с картами
+                const cardCounts = JSON.parse(cardCountsStr);
+                
+                // Сбрасываем инвентарь перед добавлением
+                inventory = {};
+                
+                // Добавляем карты пользователя
+                for (const symbol in cardCounts) {
+                    inventory[symbol] = (inventory[symbol] || 0) + cardCounts[symbol];
+                }
+                
+                saveInventory();
+                
+                // Переходим в режим инвентаря
+                setMode('inventory');
+                
+                // Обновляем сетку инвентаря
+                if (document.getElementById('compactInventoryContainer')) {
+                    createCompactInventoryGrid();
+                }
+                
+                // Показываем результаты
+                calculateInventory();
+                
+                showNotification(`Инвентарь пользователя ${userName} загружен`, 'success');
+            } catch (error) {
+                console.error('Ошибка при добавлении в инвентарь:', error);
+                showNotification('Ошибка при добавлении в инвентарь', 'error');
             }
-            
-            saveInventory();
-            
-            if (document.getElementById('compactInventoryContainer')) {
-                createCompactInventoryGrid();
-            }
-            
-            showNotification(`Карты ${userName} добавлены в инвентарь`, 'success');
-            setMode('inventory');
-        }
-
-        function clearParser() {
-            document.getElementById('parserText').value = '';
-            document.getElementById('parserResults').classList.remove('active');
-            showNotification('Текст очищен', 'info');
-        }
-
-        function loadExample() {
-            const example = `Иван: 🟦🟦🟩☑️☑️☑️
-Мария: 🟧💎🚨
-Петя: ☑️☑️☑️☑️
-
-Анна - 🟦🟦🟩
-Борис - ☑️☑️☑️☑️☑️`;
-
-            document.getElementById('parserText').value = example;
-            showNotification('Пример загружен', 'info');
         }
 
         function updateMoscowTime() {
@@ -1403,9 +1892,9 @@
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             // Навигация в памятке
-            document.getElementById('navSingleBtn').addEventListener('click', () => { setMode('single'); toggleCheatsheet(); });
-            document.getElementById('navInventoryBtn').addEventListener('click', () => { setMode('inventory'); toggleCheatsheet(); });
-            document.getElementById('navParserBtn').addEventListener('click', () => { setMode('parser'); toggleCheatsheet(); });
+            bind('navSingleBtn','click', () => { setMode('single'); toggleCheatsheet(); });
+            bind('navInventoryBtn','click', () => { setMode('inventory'); toggleCheatsheet(); });
+            bind('navParserBtn','click', () => { setMode('parser'); toggleCheatsheet(); });
 
             createCardSelectorGrid();
             loadInventory();
@@ -1416,13 +1905,17 @@
             setInterval(updateMoscowTime, 1000);
 
             // калькулятор
-            document.getElementById('calculateSingleBtn').addEventListener('click', calculateSingle);
-            document.getElementById('calculateInventoryBtn').addEventListener('click', calculateInventory);
-            document.getElementById('resetAllBtn').addEventListener('click', resetAll);
-            document.getElementById('modeSingleBtn').addEventListener('click', () => setMode('single'));
-            document.getElementById('modeInventoryBtn').addEventListener('click', () => setMode('inventory'));
-            document.getElementById('modeParserBtn').addEventListener('click', () => setMode('parser'));
-            document.getElementById('cardSearch').addEventListener('input', filterCards);
+            bind('calculateSingleBtn','click', calculateSingle);
+            bind('calculateInventoryBtn','click', calculateInventory);
+            bind('breakdownInventoryBtn','click', showInventoryBreakdown);
+            bind('buildInventoryBtn','click', () => {
+                buildInventoryUpgrades('best');
+            });
+bind('resetAllBtn','click', resetAll);
+            bind('modeSingleBtn','click', () => setMode('single'));
+            bind('modeInventoryBtn','click', () => setMode('inventory'));
+            bind('modeParserBtn','click', () => setMode('parser'));
+            bind('cardSearch','input', filterCards);
 
             document.querySelectorAll('.category-tab').forEach(t => {
                 t.addEventListener('click', function() {
@@ -1434,29 +1927,13 @@
             });
 
             // АвтоЛень
-            document.getElementById('parseTextBtn').addEventListener('click', parseText);
-
-            // Делегирование клика для кнопок "В инвентарь" (создаются динамически)
-            document.getElementById('parserUsersList').addEventListener('click', function(ev) {
-                const btn = ev.target.closest('.js-add-user');
-                if (!btn) return;
-                const userName = btn.getAttribute('data-username') || 'Пользователь';
-                const countsStr = btn.getAttribute('data-counts') || '';
-                try {
-                    const counts = JSON.parse(decodeURIComponent(countsStr));
-                    addUserToInventory(userName, counts);
-                } catch (e) {
-                    console.error(e);
-                    showNotification('Не удалось добавить в инвентарь', 'error');
-                }
-            });
-
-            document.getElementById('clearParserBtn').addEventListener('click', clearParser);
-            document.getElementById('loadExampleBtn').addEventListener('click', loadExample);
+            bind('parseTextBtn','click', parseText);
+            bind('clearParserBtn','click', clearParser);
+            bind('loadExampleBtn','click', loadExample);
 
             // Cheatsheet
-            document.getElementById('cheatsheetToggle').addEventListener('click', toggleCheatsheet);
-            document.getElementById('closeCheatsheet').addEventListener('click', toggleCheatsheet);
+            bind('cheatsheetToggle','click', toggleCheatsheet);
+            bind('closeCheatsheet','click', toggleCheatsheet);
 
             document.addEventListener('click', function(e) {
                 const p = document.getElementById('cheatsheetPanel');
@@ -1469,6 +1946,7 @@
             
             setTimeout(() => { showNotification('Калькулятор готов к работе!', 'success'); }, 500);
         });
-    </script>
+    
+  </script>
 </body>
 </html>
