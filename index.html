@@ -733,7 +733,7 @@ https://www.tiktok.com/@liftador_stream7"></textarea>
             "🎁": { n: "Супер подарок", c: null, cat: "super", cn: "⭐ Супер карты", d: "Особый подарок с ценными наградами", e: "Ценные награды", a: "Особые события", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "нет" },
             "🦎": { n: "Хамелеон", c: null, cat: "super", cn: "⭐ Супер карты", d: "Все ☑️ карты всех спикеров преобразуются в 🧿ТВ колёса", e: "Преобразование серых карт в колёса", a: "Массовая конвертация", ac: "Редкие события. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Да", p: "🏧🛐", cu: "нет" },
             "🛐": { n: "Храм", c: null, cat: "super", cn: "⭐ Супер карты", d: "Защитная карта от определённых эффектов", e: "Защита от некоторых карт", a: "Для защиты", ac: "Достижения, покупка. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
-            "🏧": { n: "Банк", c: null, cat: "super", cn: "⭐ Супер карты", d: "Карта для финансовых операций с картами", e: "Финансовые операции с картами", a: "Обмен, покупка карт", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🏧": { n: "Банк", c: null, cat: "super", cn: "⭐ Супер карты", d: "Карта для финансовных операций с картами", e: "Финансовые операции с картами", a: "Обмен, покупка карт", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
             "🧺": { n: "Ведро Егора", c: null, cat: "super", cn: "⭐ Супер карты", d: "Ведущий забирает 1 обычную🀄️карту у любого спикера и кладёт себе в ведро", e: "Забирает обычную карту у спикера", a: "Сразу же при выпадении", ac: "🧿ТВ колесо", f: "Безлимитное накопление, активация, складывание, передача, разделение, накладывание на спикеров, хранение 🎴🀄️ карт", r: "Нет", t: "Ⓜ️♎️", s: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🎴⭐🛐🏧" },
             "🌋": { n: "Преисподняя", c: null, cat: "super", cn: "⭐ Супер карты", d: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", e: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", a: "Ведущим при выпадении с 🧿ТВ колеса или строительстве. Спикерами при строительстве. Покупке. Получении.", ac: "🧿ТВ колесо. Постройка. Покупка. Получение.", f: "Работает по принципу 🏧Банка и 🛐Храма. Может использовать как ведущий так и спикеры. Можно построить за 6 🚨. Построить можно 1 раз.", r: "Нет", t: "Нет", s: "Да. Раз в 2 месяца.", tr: "Да. Раз в 2 месяца.", conv: "Нет", p: "Да", cu: "🛐🏧" }
         };
@@ -828,7 +828,7 @@ https://www.tiktok.com/@liftador_stream7"></textarea>
                 return;
             }
             if (!Array.isArray(results) || results.length === 0) {
-                grid.innerHTML = `<div class="live-card">Нет данных. Нажмите “Проверить”.</div>`;
+                grid.innerHTML = `<div class="live-card">Нет данных. Нажмите "Проверить".</div>`;
                 return;
             }
 
@@ -1444,155 +1444,93 @@ https://www.tiktok.com/@liftador_stream7"></textarea>
             t.classList.toggle('active');
         }
 
-        function initCheatsheetNav() {
-            document.querySelectorAll('.cheatsheet-nav-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = btn.getAttribute('data-goto');
-                    const el = document.getElementById(id);
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                    // на мобиле закрываем
-                    if (window.innerWidth <= 768) {
-                        const p = document.getElementById('cheatsheetPanel');
-                        const t = document.getElementById('cheatsheetToggle');
-                        if (p.classList.contains('active')) {
-                            p.classList.remove('active');
-                            t.classList.remove('active');
-                        }
-                    }
-                });
-            });
-        }
-
         /**********************************************************************
          * LIVE CHECK (через внешний прокси)
          *********************************************************************/
         const LIVE_AUTO_INTERVAL_MS = 60000;
-        function normalizeApiBase(v) {
-            if (!v) return '';
-            return v.replace(/\/+$/, '');
+
+        function formatTimeShort(date) {
+            const hh = String(date.getHours()).padStart(2,'0');
+            const mm = String(date.getMinutes()).padStart(2,'0');
+            const ss = String(date.getSeconds()).padStart(2,'0');
+            return `${hh}:${mm}:${ss}`;
         }
 
-        function setLiveApiBase(v) {
-            LIVE_API_BASE = normalizeApiBase(v);
-            try { localStorage.setItem('LIVE_API_BASE', LIVE_API_BASE); } catch (e) {}
-            renderLiveApiStatus();
-        }
+        function renderLiveMini(statusByUser, checkedAt) {
+            const wrap = document.getElementById('liveMiniStatuses');
+            const updated = document.getElementById('liveMiniUpdated');
+            if (!wrap || !updated) return;
 
-        function renderLiveApiStatus() {
-            const el = document.getElementById('liveApiStatus');
-            if (!el) return;
-            if (LIVE_API_BASE) el.innerHTML = `API задан: <strong>${escapeHtml(LIVE_API_BASE)}</strong>`;
-            else el.innerHTML = `API не задан. Статусы будут <strong>неизвестно</strong>.`;
-        }
+            if (checkedAt) {
+                const dt = new Date(checkedAt);
+                updated.textContent = `обновлено ${formatTimeShort(dt)}`;
+            } else {
+                updated.textContent = 'не проверяли';
+            }
 
-        function liveApiUrl(username) {
-            return `${LIVE_API_BASE}/live/${encodeURIComponent(username)}`;
-        }
-
-        function ensureLiveListRendered() {
-            const list = document.getElementById('liveList');
-            if (!list) return;
-            if (list.dataset.rendered === '1') return;
-
-            let html = '';
-            LIVE_ACCOUNTS.forEach(acc => {
-                html += `
-                    <div class="live-row" data-username="${acc.username}">
-                        <div class="live-left">
-                            <div class="live-user">@${acc.username}</div>
-                            <div class="live-badge unknown" data-badge>неизвестно</div>
-                            <div class="live-meta" data-meta></div>
-                        </div>
-                        <div class="live-right">
-                            <a class="live-open" href="${acc.url}" target="_blank" rel="noopener">Открыть</a>
-                        </div>
-                    </div>
-                `;
-            });
-
-            list.innerHTML = html;
-            list.dataset.rendered = '1';
-        }
-
-        function setLiveRowStatus(username, status, metaText) {
-            const row = document.querySelector(`.live-row[data-username="${CSS.escape(username)}"]`);
-            if (!row) return;
-            const badge = row.querySelector('[data-badge]');
-            const meta = row.querySelector('[data-meta]');
-
-            badge.classList.remove('live', 'offline', 'unknown', 'error');
-
-            if (status === 'live') { badge.classList.add('live'); badge.textContent = 'LIVE'; }
-            else if (status === 'offline') { badge.classList.add('offline'); badge.textContent = 'OFFLINE'; }
-            else if (status === 'error') { badge.classList.add('error'); badge.textContent = 'ошибка'; }
-            else { badge.classList.add('unknown'); badge.textContent = 'неизвестно'; }
-
-            meta.textContent = metaText || '';
-        }
-
-        async function checkOneLive(username) {
-            if (!LIVE_API_BASE) {
-                setLiveRowStatus(username, 'unknown', 'Нужен LIVE_API_BASE');
+            const LIVE_USERS = getLiveUsers();
+            if (LIVE_USERS.length === 0) {
+                wrap.innerHTML = '<div class="live-mini__pill live-unk" title="Добавьте аккаунты"><span class="live-mini__dot"></span><span class="live-mini__name">Добавьте аккаунты</span></div>';
                 return;
             }
 
-            setLiveRowStatus(username, 'unknown', 'Проверяем…');
+            wrap.innerHTML = LIVE_USERS.map(u => {
+                const st = statusByUser ? statusByUser[u] : null;
+                let cls = 'live-unk';
+                let label = '…';
+                if (st === true) { cls = 'live-on'; label = 'LIVE'; }
+                else if (st === false) { cls = 'live-off'; label = 'OFF'; }
+                return `
+                    <div class="live-mini__pill ${cls}" title="@${u} — ${label}">
+                        <span class="live-mini__dot" aria-hidden="true"></span>
+                        <span class="live-mini__name">@${u}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function checkLiveOnce() {
+            // Если воркер не задан — показываем "неизвестно", но НЕ ломаем сайт.
+            const LIVE_USERS = getLiveUsers();
+            if (!LIVE_API_BASE || LIVE_USERS.length === 0) {
+                const st = Object.fromEntries(LIVE_USERS.map(u => [u, null]));
+                renderLiveMini(st, null);
+                return;
+            }
 
             try {
-                const res = await fetch(liveApiUrl(username), { method: 'GET', cache: 'no-store' });
+                const url = `${LIVE_API_BASE.replace(/\/+$/,'')}/api/live/status?users=${encodeURIComponent(LIVE_USERS.join(','))}`;
+                const res = await fetch(url, { cache: 'no-store' });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
 
-                const isLive = !!data.is_live;
-                const checkedAt = data.checked_at ? new Date(data.checked_at) : null;
-                const roomId = data.room_id || '';
+                const statusByUser = Object.fromEntries(LIVE_USERS.map(u => [u, null]));
+                if (data && data.ok && Array.isArray(data.results)) {
+                    for (const item of data.results) {
+                        if (!item || !item.username) continue;
+                        const u = String(item.username).replace(/^@/, '');
+                        if (u in statusByUser) statusByUser[u] = item.is_live === true ? true : item.is_live === false ? false : null;
+                    }
+                }
+                // normalize booleans (avoid any weirdness)
+                Object.keys(statusByUser).forEach(k => {
+                    if (statusByUser[k] === 'true') statusByUser[k] = true
+                    if (statusByUser[k] === 'false') statusByUser[k] = false
+                });
 
-                const metaText = [
-                    checkedAt ? `Проверено: ${checkedAt.toLocaleString('ru-RU')}` : '',
-                    roomId ? `room_id: ${roomId}` : ''
-                ].filter(Boolean).join(' • ');
-
-                setLiveRowStatus(username, isLive ? 'live' : 'offline', metaText);
-            } catch (err) {
-                setLiveRowStatus(username, 'error', `Не удалось: ${String(err.message || err)}`);
+                renderLiveMini(statusByUser, data.checked_at || new Date().toISOString());
+            } catch (e) {
+                const st = Object.fromEntries(LIVE_USERS.map(u => [u, null]));
+                renderLiveMini(st, null);
+                // Не спамим алертами; достаточно консоли.
+                console.warn('LIVE check failed:', e);
             }
         }
 
-        async function checkAllLive() {
-            ensureLiveListRendered();
-            renderLiveApiStatus();
-
-            for (const acc of LIVE_ACCOUNTS) {
-                await checkOneLive(acc.username);
-            }
-            showNotification('LIVE проверка завершена', 'success');
-        }
-
-        function toggleLiveAuto(enabled) {
-            if (!btn) return;
-
-            if (enabled) {
-                btn.classList.add('active');
-                btn.textContent = '⏱ Авто: ВКЛ';
-                if (!liveAutoTimer) liveAutoTimer = setInterval(checkAllLive, LIVE_AUTO_INTERVAL_MS);
-            } else {
-                btn.classList.remove('active');
-                btn.textContent = '⏱ Авто: ВЫКЛ';
-                if (liveAutoTimer) { clearInterval(liveAutoTimer); liveAutoTimer = null; }
-            }
-        }
-
-        function openLiveConfig() {
-            const current = LIVE_API_BASE || '';
-            const v = prompt(
-                'Введите адрес LIVE API (пример: https://your-worker.your-subdomain.workers.dev)\n\n' +
-                'Endpoint должен отвечать на GET /live/:username и возвращать JSON { username, is_live, room_id?, checked_at? }',
-                current
-            );
-            if (v === null) return;
-            setLiveApiBase(v.trim());
-            showNotification('Настройка API сохранена', 'info');
+        function startLiveAutoPoll() {
+            // 60 секунд — компактный индикатор
+            if (liveAutoTimer) clearInterval(liveAutoTimer);
+            liveAutoTimer = setInterval(checkLiveOnce, 60000);
         }
 
         // АвтоЛень (парсер) — берём из исходной логики
@@ -1900,116 +1838,17 @@ https://www.tiktok.com/@liftador_stream7"></textarea>
             showNotification('Загружен пример текста для анализа', 'info');
         }
 
-
-        // -------------------- TikTok LIVE (через Cloudflare Worker) --------------------
-        // Важно: на GitHub Pages нельзя надёжно опрашивать TikTok напрямую из браузера (CORS/защита).
-        // Поэтому используем Cloudflare Worker как прокси.
-        //
-        // Укажите базовый URL вашего Worker (без слеша на конце), например:
-        // https://your-worker-name.your-account.workers.dev
-        let LIVE_API_BASE = (localStorage.getItem('tt_live_api_base') || '').trim();
-        // Если вы уже развернули Worker — впишите URL ниже, чтобы работало "из коробки":
-        if (!LIVE_API_BASE) LIVE_API_BASE = ''; // <-- вставьте сюда URL воркера при необходимости
-
-        const LIVE_USERS = ['liftador_stream8', 'liftador_stream9', 'liftador_stream7'];
-        let liveAutoTimer = null;
-
-        function formatTimeShort(date) {
-            const hh = String(date.getHours()).padStart(2,'0');
-            const mm = String(date.getMinutes()).padStart(2,'0');
-            const ss = String(date.getSeconds()).padStart(2,'0');
-            return `${hh}:${mm}:${ss}`;
-        }
-
-        function renderLiveMini(statusByUser, checkedAt) {
-            const wrap = document.getElementById('liveMiniStatuses');
-            const updated = document.getElementById('liveMiniUpdated');
-            if (!wrap || !updated) return;
-
-            if (checkedAt) {
-                const dt = new Date(checkedAt);
-                updated.textContent = `обновлено ${formatTimeShort(dt)}`;
-            } else {
-                updated.textContent = 'не проверяли';
-            }
-
-            wrap.innerHTML = LIVE_USERS.map(u => {
-                const st = statusByUser[u];
-                let cls = 'live-unk';
-                let label = '…';
-                if (st === true) { cls = 'live-on'; label = 'LIVE'; }
-                else if (st === false) { cls = 'live-off'; label = 'OFF'; }
-                return `
-                    <div class="live-mini__pill ${cls}" title="@${u} — ${label}">
-                        <span class="live-mini__dot" aria-hidden="true"></span>
-                        <span class="live-mini__name">@${u}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function checkLiveOnce() {
-            // Если воркер не задан — показываем "неизвестно", но НЕ ломаем сайт.
-            if (!LIVE_API_BASE) {
-                const st = Object.fromEntries(LIVE_USERS.map(u => [u, null]));
-                renderLiveMini(st, null);
-                return;
-            }
-
-            try {
-                const url = `${LIVE_API_BASE.replace(/\/+$/,'')}/api/live/status?users=${encodeURIComponent(LIVE_USERS.join(','))}`;
-                const res = await fetch(url, { cache: 'no-store' });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-
-                const statusByUser = Object.fromEntries(LIVE_USERS.map(u => [u, null]));
-                if (data && data.ok && Array.isArray(data.results)) {
-                    for (const item of data.results) {
-                        if (!item || !item.username) continue;
-                        const u = String(item.username).replace(/^@/, '');
-                        if (u in statusByUser) statusByUser[u] = item.is_live === true ? true : item.is_live === false ? false : null;
-                    }
-                }
-                // normalize booleans (avoid any weirdness)
-                Object.keys(statusByUser).forEach(k => {
-                    if (statusByUser[k] === 'true') statusByUser[k] = true
-                    if (statusByUser[k] === 'false') statusByUser[k] = false
-                });
-
-                renderLiveMini(statusByUser, data.checked_at || new Date().toISOString());
-            } catch (e) {
-                const st = Object.fromEntries(LIVE_USERS.map(u => [u, null]));
-                renderLiveMini(st, null);
-                // Не спамим алертами; достаточно консоли.
-                console.warn('LIVE check failed:', e);
-            }
-        }
-
-
-        function startLiveAutoPoll() {
-            // 60 секунд — компактный индикатор
-            if (liveAutoTimer) clearInterval(liveAutoTimer);
-            liveAutoTimer = setInterval(checkLiveOnce, 60000);
-        }
-        // -----------------------------------------------------------------------------
-
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
-
-// Навигация в памятке (плавающая панель)
-const navSingleBtn = document.getElementById('navSingleBtn');
-const navInventoryBtn = document.getElementById('navInventoryBtn');
-const navParserBtn = document.getElementById('navParserBtn');
-if (navSingleBtn) navSingleBtn.addEventListener('click', () => { setMode('single'); toggleCheatsheet(); });
-if (navInventoryBtn) navInventoryBtn.addEventListener('click', () => { setMode('inventory'); toggleCheatsheet(); });
-if (navParserBtn) navParserBtn.addEventListener('click', () => { setMode('parser'); toggleCheatsheet(); });
-
+            // Навигация в памятке
+            document.getElementById('navSingleBtn').addEventListener('click', () => { setMode('single'); toggleCheatsheet(); });
+            document.getElementById('navInventoryBtn').addEventListener('click', () => { setMode('inventory'); toggleCheatsheet(); });
+            document.getElementById('navParserBtn').addEventListener('click', () => { setMode('parser'); toggleCheatsheet(); });
 
             createCardSelectorGrid();
             loadInventory();
             if (document.getElementById('compactInventoryContainer')) createCompactInventoryGrid();
             createCheatsheet();
-            initCheatsheetNav();
 
             updateMoscowTime();
             setInterval(updateMoscowTime, 1000);
@@ -2046,8 +1885,20 @@ if (navParserBtn) navParserBtn.addEventListener('click', () => { setMode('parser
                 const t = document.getElementById('cheatsheetToggle');
                 if (p.classList.contains('active') && !p.contains(e.target) && !t.contains(e.target)) toggleCheatsheet();
             });
+
+            // LIVE
+            document.getElementById('checkLiveBtn').addEventListener('click', checkLiveNow);
+            document.getElementById('toggleLiveAutoBtn').addEventListener('click', toggleLiveAuto);
+            document.getElementById('fillDefaultLiveBtn').addEventListener('click', setDefaultLiveUsers);
+            document.getElementById('liveMiniRefreshBtn').addEventListener('click', checkLiveNow);
+
             setMode('single');
             filterCards();
+            
+            // Инициализация LIVE
+            checkLiveOnce();
+            startLiveAutoPoll();
+            
             setTimeout(() => { showNotification('Калькулятор готов к работе!', 'success'); }, 500);
         });
     </script>
