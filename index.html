@@ -1018,7 +1018,7 @@ const r = {
             const remGrey = totalGrey - totalBlues * blueCost; // 0..(blueCost-1)
 
             // 2) Разбираем итог в 🟦 вниз по "лестнице" старших карт (в синие единицы)
-            // 1🚨 = 72🟦, 1💎 = 24🟦, 1🟧 = 8🟦, 1⬜️ = 4🟦, 1🟩 = 2🟦, 1🟦 = 1🟦
+            // 1🚨 = 48🟦, 1💎 = 16🟦, 1🟧 = 8🟦, 1⬜️ = 4🟦, 1🟩 = 2🟦, 1🟦 = 1🟦
             const denom = [
                 { sym: "🚨", blues: 72 },
                 { sym: "💎", blues: 24 },
@@ -1053,7 +1053,7 @@ const r = {
             lines.push(partStr.length ? `Разбор: ${partStr}` : `Разбор: 0`);
 
             // Строка 3: справочный "курс" (как раньше)
-            lines.push(`По курсу: 🚨×1, 💎×3, 🟧×9, ⬜️×18, 🟩×36, 🟦×72 (1 🟦 = ${blueCost} ☑️, 1 ☑️ = 2 🔘)`);
+            lines.push(`По курсу: 🚨×1, 💎×3, 🟧×6, ⬜️×12, 🟩×24, 🟦×48 (1 🟦 = ${blueCost} ☑️, 1 ☑️ = 2 🔘)`);
 
             return { lines, totalBlues, totalGrey, remGrey };
         }
@@ -1213,7 +1213,7 @@ function buildInventoryUpgrades(mode = 'max') {
         .join('  ');
 
     // Эквивалент — справочно, вниз по уровням до 🟦
-    const tierMult = { "🚨": 72, "💎": 24, "🟧": 8, "⬜️": 4, "🟩": 2, "🟦": 1 };
+    const tierMult = { "🚨": 48, "💎": 16, "🟧": 8, "⬜️": 4, "🟩": 2, "🟦": 1 };
     const tierOrder = ["🚨", "💎", "🟧", "⬜️", "🟩", "🟦"];
 
     const chainLines = [];
@@ -1223,7 +1223,7 @@ function buildInventoryUpgrades(mode = 'max') {
 
         const eq = [];
         if (top === "🚨") { eq.push(`${cnt} 🚨`, `${cnt * 3} 💎`, `${cnt * 9} 🟧`, `${cnt * 18} ⬜️`, `${cnt * 36} 🟩`, `${cnt * 72} 🟦`); }
-        else if (top === "💎") { eq.push(`${cnt} 💎`, `${cnt * 3} 🟧`, `${cnt * 6} ⬜️`, `${cnt * 12} 🟩`, `${cnt * 24} 🟦`); }
+        else if (top === "💎") { eq.push(`${cnt} 💎`, `${cnt * 2} 🟧`, `${cnt * 4} ⬜️`, `${cnt * 8} 🟩`, `${cnt * 16} 🟦`); }
         else if (top === "🟧") { eq.push(`${cnt} 🟧`, `${cnt * 2} ⬜️`, `${cnt * 4} 🟩`, `${cnt * 8} 🟦`); }
         else if (top === "⬜️") { eq.push(`${cnt} ⬜️`, `${cnt * 2} 🟩`, `${cnt * 4} 🟦`); }
         else if (top === "🟩") { eq.push(`${cnt} 🟩`, `${cnt * 2} 🟦`); }
@@ -1484,7 +1484,9 @@ function calculateInventory() {
         }
 
         function showNotification(m, t) {
-            const on = document.querySelector('.notification');
+            // Notifications disabled for success messages
+            if (t === 'success') return;
+const on = document.querySelector('.notification');
             if (on) on.remove();
             const n = document.createElement('div');
             n.className = 'notification';
@@ -1956,8 +1958,8 @@ bind('resetAllBtn','click', resetAll);
             setMode('single');
             filterCards();
             
-            setTimeout(() => { showNotification('Калькулятор готов к работе!', 'success'); }, 500);
-        });
+            // init success notification disabled
+});
     
   </script>
 </body>
