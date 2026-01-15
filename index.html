@@ -328,9 +328,28 @@
         .parser-users-title{font-size:0.95rem;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
         .parser-users-list{display:flex;flex-direction:column;gap:8px}
         .parser-user-item{
-            display:flex;align-items:center;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.02);
-            border-radius:8px;border:1px solid rgba(255,255,255,0.05);transition:all 0.2s ease
-        }
+  display:grid;
+  grid-template-columns: 220px 1fr 170px;
+  gap:12px;
+  align-items:center;
+  padding:10px 12px;
+  background:rgba(255,255,255,0.02);
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.parser-user-info{display:flex;flex-direction:column;min-width:0}
+.parser-user-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.parser-user-stats{font-size:0.8rem;color:var(--text-secondary);line-height:1.2}
+.parser-user-cards{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:0.85rem;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  justify-self:stretch;
+}
+.parser-user-actions{justify-self:end}
+
         .parser-user-item:hover{background:rgba(255,255,255,0.04)}
         .parser-user-info{flex:1;min-width:0}
         .parser-user-name{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:2px}
@@ -584,8 +603,10 @@
             "⬛️": { n: "Чёрная карта", c: 15, cat: "violation", cn: "🧧 Карты нарушений", d: "Блок на 1 неделю", e: "Блокировка на 1 неделю", a: "За серьёзные нарушения", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
             "🟫": { n: "Коричневая карта", c: 8, cat: "violation", cn: "🧧 Карты нарушений", d: "Отключение комментариев на весь период эфира", e: "Отключение комментариев", a: "Действует 1 эфир на 1 аккаунт", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
             "🅾️": { n: "Карта обнуления", c: 56, cat: "violation", cn: "🧧 Карты нарушений", d: "Запрет в гостевой и доступ к чату на 4 недели", e: "Запрет в гостевой и чате на 4 недели", a: "За серьёзные нарушения", ac: "Нарушение правил эфира. Получить.", f: "Можно вернуть доступ к чату активацией ☮️", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
-            "💠": { n: "Заморозка", c: 144, cat: "violation", cn: "🧧 Карты нарушений", e: "Ваша активная карта деактивируется. Спикеру запрещено использовать, активировать, передавать 🀄️🎴карты и 🧿ТВ колёса 4 недели.", ap: "1 раз.", ac: "От 🔲. Нарушение правил. 🧿ТВ колесо. Из 🪣🌋", f: "Собирается 🚨. При выпадении с 🧿ТВ колеса действует на всех и вам выдаётся 1 🧿ТВ колесо (можно крутить сразу или через 4 недели). В случае снятия эффекта колесо сгорает.", s: "🅱️🛐🌈", z: "Нет", sale: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🌈🃏☮️🔲🌈🚨💎🟧🎦🎹" },
-            "💠🧧": { n: "Заморозка", c: 144, cat: "violation", cn: "🧧 Карты нарушений", e: "Ваша активная карта деактивируется. Спикеру запрещено использовать, активировать, передавать 🀄️🎴карты и 🧿ТВ колёса 4 недели.", ap: "1 раз.", ac: "От 🔲. Нарушение правил. 🧿ТВ колесо. Из 🪣🌋", f: "Собирается 🚨. При выпадении с 🧿ТВ колеса действует на всех и вам выдаётся 1 🧿ТВ колесо (можно крутить сразу или через 4 недели). В случае снятия эффекта колесо сгорает.", s: "🅱️🛐🌈", z: "Нет", sale: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🌈🃏☮️🔲🌈🚨💎🟧🎦🎹" },
+            "💠": { n: "Заморозка", c: 144, cat: "violation", cn: "🧧 Карты нарушений", e: "Ваша активная карта деактивируется. Спикеру запрещено использовать, активировать, передавать 🀄️🎴карты и 🧿ТВ колёса 4 недели.", a: "1 раз", g: "От 🔲. Нарушение правил. 🧿ТВ колесо. Из 🪣🌋", f: "Собирается из 🚨. При выпадении с 🧿ТВ колеса действует на всех и вам выдаётся 1 🧿ТВ колесо (можно крутить сразу или через 4 недели). В случае снятия эффекта колесо сгорает.", r: "🅱️🛐🌈", t: "Нет", s: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🌈🃏☮️🔲🌈🚨💎🟧🎦🎹" },
+            "💠🧧": { n: "Заморозка", c: 144, cat: "violation", cn: "🧧 Карты нарушений", e: "Ваша активная карта деактивируется. Спикеру запрещено использовать, активировать, передавать 🀄️🎴карты и 🧿ТВ колёса 4 недели.", a: "1 раз", g: "От 🔲. Нарушение правил. 🧿ТВ колесо. Из 🪣🌋", f: "Собирается из 🚨. При выпадении с 🧿ТВ колеса действует на всех и вам выдаётся 1 🧿ТВ колесо (можно крутить сразу или через 4 недели). В случае снятия эффекта колесо сгорает.", r: "🅱️🛐🌈", t: "Нет", s: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🌈🃏☮️🔲🌈🚨💎🟧🎦🎹" },
+            "🎲🎴": { n: "Кость", c: null, cat: "activation", cn: "🎴 Карты активаций", e: "Умножает одну обычную 🀄️карту или 🧿ТВ колесо из инвентаря при броске кубика.", a: "1 раз во время вращения 🧿ТВ колеса", g: "🧿ТВ колесо", f: "Даёт дополнительную игру. Значения: 1→0, 2→1, 3→2, 4→3, 5→4, 6→5 карт. Коэффициент: 1-х1🀄️/🧿", r: "Нет", t: "Нет", s: "Нет", tr: "Нет", conv: "Да 🎲↩️🀄️🧿", p: "Да", cu: "🎴🪟" },
+            "♦️🎴": { n: "Рубиновая Кость", c: null, cat: "activation", cn: "🎴 Карты активаций", e: "Умножает одну Рубиновую 🚨карту из инвентаря при броске 🎲кубика.", a: "1 раз во время вращения 🧿ТВ колеса", g: "🧿ТВ колесо", f: "Даёт дополнительную игру. Значения: 1→1, 2→2, 3→3, 4→4, 5→5, 6→6 карт. Коэффициент: 1→+1🚨", r: "Нет", t: "Нет", s: "Нет", tr: "Нет", conv: "Да ♦️↩️🚨", p: "Да", cu: "🪟🀄️🧿" },
             "⚫️": { n: "Банкрот", c: null, cat: "danger", cn: "📱 Опасные карты", d: "Выпадает в 🧿ТВ колесе, забирает все ваши карты, кроме колёс. Если казна пуста, превращается в карту активации", e: "Забирает все карты, кроме колёс", a: "Из 🧿ТВ колеса", ac: "🧿ТВ колесо. Получить.", f: "На 🛐Храм и 🏧Банк не распространяется", r: "🧿🔘☑️🟦🟩⬜️🟧💎🚨Ⓜ️♻️🃏☮️📜🚾🔲🎦🎹🟪🟥🟨⬛️🟫🅾️💠", t: "нет", s: "Нет", tr: "Нет", conv: "Нет", p: "🏧🛐", cu: "нет" },
             "💣": { n: "Экстерминатус", c: null, cat: "danger", cn: "📱 Опасные карты", d: "Эфир завершается. Запасное время исчезает. Вы получаете 🅾️ и 10 🧿ТВ колёс. Прошлый донатер получает 5 🧿ТВ колёс", e: "Эфир завершается. Запасное время исчезает. Вы получаете 🅾️ и 10 🧿ТВ колёс. Прошлый донатер получает 5 🧿ТВ колес.", a: "1 раз", ac: "🧿ТВ колесо. 🌋Преисподняя.", f: "Нельзя снять. Во время вращения 🧿ТВ колеса, при отсутствии запасного времени, превращается в карту 🎴активации без 🅾️. Ведущий оставляет карту у себя до активации по желанию.", r: "Ведущим", t: "Нет", s: "Нет", tr: "Да", conv: "Нет", p: "Да", cu: "Донатерам не входящим в топ 10 спонсоров." },
             "🎰": { n: "Джекпот", c: null, cat: "super", cn: "⭐ Супер карты", d: "Особая карта для выигрыша больших призов", e: "Шанс на большой выигрыш", a: "Специальные события", ac: "Розыгрыши, события. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "нет" },
@@ -615,6 +636,8 @@ const r = {
             "🅾️": { f: "🟧 + ⬜️ + ☮️ + 🟩 + 🟦 + ☑️", d: "Создание карты обнуления", cg: 97, cd: "1 🟧 + 1 ⬜️ + 1 ☮️ + 1 🟩 + 1 🟦 + 1 ☑️" },
             "🏳️‍🌈": { f: "💎 + 🟧 + 🟧 + 🟧 + ⬜️ + ☮️ + 🟩 + 🟦 + 📜 + ☑️", d: "Создание радужной карты", cg: 122, cd: "1 💎 + 3 🟧 + 1 ⬜️ + 1 ☮️ + 1 🟩 + 1 🟦 + 1 📜 + 1 ☑️" },
             "🔲": { f: "🚨 + 💎 + 💎 + 💎 + 🟧 + ⬜️ + 🃏 + 🟩 + 🟦 + 🚾 + ☑️", d: "Создание чёрно-белой карты", cg: 199, cd: "1 🚨 + 3 💎 + 1 🟧 + 1 ⬜️ + 1 🃏 + 1 🟩 + 1 🟦 + 1 🚾 + 1 ☑️" },
+            "💠": { f: "🚨", d: "1 🚨" },
+            "💠🧧": { f: "🚨", d: "1 🚨" },
             "🚨": { f: "💎 + 💎 + 💎", d: "Создание рубиновой карты", cg: 144, cd: "3 💎" },
             "🅱️": { f: "🔲 + 🏳️‍🌈 + 🚨 + 💎 + 🟧 + ⬜️ + 🎦 + 🎹 + 🃏 + 🚾 + 📜 + ☮️ + 🟩 + 🟦 + ☑️", d: "Создание биты", cg: 634, cd: "1 🔲 + 1 🏳️‍🌈 + 1 🚨 + 1 💎 + 1 🟧 + 1 ⬜️ + 1 🎦 + 1 🎹 + 1 🃏 + 1 🚾 + 1 📜 + 1 ☮️ + 1 🟩 + 1 🟦 + 1 ☑️" },
             "🌋": { f: "🚨 + 🚨 + 🚨 + 🚨 + 🚨 + 🚨", d: "Создание Преисподней", cg: 864, cd: "6 🚨" }
@@ -630,9 +653,7 @@ const r = {
         });
         Object.defineProperty(window, 'inventory', {
             get() { return i; },
-            set(v) { i = v || {            "💠🧧": { f: "🚨", d: "Создание карты Заморозка", cg: 144, cd: "1 🚨 (144 ☑️)" },
-            "💠": { f: "🚨", d: "Создание карты Заморозка", cg: 144, cd: "1 🚨 (144 ☑️)" },
-}; }
+            set(v) { i = v || {}; }
         });
         const recipes = r;
         // Алиас для парсера/старого кода
@@ -913,28 +934,19 @@ const r = {
 
             let rc = tc;
             let out = '';
-            let lines = 0;
-            const MAX_LINES = 20; // защита от зависаний (не спамим сотнями строк)
 
-            for (const c of cards) {
+            cards.forEach(c => {
                 if (c.cost > 0 && rc >= c.cost) {
                     const cnt = Math.floor(rc / c.cost);
                     if (cnt > 0) {
-                        // выводим без длинных описаний, чтобы не перегружать DOM
-                        out += `• ${cnt} × ${c.sym}<br>`;
+                        out += `• ${cnt} × ${c.sym} ${c.name}<br>`;
                         rc -= cnt * c.cost;
-                        lines += 1;
-                        if (lines >= MAX_LINES) break;
                     }
                 }
-            }
+            });
 
-            if (out === '' && tc > 0) out = `• ${tc} × ☑️<br>`;
-            else if (rc > 0) out += `• ${rc} × ☑️<br>`;
-
-            if (lines >= MAX_LINES && rc > 0) {
-                out += `<small style="opacity:.75;">(Список сокращён. Остаток учтён в ☑️.)</small><br>`;
-            }
+            if (out === '' && tc > 0) out = `• ${tc} × ☑️ Серая карта<br>`;
+            else if (rc > 0) out += `• ${rc} × ☑️ Серая карта<br>`;
 
             return out || 'Нет доступных карт для сборки<br>';
         }
@@ -1020,8 +1032,8 @@ const r = {
             // 2) Разбираем итог в 🟦 вниз по "лестнице" старших карт (в синие единицы)
             // 1🚨 = 48🟦, 1💎 = 16🟦, 1🟧 = 8🟦, 1⬜️ = 4🟦, 1🟩 = 2🟦, 1🟦 = 1🟦
             const denom = [
-                { sym: "🚨", blues: 72 },
-                { sym: "💎", blues: 24 },
+                { sym: "🚨", blues: 48 },
+                { sym: "💎", blues: 16 },
                 { sym: "🟧", blues: 8 },
                 { sym: "⬜️", blues: 4 },
                 { sym: "🟩", blues: 2 },
@@ -1222,7 +1234,7 @@ function buildInventoryUpgrades(mode = 'max') {
         if (!cnt) continue;
 
         const eq = [];
-        if (top === "🚨") { eq.push(`${cnt} 🚨`, `${cnt * 3} 💎`, `${cnt * 9} 🟧`, `${cnt * 18} ⬜️`, `${cnt * 36} 🟩`, `${cnt * 72} 🟦`); }
+        if (top === "🚨") { eq.push(`${cnt} 🚨`, `${cnt * 3} 💎`, `${cnt * 6} 🟧`, `${cnt * 12} ⬜️`, `${cnt * 24} 🟩`, `${cnt * 48} 🟦`); }
         else if (top === "💎") { eq.push(`${cnt} 💎`, `${cnt * 2} 🟧`, `${cnt * 4} ⬜️`, `${cnt * 8} 🟩`, `${cnt * 16} 🟦`); }
         else if (top === "🟧") { eq.push(`${cnt} 🟧`, `${cnt * 2} ⬜️`, `${cnt * 4} 🟩`, `${cnt * 8} 🟦`); }
         else if (top === "⬜️") { eq.push(`${cnt} ⬜️`, `${cnt * 2} 🟩`, `${cnt * 4} 🟦`); }
@@ -1484,9 +1496,9 @@ function calculateInventory() {
         }
 
         function showNotification(m, t) {
-            // Notifications disabled for success messages
+            // Success toasts disabled (requested)
             if (t === 'success') return;
-const on = document.querySelector('.notification');
+            const on = document.querySelector('.notification');
             if (on) on.remove();
             const n = document.createElement('div');
             n.className = 'notification';
@@ -1580,158 +1592,187 @@ const on = document.querySelector('.notification');
         }
 
         // Функции парсера
+        
+        // Функции парсера
         function parseText() {
-    const text = document.getElementById('parserText').value.trim();
-    if (!text) {
-        showNotification('Введите текст для анализа', 'warning');
-        return;
+  const textEl = document.getElementById('parserText');
+  const text = (textEl ? textEl.value : '').trim();
+  if (!text) {
+    if (typeof showNotification === 'function') showNotification('Введите текст для анализа', 'warning');
+    return;
+  }
+
+  const lines = text.split(/\r?\n/);
+
+  // Русские заголовки уровневых карт
+  const CARD_SECTION_MAP = [
+    { re: /\bРубиновая\b/i, sym: "🚨" },
+    { re: /\bИзумрудная\b/i, sym: "💎" },
+    { re: /\bЗолотая\b/i, sym: "🟧" },
+    { re: /\bБелая\b/i, sym: "⬜️" },
+    { re: /\bЗел[её]ная\b/i, sym: "🟩" },
+    { re: /\bСиняя\b/i, sym: "🟦" },
+    { re: /\bСерая\b/i, sym: "☑️" },
+  ];
+
+  // Эти символы/разделы НЕ считаем "картами" в парсере
+  const BANNED_SECTION_RE = /(ТВ\s*кол[её]со|tv\s*wheel)/i;
+  const BANNED_SYMBOLS = new Set(["🧿", "🚾", "0", "0️⃣", "Ⓜ️", "⚡️", "🀄️", "🎴"]);
+
+  // Нормализация имени для мерджа (Бел.Еврей == Бел Еврей == БелЕврей и т.п.)
+  function normalizeName(raw) {
+    let s = (raw || '')
+      .replace(/https?:\/\/\S+/giu, '')
+      .replace(/t\.me\/\S+/giu, '')
+      .replace(/\p{Regional_Indicator}{2}/gu, '') // флаги
+      .replace(/[\uFE0F\u200D]/g, '')
+      .replace(/[.,;:(){}\[\]<>—–]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+
+    const key = s.replace(/[^\p{L}\p{N}]+/gu, '');
+    return { display: (raw || '').trim(), key };
+  }
+
+  function isLinkLine(line) {
+    return /(https?:\/\/|t\.me\/|www\.)/i.test(line);
+  }
+
+  function isServiceLine(line) {
+    const t = (line || '').trim();
+    if (!t) return true;
+    if (isLinkLine(t)) return true;
+    // типичные служебные заголовки/маркировки
+    if (/^⚡️/u.test(t)) return true;
+    if (/^(Обычные|Карты|Список|Инвентарь|Итого)\b/i.test(t)) return true;
+    return false;
+  }
+
+  // Графема первого "эмодзи" (простая эвристика)
+  function firstEmojiSymbol(line) {
+    const t = (line || '').trim();
+    if (!t) return '';
+    // Берём первый кодпоинт/пару + возможный VS16/ZWJ хвост
+    // Это не идеальный grapheme-split, но для наших ключей достаточно.
+    const m = t.match(/^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)/u);
+    return m ? m[1] : '';
+  }
+
+  // Хранилища результата
+  const userCards = Object.create(null);   // key -> { sym -> qty }
+  const userDisplay = Object.create(null); // key -> displayName
+  const cardCounts = Object.create(null);  // sym -> total qty
+
+  function putUser(rawName, sym, qty) {
+    if (!sym || !qty) return;
+    if (BANNED_SYMBOLS.has(sym)) return;
+    if (!cardData || !cardData[sym]) return; // считаем только то, что реально известно базе
+    const { display, key } = normalizeName(rawName);
+    if (!key || key.length < 2) return;
+
+    if (!userCards[key]) userCards[key] = Object.create(null);
+    userCards[key][sym] = (userCards[key][sym] || 0) + qty;
+
+    if (!userDisplay[key]) userDisplay[key] = display;
+
+    cardCounts[sym] = (cardCounts[sym] || 0) + qty;
+  }
+
+  // Поддержка простого формата: "Имя: 🟦🟦🟩☑️..."
+  const SIMPLE_SYMBOLS = ["🚨","💎","🟧","⬜️","🟩","🟦","☑️","🃏","📜","🅱️","🔲","🥷📱","💠🧧","💠"];
+  const SIMPLE_PRESENT = SIMPLE_SYMBOLS.filter(s => cardData && cardData[s] && !BANNED_SYMBOLS.has(s));
+  // Для надёжного матчинга: длинные сначала (двойные эмодзи вроде 🥷📱, 💠🧧)
+  SIMPLE_PRESENT.sort((a,b) => (b.length - a.length));
+
+  function countSymbolsInString(s) {
+    const counts = Object.create(null);
+    let rest = s || '';
+    for (const sym of SIMPLE_PRESENT) {
+      if (!rest.includes(sym)) continue;
+      const re = new RegExp(sym.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gu');
+      const m = rest.match(re);
+      if (m && m.length) counts[sym] = (counts[sym] || 0) + m.length;
+    }
+    return counts;
+  }
+
+  let currentCardSymbol = null;
+  let inTvWheel = false;
+
+  for (const rawLine of lines) {
+    const line = (rawLine || '').trim();
+    if (!line) continue;
+    if (isLinkLine(line)) continue;
+
+    // 1) Простой формат: "Имя: 🟦🟦..."
+    const simple = line.match(/^(.+?)\s*:\s*(.+)$/u);
+    if (simple) {
+      const name = simple[1].trim();
+      const tail = simple[2].trim();
+      if (name && tail) {
+        const counts = countSymbolsInString(tail);
+        for (const sym of Object.keys(counts)) {
+          putUser(name, sym, counts[sym]);
+        }
+      }
+      continue;
     }
 
-    const cardCounts = {};
-    // userCards[key][symbol] = qty
-    const userCards = {};
-    // key -> display
-    const userDisplay = {};
-
-    const currentDate = new Date();
-
-    const allSymbols = Object.keys(cardData);
-    const sortedSymbols = [allSymbols].sort((a,b) => b.length - a.length);
-
-    let scopeText = text;
-
-// Ограничиваем парсинг только блоком "Список карт у спикеров"
-const startMarker = 'Список карт у спикеров';
-const startPos = scopeText.indexOf(startMarker);
-if (startPos !== -1) scopeText = scopeText.slice(startPos);
-
-// Обрезаем всё после ссылок на банк/храм (служебная часть после списка)
-const endRe = /(?:\n|^)🏧Банк\s*-\s*https?:\/\/\S+/m;
-const mEnd = scopeText.match(endRe);
-if (mEnd && typeof mEnd.index === 'number') scopeText = scopeText.slice(0, mEnd.index);
-
-const lines = scopeText.split(/\r?\n/);
-
-    let currentCardSymbol = null;
-
-    const timestampPattern = /^LIFTADOR,\s*\[\d{2}\.\d{2}\.\d{4}\s+\d{2}:\d{2}\]/;
-    const urlPattern = /https?:\/\/\S+|t\.me\/\S+/;
-    const separatorPattern = /^[---===___]+$/;
-
-    const datePattern = /\bдо\s+\d{2}\.\d{2}(?:\.\d{2,4})?/i;
-    const futureDatePattern = /до\s+(\d{2})\.(\d{2})(?:\.(\d{2,4}))?/i;
-
-    const forbiddenName = /(обычн|карты|карта|список|итого|всего|тв\s*колес|активац|наруш|опасн|супер|банк|храм|лимит|открыт|отправк)/i;
-
-    const putUser = (nameRaw, symbol, qty) => {
-        const display = cleanUserName(nameRaw);
-        const key = normalizeUserKey(display);
-        if (!key || key.length < 3) return;
-        if (forbiddenName.test(display)) return;
-
-        if (!userDisplay[key]) userDisplay[key] = display;
-        if (!userCards[key]) userCards[key] = {};
-        userCards[key][symbol] = (userCards[key][symbol] || 0) + qty;
-        cardCounts[symbol] = (cardCounts[symbol] || 0) + qty;
-    };
-
-    for (let idx = 0; idx < lines.length; idx++) {
-        let line = lines[idx].trim();
-        if (!line) continue;
-
-        if (timestampPattern.test(line) || urlPattern.test(line) || separatorPattern.test(line)) continue;
-
-        // Игнорируем строки, где "до XX.XX" — это не количество карт
-        if (datePattern.test(line) && !/\s*[-—]\s*\d+/.test(line)) {
-            // при этом если в строке дата просрочена — всё равно пропускаем
-            const dm = line.match(futureDatePattern);
-            if (dm) {
-                const day = parseInt(dm[1], 10);
-                const month = parseInt(dm[2], 10);
-                const year = dm[3] ? parseInt(dm[3], 10) : currentDate.getFullYear();
-                const exp = new Date(year < 100 ? 2000 + year : year, month - 1, day);
-                if (exp < currentDate) continue;
-            }
-        }
-
-        // Заголовок карты: начинается с символа карты (например "☑️Серая", "🟦Синяя", "🔲Чёрно-Белая")
-        let headerDetected = false;
-        // Заголовок секции карты: начинается с эмодзи карты и НЕ похож на строку пользователя
-        for (const sym of sortedSymbols) {
-            if (!line.startsWith(sym)) continue;
-            const rest = line.slice(sym.length).trim();
-            if (!rest) continue;
-
-            // Заголовок не должен содержать разделители пользовательских строк и цифры
-            if (line.includes('-') || line.includes('—') || line.includes(':')) continue;
-            if (/\d/.test(line)) continue;
-
-            currentCardSymbol = sym;
-            headerDetected = true;
-            break;
-        }
-        if (headerDetected) continue;
-
-        // Формат "Имя: 🟦🟦🟩☑️"
-        if (line.includes(':')) {
-            const pos = line.indexOf(':');
-            const left = line.slice(0, pos).trim();
-            const right = line.slice(pos + 1).trim();
-            const display = cleanUserName(left);
-            const key = normalizeUserKey(display);
-            if (key && !userDisplay[key]) userDisplay[key] = display;
-
-            if (right) {
-                let any = false;
-                sortedSymbols.forEach(sym => {
-                    const cnt = (right.split(sym).length - 1);
-                    if (cnt > 0) {
-                        any = true;
-                        putUser(display, sym, cnt);
-                    }
-                });
-                if (any) continue;
-            }
-        }
-
-        // Пользователь с количеством: "Имя - 12" (+ допускаем хвост в скобках)
-        if (currentCardSymbol && (line.includes('-') || line.includes('—'))) {
-            const mm = line.match(/^(.{1,80}?)\s*[-—]\s*(\d+)\s*(?:\(|$)/u);
-            if (!mm) continue;
-
-            const nameRaw = mm[1];
-            const qty = parseInt(mm[2], 10);
-            if (!Number.isFinite(qty) || qty <= 0) continue;
-
-            putUser(nameRaw, currentCardSymbol, qty);
-            continue;
-        }
-
-        // Одиночный пользователь без количества (редко): "Имя"
-        if (currentCardSymbol && line.length > 1 && line.length < 50 && !line.includes('-') && !line.includes('—') && !/\d/.test(line)) {
-            // не карта
-            let isCard = false;
-            for (const sym of sortedSymbols) {
-                if (line.includes(sym)) { isCard = true; break; }
-            }
-            if (isCard) continue;
-
-            if (forbiddenName.test(line)) continue;
-            putUser(line, currentCardSymbol, 1);
-        }
+    // 2) Служебные строки — мимо (но они могут содержать заголовки уровня)
+    const foundLvl = CARD_SECTION_MAP.find(x => x.re.test(line));
+    if (foundLvl) {
+      currentCardSymbol = foundLvl.sym;
+      inTvWheel = false;
+      continue;
     }
 
-    // Приводим к формату вывода: {displayName: {sym: qty}}
-    const outUsers = {};
-    Object.keys(userCards).forEach(key => {
-        const disp = userDisplay[key] || key;
-        outUsers[disp] = userCards[key];
-    });
+    if (BANNED_SECTION_RE.test(line) || line.includes("🧿")) {
+      // Блок ТВ колеса не является "типом карты" для начисления
+      inTvWheel = true;
+      currentCardSymbol = null;
+      continue;
+    }
 
-    showParserResults(cardCounts, outUsers);
+    // 3) Заголовок секции по эмодзи (например 🃏Джокер, 📜Пергамент, 🟦Синяя карта)
+    if (!isServiceLine(line)) {
+      const sym = firstEmojiSymbol(line);
+      const headerLooksOk = sym
+        && !BANNED_SYMBOLS.has(sym)
+        && cardData && cardData[sym]
+        && !/[—–-]\s*\d/.test(line) // не "имя - 2"
+        && !/:\s*\S/.test(line);    // не "имя: ..."
+      if (headerLooksOk) {
+        currentCardSymbol = sym;
+        inTvWheel = false;
+        continue;
+      }
+    }
+
+    // 4) "Имя - количество" принимаем только если мы в секции карты и не в ТВ колесе
+    if (!currentCardSymbol || inTvWheel) continue;
+    if (isServiceLine(line)) continue;
+
+    const m = line.match(/^(.+?)\s*[—–-]\s*(\d+)\b/u);
+    if (!m) continue;
+
+    const name = m[1].trim();
+    const qty = parseInt(m[2], 10);
+    if (!Number.isFinite(qty) || qty <= 0) continue;
+
+    // фильтр "имя" не должно быть служебным словом
+    if (/^(обычные|карты|список|итого|банк|храм)\b/i.test(name)) continue;
+
+    putUser(name, currentCardSymbol, qty);
+  }
+
+  if (typeof showParserResults === 'function') {
+    showParserResults(cardCounts, userCards, userDisplay);
+  } else {
+    console.log({ cardCounts, userCards, userDisplay });
+  }
 }
 
-// Вспомогательная функция для очистки имён пользователей
         function cleanUserName(name) {
             let s = String(name || '').trim();
 
@@ -1828,13 +1869,11 @@ const lines = scopeText.split(/\r?\n/);
                         <div class="parser-user-item">
                             <div class="parser-user-info">
                                 <div class="parser-user-name">${escapeHtml(userName)}</div>
-                                <div class="parser-user-stats">
-                                    <div>${userTotalCards} карт, ${userTotalValue} ☑️</div>
-                                    <div style="font-size:0.75rem;color:var(--accent);">${convertToHigherCards(userTotalValue)}</div>
-                                </div>
+                                <div class="parser-user-stats">${userTotalCards} карт, ${userTotalValue} ☑️</div>
                             </div>
+                            <div class="parser-user-cards">${convertToHigherCards(userTotalValue)}</div>
                             <div class="parser-user-actions">
-                                <button class="parser-user-btn primary" onclick="addUserToInventory('${escapeHtml(userName)}', '${escapeHtml(JSON.stringify(userCardCounts))}')">📥 В инвентарь</button>
+                                <button class="parser-user-btn primary" onclick="addUserToInventory('${escapeHtml(userName)}','${escapeHtml(JSON.stringify(userCardCounts))}')">📥 В инвентарь</button>
                             </div>
                         </div>
                     `;
@@ -1957,8 +1996,6 @@ bind('resetAllBtn','click', resetAll);
 
             setMode('single');
             filterCards();
-            
-            // init success notification disabled
 });
     
   </script>
