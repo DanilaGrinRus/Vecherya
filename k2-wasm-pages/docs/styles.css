@@ -1,0 +1,75 @@
+:root {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0b0f14;
+  color: #e8eef6;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1, h2 {
+  margin: 0 0 12px 0;
+}
+
+.muted {
+  color: #a8b3c3;
+}
+
+.card {
+  background: #111826;
+  border: 1px solid #22314a;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+input {
+  flex: 1;
+  min-width: 240px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #22314a;
+  background: #0b0f14;
+  color: #e8eef6;
+}
+
+button {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #2b3d5b;
+  background: #162032;
+  color: #e8eef6;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1b2a43;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 12px 0 0 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: #0b0f14;
+  border: 1px solid #22314a;
+}
+
+footer {
+  margin-top: 24px;
+}

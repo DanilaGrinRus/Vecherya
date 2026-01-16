@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "user_key": "aleksei",
+      "display_name": "Алексей",
+      "cards": {
+        "robbers": 1,
+        "black": 2,
+        "bomb": 1
+      }
+    },
+    {
+      "user_key": "igor",
+      "display_name": "Игорь",
+      "cards": {
+        "robbers": 2
+      }
+    }
+  ],
+  "active_notes": [
+    { "text": "Синяя — Мирослава до 16.01 или до выбивания" }
+  ]
+}
