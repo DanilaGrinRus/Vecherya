@@ -1,6 +1,0 @@
-[workspace]
-resolver = "2"
-members = [
-  "k2-core",
-  "k2-wasm"
-]
