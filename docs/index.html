@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>K2 — Rust/WASM</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>K2 — калькулятор (Rust → WASM)</h1>
+      <p class="muted">Статический сайт (GitHub Pages). Логика — в Rust, выполняется в браузере.</p>
+    </header>
+
+    <section class="card">
+      <h2>1) Инициализация</h2>
+      <div class="row">
+        <button id="btnLoadCards">Загрузить справочник карт (cards.json)</button>
+        <span id="cardsStatus" class="muted">Не загружено</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2) Анализ инвентаря</h2>
+      <div class="row">
+        <button id="btnLoadSample">Подставить пример (inventory.sample.json)</button>
+        <button id="btnAnalyze">Анализировать</button>
+      </div>
+      <textarea id="inventoryInput" spellcheck="false" placeholder='Вставьте JSON инвентаря сюда'></textarea>
+      <h3>Отчёт</h3>
+      <pre id="report"></pre>
+    </section>
+
+    <section class="card">
+      <h2>3) Поиск правил карты</h2>
+      <div class="row">
+        <input id="searchQuery" placeholder="Название / id / эмодзи" />
+        <button id="btnSearch">Найти</button>
+      </div>
+      <pre id="searchResult"></pre>
+    </section>
+
+    <footer class="muted">
+      <p>Примечание: сохранение данных возможно только в браузере (localStorage/IndexedDB) — при необходимости добавим позже.</p>
+    </footer>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
