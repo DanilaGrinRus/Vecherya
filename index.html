@@ -3836,106 +3836,101 @@ inventorySearch.addEventListener('input', () => {
         }, 500);
     });
   
-// === Worker Inventory Auto-Load (inv.v1) ===
-const WORKER_INVENTORY_URL = "https://noisy-grass-2be4.nurlinec.workers.dev/api/inventory";
+// === Telegram Worker Auto-Load (Vecherya) ===
+// PROD v1: UI does not parse Telegram HTML. It fetches prepared inventory JSON from Worker.
+// Then we inject the underlying source text into the analyzer textarea and trigger the same flow
+// as manual "Проанализировать текст" ("✨ Магия").
+const TG_WORKER_URL = "https://noisy-grass-2be4.nurlinec.workers.dev/api/inventory";
 
-function invV1CardKeyToName(inv) {
-  const map = Object.create(null);
-  if (inv && Array.isArray(inv.cardCatalog)) {
-    for (const c of inv.cardCatalog) {
-      if (c && c.cardKey && c.cardName) map[c.cardKey] = c.cardName;
-    }
-  }
-  return map;
+function normalizeTelegramText(raw) {
+  return String(raw || "")
+    .replace(/[–—]/g, "-")
+    .replace(/([А-Яа-яA-Za-z0-9_])-(\d+)/g, "$1 - $2")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
-function invV1NormalizeError(data) {
-  if (!data) return "Пустой ответ воркера";
-  const err = data.error;
-  if (!err) return "Некорректный ответ воркера";
-  if (typeof err === "string") return err;
-  if (err && typeof err === "object") {
-    if (typeof err.message === "string" && err.message.trim()) return err.message;
-    if (typeof err.code === "string" && err.code.trim()) return err.code;
-  }
-  try { return JSON.stringify(err); } catch (_) { return String(err); }
-}
+function getAutoLentTextarea() {
+  // Prefer explicit ids if they exist
+  const byId =
+    document.querySelector("#autoLentText") ||
+    document.querySelector("#autolentText") ||
+    document.querySelector("#inventoryInput") ||
+    document.querySelector("#inputText");
+  if (byId && byId.tagName === "TEXTAREA") return byId;
 
-function buildAutolentResultsFromInvV1(payload) {
-  const inv = payload && payload.inventory ? payload.inventory : null;
-  const nameMap = invV1CardKeyToName(inv);
+  // Try within AutoLent section containers
+  const section =
+    document.querySelector("#autolent") ||
+    document.querySelector("#autoLent") ||
+    document.querySelector("[data-section='autolent']") ||
+    document.querySelector(".autolent") ||
+    document.querySelector(".autoLent");
 
-  const res = { users: {}, cards: {}, totalCards: 0, totalUsers: 0 };
-  if (!inv || !Array.isArray(inv.users)) return res;
-
-  for (const u of inv.users) {
-    const uname = String((u && (u.name || u.key)) || "").trim();
-    if (!uname) continue;
-
-    if (!res.users[uname]) res.users[uname] = { cards: {}, total: 0, active: [] };
-
-    const counts = (u && u.counts) ? u.counts : {};
-    for (const k of Object.keys(counts)) {
-      const n = Number(counts[k]);
-      if (!Number.isFinite(n) || n <= 0) continue;
-
-      const cardName = nameMap[k] || k;
-      res.users[uname].cards[cardName] = (res.users[uname].cards[cardName] || 0) + n;
-      res.users[uname].total += n;
-
-      if (!res.cards[cardName]) res.cards[cardName] = { total: 0, users: {} };
-      res.cards[cardName].total += n;
-      res.cards[cardName].users[uname] = (res.cards[cardName].users[uname] || 0) + n;
-
-      res.totalCards += n;
-    }
-
-    if (u && Array.isArray(u.active)) {
-      for (const a of u.active) {
-        const aName = String((a && (a.cardName || nameMap[a.cardKey] || a.cardKey)) || "").trim();
-        const aText = String((a && (a.text || a.untilText)) || "").trim();
-        if (!aName) continue;
-        res.users[uname].active.push({ cardName: aName, text: aText, type: String((a && a.type) || "").trim() });
-      }
-    }
+  if (section) {
+    const ta = section.querySelector("textarea");
+    if (ta) return ta;
   }
 
-  res.totalUsers = Object.keys(res.users).length;
-  return res;
+  // Fallback: first textarea on page (as last resort)
+  return document.querySelector("textarea");
 }
 
-async function loadWorkerInventoryToAutoLent(options) {
+function clickMagicButton() {
+  // Try known selectors
+  const btn =
+    document.querySelector("#magicBtn") ||
+    document.querySelector("button[data-action='analyze']") ||
+    Array.from(document.querySelectorAll("button")).find(b => (b.textContent || "").trim() === "✨ Магия");
+  if (btn) btn.click();
+}
+
+async function loadTelegramIntoAutoLent() {
   const statusEl = document.getElementById("tgLoadStatus");
   const btn = document.getElementById("loadFromTelegramBtn");
-  const setStatus = (msg) => { if (statusEl) statusEl.textContent = msg; };
 
-  const force = !!(options && options.force);
-  const url = WORKER_INVENTORY_URL + (force ? "?force=1" : "");
+  const setStatus = (msg) => { if (statusEl) statusEl.textContent = msg; };
 
   try {
     if (btn) btn.disabled = true;
-    setStatus(force ? "Обновляю данные (force=1)…" : "Загружаю инвентарь из Worker…");
+    setStatus("Загружаю текст из Telegram…");
 
-    const r = await fetch(url, { cache: "no-store" });
-    if (!r.ok) throw new Error("HTTP " + r.status);
-
+    const r = await fetch(TG_WORKER_URL, { cache: "no-store" });
     const data = await r.json();
-    if (!data || !data.ok) throw new Error(invV1NormalizeError(data));
 
-    window.autolentResults = buildAutolentResultsFromInvV1(data);
-
-    if (!window.autolentResults.totalUsers) {
-      throw new Error("Инвентарь пуст (0 пользователей)");
+    if (!data || !data.ok) {
+      const msg = data?.error?.message || data?.message || "Пустой/некорректный ответ воркера";
+      throw new Error(msg);
     }
 
-    setStatus("Инвентарь загружен. Обновляю список…");
-    if (typeof showAutolentResults === "function") {
-      showAutolentResults();
+    // We intentionally re-use the existing UI analyzer by injecting the source text
+    // extracted by the Worker. The Worker response includes sampleMessages previews.
+    // This keeps the visual and all existing parsing logic intact.
+    const previews = Array.isArray(data?.source?.sampleMessages)
+      ? data.source.sampleMessages
+          .map(m => (m && m.preview) ? String(m.preview) : "")
+          .filter(Boolean)
+      : [];
+
+    if (!previews.length) {
+      throw new Error("Worker ответил OK, но не вернул текст источника (source.sampleMessages.preview)");
     }
+
+    const ta = getAutoLentTextarea();
+    if (!ta) throw new Error("Не найдено поле ввода АвтоЛени (textarea)");
+
+    const normalized = normalizeTelegramText(previews.join("\n\n"));
+    ta.value = normalized;
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+
+    setStatus("Текст загружен. Запускаю «Магия»…");
+    clickMagicButton();
     setStatus("Готово.");
   } catch (e) {
-    const msg = (e && e.message) ? e.message : String(e);
-    setStatus("Ошибка автозагрузки: " + msg);
+    const raw = (e && typeof e === "object")
+      ? (e.message || JSON.stringify(e))
+      : String(e);
+    setStatus("Ошибка автозагрузки: " + raw);
   } finally {
     if (btn) btn.disabled = false;
   }
@@ -3943,13 +3938,9 @@ async function loadWorkerInventoryToAutoLent(options) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("loadFromTelegramBtn");
-  if (btn) {
-    btn.addEventListener("click", (ev) => {
-      // Shift+Click: принудительное обновление кэша воркера
-      loadWorkerInventoryToAutoLent({ force: !!(ev && ev.shiftKey) });
-    });
-  }
+  if (btn) btn.addEventListener("click", loadTelegramIntoAutoLent);
 });
+
 </script>
 </body>
 </html>
