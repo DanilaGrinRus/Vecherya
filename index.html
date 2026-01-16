@@ -1,0 +1,3955 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Капитализм и Коммунизм</title>
+    <style>
+        /* БАЗОВЫЕ СТИЛИ И ПЕРЕМЕННЫЕ - ЕДИНАЯ БРЕНДОВАЯ ЦВЕТОВАЯ ГАММА */
+        :root {
+            /* BRAND COLOR PALETTE (единый брендовый синий) */
+            --brand: #49B9FF;
+            --brand-light: #8DE1FF;
+            --brand-dark: #1E88FF;
+            --brand-glow: rgba(73, 185, 255, 0.35);
+            --brand-bg: rgba(73, 185, 255, 0.12);
+            --brand-border: rgba(73, 185, 255, 0.35);
+
+            /* NEUTRAL BACKGROUND COLORS */
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            
+            /* ACCENT COLORS (единый брендовый синий) */
+            --accent: #49B9FF;
+            --accent-light: #8DE1FF;
+            --accent-dark: #1E88FF;
+            
+            /* TEXT COLORS (единый брендовый тон) */
+            --text: rgba(73, 185, 255, 0.80);
+            --text-secondary: rgba(73, 185, 255, 0.55);
+            --text-bright: rgba(141, 225, 255, 0.95);
+            
+            /* UI COLORS */
+            --dropdown-bg: rgba(30, 41, 59, 0.95);
+            --dropdown-border: rgba(73, 185, 255, 0.4);
+            --select-text: rgba(73, 185, 255, 0.90);
+            
+            /* STATUS COLORS */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            
+            /* CARD TYPE COLORS (перекрашены в брендовые тона) */
+            --type-normal: var(--brand);
+            --type-activation: var(--brand-light);
+            --type-violation: #f59e0b; /* оставляем жёлтый для нарушений */
+            --type-danger: var(--error); /* оставляем красный для опасных */
+            --type-super: var(--warning); /* оставляем оранжевый для супер */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #0c0f1f 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .main-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(145deg, var(--card-bg) 0%, #1a2337 100%);
+            border-radius: 16px;
+            border: 1px solid var(--brand-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 28px rgba(73, 185, 255, 0.10);
+        }
+        
+        .main-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 18px rgba(73, 185, 255, 0.14);
+        }
+        
+        .subtitle {
+            color: var(--text-bright);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .time-display {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--brand-bg);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            border: 1px solid var(--brand-border);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 6px 18px rgba(73, 185, 255, 0.10);
+        }
+
+        /* Только цифры на циферблате (МСК время) — белые */
+        #timeDisplay {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .night-warning {
+            display: none;
+            padding: 14px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--error);
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .night-warning.visible {
+            display: block;
+        }
+        
+        .calculator-section {
+            background: linear-gradient(145deg, var(--card-bg) 0%, #1a2337 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .mode-btn {
+            padding: 14px 28px;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--dropdown-border);
+            color: var(--text);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .mode-btn:hover {
+            background: rgba(73, 185, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(73, 185, 255, 0.2);
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%);
+            border-color: var(--brand);
+            font-weight: 600;
+            box-shadow: 0 4px 16px rgba(73, 185, 255, 0.3);
+            color: white;
+        }
+        
+        .mode-content {
+            display: none;
+        }
+        
+        .mode-content.active {
+            display: block;
+        }
+        
+        /* СТИЛИ ДЛЯ ВЫПАДАЮЩИХ СПИСКОВ */
+        select {
+            padding: 14px 20px;
+            background: var(--dropdown-bg) !important;
+            color: var(--select-text) !important;
+            border: 2px solid var(--dropdown-border) !important;
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 320px;
+            backdrop-filter: blur(10px);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2349B9FF'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 15px center !important;
+            background-size: 20px !important;
+            padding-right: 45px !important;
+        }
+        
+        select option {
+            background: var(--dropdown-bg) !important;
+            color: var(--select-text) !important;
+            padding: 12px !important;
+            font-size: 1rem !important;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--brand) !important;
+            box-shadow: 0 0 0 3px rgba(73, 185, 255, 0.25) !important;
+        }
+        
+        /* СТИЛИ ДЛЯ ИНВЕНТАРЯ */
+        .inventory-container {
+            padding: 20px;
+        }
+        
+        .inventory-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+        }
+        
+        .inventory-subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .inventory-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .inventory-select {
+            padding: 12px 20px;
+            background: var(--dropdown-bg);
+            color: var(--select-text);
+            border: 2px solid var(--dropdown-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .inventory-input {
+            padding: 12px 20px;
+            background: var(--dropdown-bg);
+            color: var(--select-text);
+            border: 2px solid var(--dropdown-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 120px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .inventory-btn {
+            padding: 12px 24px;
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        
+        .inventory-btn:hover {
+            background: linear-gradient(90deg, #1a7ae0 0%, #3aa3ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(73, 185, 255, 0.3);
+        }
+        
+        .inventory-list {
+            background: rgba(73, 185, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(73, 185, 255, 0.1);
+            backdrop-filter: blur(10px);
+            min-height: 200px;
+        }
+        
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(73, 185, 255, 0.07);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--brand);
+        }
+        
+        .inventory-item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .inventory-item-emoji {
+            font-size: 1.3rem;
+        }
+
+        /* Emoji normalization (единый визуальный вес) */
+        .emoji,
+        .inventory-item-emoji,
+        .autolent-card-emoji,
+        .card-info-emoji {
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: -0.08em;
+            font-variant-emoji: emoji;
+        }
+        
+        .inventory-item-name {
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .inventory-item-count {
+            font-weight: 700;
+            color: var(--brand);
+            font-size: 1.1rem;
+        }
+        
+        .inventory-item-remove {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        
+        .inventory-item-remove:hover {
+            background: rgba(239, 68, 68, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .inventory-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(73, 185, 255, 0.1);
+        }
+        
+        .inventory-total {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--brand);
+        }
+        
+        .inventory-clear-btn {
+            padding: 10px 20px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .inventory-clear-btn:hover {
+            background: rgba(239, 68, 68, 0.4);
+        }
+        
+        .empty-inventory {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-inventory-emoji {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+
+
+        /* ИНВЕНТАРЬ: СПРАВОЧНИК КАРТ + ПОИСК */
+        .inventory-reference {
+            margin: 24px 0 28px;
+            padding: 18px;
+            background: rgba(73, 185, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(73, 185, 255, 0.08);
+            backdrop-filter: blur(10px);
+        }
+
+        .inventory-reference-header {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .inventory-reference-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .inventory-search {
+            flex: 1;
+            min-width: 240px;
+            padding: 12px 16px;
+            background: var(--dropdown-bg);
+            color: var(--select-text);
+            border: 2px solid var(--dropdown-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .inventory-search:focus {
+            outline: none;
+            border-color: var(--brand);
+            box-shadow: 0 0 0 4px rgba(73, 185, 255, 0.25);
+        }
+
+        .inventory-reference-group {
+            margin-top: 16px;
+        }
+
+        /* Свернуто по умолчанию, разворот по клику (внешний вид сохраняем) */
+        .inventory-reference-group-title::after {
+            content: '▸';
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        .inventory-reference-group.open .inventory-reference-group-title::after {
+            content: '▾';
+        }
+
+        .inventory-reference-group .inventory-reference-grid {
+            display: none;
+        }
+
+        .inventory-reference-group.open .inventory-reference-grid {
+            display: grid;
+        }
+
+        .inventory-reference-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        .inventory-reference-card {
+            background: rgba(73, 185, 255, 0.06);
+            border-radius: 12px;
+            padding: 14px 14px 12px;
+            border-left: 4px solid var(--brand);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .inventory-reference-card:hover {
+            background: rgba(73, 185, 255, 0.09);
+            transform: translateY(-2px);
+        }
+
+        .inventory-reference-card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .inventory-reference-card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .inventory-reference-hint {
+            margin-top: 10px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .inventory-search {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+
+        /* РЕЗУЛЬТАТЫ - ОБНОВЛЕННЫЙ СТИЛЬ */
+        .results-section {
+            margin-top: 35px;
+            padding: 25px;
+            background: rgba(73, 185, 255, 0.05);
+            border-radius: 14px;
+            border: 1px solid rgba(73, 185, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .results-title {
+            font-size: 1.5rem;
+            margin-bottom: 18px;
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .results-container {
+            min-height: 120px;
+            padding: 25px;
+            background: rgba(73, 185, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(73, 185, 255, 0.08);
+        }
+        
+        /* СТИЛЬ ДЛЯ ИНФОРМАЦИИ О КАРТЕ */
+        .card-info-container {
+            padding: 20px;
+        }
+        
+        .card-info-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(73, 185, 255, 0.1);
+        }
+        
+        .card-info-emoji {
+            font-size: 2.5rem;
+        }
+        
+        .card-info-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        .card-info-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .type-normal {
+            background: rgba(73, 185, 255, 0.2);
+            color: var(--brand-light);
+            border: 1px solid rgba(73, 185, 255, 0.3);
+        }
+        
+        .type-activation {
+            background: rgba(141, 225, 255, 0.2);
+            color: #b3e8ff;
+            border: 1px solid rgba(141, 225, 255, 0.3);
+        }
+        
+        .type-violation {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .type-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .type-super {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .card-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .card-info-box {
+            background: rgba(73, 185, 255, 0.05);
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid rgba(73, 185, 255, 0.08);
+        }
+        
+        .card-info-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--brand);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-info-content {
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .card-formula-box {
+            background: rgba(73, 185, 255, 0.1);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 20px;
+            border-left: 4px solid var(--brand);
+        }
+        
+        .card-formula-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--brand);
+            margin-bottom: 12px;
+        }
+        
+        .card-formula {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        
+        .card-removes-box, .card-protected-box {
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid var(--success);
+        }
+        
+        .card-cannot-box {
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid var(--error);
+        }
+        
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .card-tag {
+            padding: 6px 12px;
+            background: rgba(73, 185, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text);
+        }
+        
+        /* ФУТЕР */
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* УВЕДОМЛЕНИЯ */
+        .notification {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            padding: 18px 24px;
+            background: linear-gradient(145deg, var(--card-bg) 0%, #1a2337 100%);
+            border-radius: 10px;
+            border-left: 5px solid;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            max-width: 380px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left-color: var(--success);
+        }
+        
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .notification.error {
+            border-left-color: var(--error);
+        }
+        
+        .notification.info {
+            border-left-color: var(--brand);
+        }
+        
+        /* СТИЛИ ДЛЯ АВТОЛЕНЬ */
+        .autolent-section {
+            background: linear-gradient(145deg, var(--card-bg) 0%, #1a2337 100%);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        
+        .autolent-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .autolent-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .autolent-title {
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .autolent-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .autolent-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .autolent-file-input-wrapper {
+            position: relative;
+            text-align: center;
+        }
+        
+        .autolent-file-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border: none;
+            box-shadow: 0 4px 16px rgba(73, 185, 255, 0.3);
+        }
+        
+        .autolent-file-label:hover {
+            background: linear-gradient(90deg, #1a7ae0 0%, #3aa3ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(73, 185, 255, 0.4);
+        }
+        
+        .autolent-file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .autolent-textarea {
+            width: 100%;
+            min-height: 220px;
+            padding: 18px;
+            background: var(--dropdown-bg);
+            border: 2px solid var(--dropdown-border);
+            border-radius: 12px;
+            color: var(--select-text);
+            font-size: 1rem;
+            resize: vertical;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .autolent-textarea:focus {
+            outline: none;
+            border-color: var(--brand);
+            box-shadow: 0 0 0 4px rgba(73, 185, 255, 0.25);
+        }
+        
+        .autolent-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .autolent-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 16px 20px;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--dropdown-border);
+            border-radius: 10px;
+            color: var(--select-text);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+        
+        .autolent-btn:hover {
+            background: rgba(73, 185, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(73, 185, 255, 0.2);
+        }
+        
+        .autolent-btn.primary {
+            background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 100%);
+            color: white;
+            border-color: var(--brand);
+        }
+        
+        .autolent-btn.danger {
+            background: linear-gradient(90deg, var(--error) 0%, #dc2626 100%);
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .autolent-btn.success {
+            background: linear-gradient(90deg, var(--success) 0%, #059669 100%);
+            color: white;
+            border-color: #059669;
+        }
+        
+        .autolent-upload-info {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 10px;
+            border: 1px solid var(--success);
+            margin-top: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .autolent-upload-info.visible {
+            display: flex;
+        }
+        
+        .autolent-upload-text {
+            font-size: 0.9rem;
+            color: #86efac;
+        }
+        
+        .autolent-close-upload {
+            background: none;
+            border: none;
+            color: #f87171;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        
+        .autolent-close-upload:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .autolent-quick-download {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(73, 185, 255, 0.07);
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            border: 1px solid rgba(73, 185, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .autolent-quick-download.visible {
+            display: block;
+        }
+        
+        .autolent-user-selector {
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(73, 185, 255, 0.05);
+            border-radius: 12px;
+            display: none;
+            border: 1px solid rgba(73, 185, 255, 0.08);
+        }
+        
+        .autolent-user-selector.visible {
+            display: block;
+        }
+        
+        .autolent-user-selector label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--brand);
+            font-size: 1.05rem;
+        }
+        
+        .autolent-user-selector select {
+            width: 100%;
+            padding: 14px;
+            background: var(--dropdown-bg);
+            color: var(--select-text);
+            border: 2px solid var(--dropdown-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .autolent-results {
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .autolent-results.visible {
+            display: block;
+        }
+        
+        .autolent-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+        
+        .autolent-stat-box {
+            background: rgba(73, 185, 255, 0.07);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(73, 185, 255, 0.12);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+        
+        .autolent-stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(73, 185, 255, 0.15);
+        }
+        
+        .autolent-stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--brand);
+            margin-bottom: 6px;
+        }
+        
+        .autolent-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .autolent-cards-detail {
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(73, 185, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(73, 185, 255, 0.08);
+        }
+        
+        .autolent-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .autolent-card-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: rgba(73, 185, 255, 0.07);
+            border-radius: 10px;
+            border-left: 5px solid var(--brand);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        
+        .autolent-card-item:hover {
+            background: rgba(73, 185, 255, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .autolent-card-emoji {
+            font-size: 1.4rem;
+            margin-right: 12px;
+        }
+        
+        .autolent-card-name {
+            flex-grow: 1;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        
+        .autolent-card-count {
+            font-weight: 800;
+            color: var(--brand);
+            font-size: 1.1rem;
+        }
+        
+        .autolent-users-section {
+            margin-top: 25px;
+        }
+        
+        .autolent-user-card {
+            background: rgba(73, 185, 255, 0.07);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 6px solid var(--brand);
+            transition: transform 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(73, 185, 255, 0.1);
+        }
+        
+        .autolent-user-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(73, 185, 255, 0.2);
+        }
+        
+        .autolent-user-name {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .autolent-user-card-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(73, 185, 255, 0.12);
+        }
+        
+        .autolent-user-card-item:last-child {
+            border-bottom: none;
+        }
+        
+        .autolent-user-card-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .autolent-user-card-count {
+            font-weight: 800;
+            color: var(--brand);
+            font-size: 1.1rem;
+        }
+        
+        .autolent-reference-section {
+            margin-top: 25px;
+            padding: 25px;
+            background: rgba(73, 185, 255, 0.07);
+            border-radius: 12px;
+            display: none;
+            border: 1px solid rgba(73, 185, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .autolent-reference-section.visible {
+            display: block;
+        }
+        
+        .autolent-category {
+            margin-bottom: 25px;
+        }
+        
+        .autolent-category h4 {
+            color: var(--brand);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(73, 185, 255, 0.2);
+            font-size: 1.2rem;
+        }
+        
+        .autolent-card-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .autolent-card-tag {
+            padding: 8px 16px;
+            background: rgba(73, 185, 255, 0.2);
+            border-radius: 24px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(73, 185, 255, 0.3);
+            transition: all 0.3s;
+            color: var(--text);
+        }
+        
+        .autolent-card-tag:hover {
+            background: rgba(73, 185, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .autolent-formula-list {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(73, 185, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(73, 185, 255, 0.08);
+        }
+        
+        .autolent-formula-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 4px solid var(--success);
+            font-size: 0.95rem;
+            background: rgba(73, 185, 255, 0.03);
+            border-radius: 0 8px 8px 0;
+            color: var(--text);
+        }
+        
+        .autolent-formula-result {
+            font-weight: 800;
+            color: var(--brand);
+        }
+        
+        /* Дополнительные улучшения для мобильных устройств */
+        @media (max-width: 768px) {
+            .autolent-buttons {
+                flex-direction: column;
+            }
+            
+            .autolent-btn {
+                width: 100%;
+            }
+            
+            .autolent-cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .autolent-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .main-header h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+            }
+            
+            .calculator-section {
+                padding: 20px;
+            }
+            
+            .mode-btn {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+                min-width: 120px;
+            }
+            
+            .inventory-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .inventory-select, 
+            .inventory-input, 
+            .inventory-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .card-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .autolent-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .main-header,
+            .calculator-section {
+                padding: 20px 16px;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mode-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .card-info-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+        
+        /* Анимации и эффекты */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .autolent-card-item,
+        .autolent-user-card,
+        .autolent-stat-box,
+        .inventory-item,
+        .card-info-box {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        /* Стили для скроллбара */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--card-bg);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--brand-dark) 0%, var(--brand) 100%);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--brand) 0%, var(--brand-light) 100%);
+        }
+    
+    /* UI: крупная кость в заголовке группы 'Супер Карты' */
+    .group-emoji{font-size:1.4em; line-height:1; margin-right:8px; display:inline-block;}
+
+        /* АвтоЛень: VIP блок ссылок (читабельнее) */
+        .vip-links-box{
+            margin-top:14px;
+            padding:14px 16px;
+            border-radius:14px;
+            border:1px solid var(--brand-border);
+            background:linear-gradient(180deg, rgba(73,185,255,0.12), rgba(30,41,59,0.25));
+            box-shadow:0 8px 24px rgba(0,0,0,0.25);
+        }
+        .vip-links-title{
+            font-weight:800;
+            color:var(--text-bright);
+            margin-bottom:6px;
+        }
+        .vip-links-text{
+            color:var(--text-secondary);
+            font-size:0.92rem;
+            margin-bottom:10px;
+            line-height:1.35;
+        }
+        .vip-links{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+        .vip-links a{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            padding:8px 12px;
+            border-radius:999px;
+            border:1px solid var(--brand-border);
+            background:rgba(73,185,255,0.10);
+            color:var(--text-bright);
+            text-decoration:none;
+            font-weight:700;
+            font-size:0.9rem;
+            transition:transform .15s ease, background .15s ease;
+        }
+        .vip-links a:hover{
+            transform:translateY(-1px);
+            background:rgba(73,185,255,0.18);
+        }
+
+        /* АвтоЛень: скрываем статистику полностью (по ТЗ) */
+        #autolentStats, .autolent-cards-detail{
+            display:none !important;
+        }
+
+    
+/* Центрирование заголовков категорий как у "Супер Карты" */
+/* Центрирование заголовков всех категорий как у "Супер Карты" */
+/* Применяем центрирование ко всем заголовкам групп в справочнике карт */
+.card-category-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.inventory-reference-group-title {
+    color: var(--brand);
+    font-weight: 700;
+    margin: 10px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(73, 185, 255, 0.12);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+
+
+
+/* Buttons (basic bootstrap-like helpers) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;user-select:none}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-secondary{background:rgba(73,185,255,.16);color:var(--brand);border:1px solid rgba(73,185,255,.25)}
+.btn-secondary:hover{background:rgba(73,185,255,.22)}
+
+.tg-load-status{margin-top:8px;font-size:13px;opacity:.9}
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <header class="main-header">
+      <h1>🃏 Капитализм и Коммунизм</h1>
+      <p class="subtitle">Расчёт стоимости карт и автоматический анализ инвентаря</p>
+      <div class="time-display" id="moscowTime">
+        <span>🕐</span>Московское время: <span id="timeDisplay">00:00:00</span>
+      </div>
+      <div class="night-warning" id="nightWarning">⚠️ После 23:00 использование карт активации для продления эфира запрещено!</div>
+    </header>
+
+    <section class="calculator-section">
+      <h2 class="section-title">🧮 Калькулятор карточек</h2>
+
+      <div class="mode-selector">
+        <button class="mode-btn active" id="modeInventoryBtn">Инвентарь</button>
+        <button class="mode-btn" id="modeParserBtn">АвтоЛень</button>
+        <button class="mode-btn" id="modeCardInfoBtn">База знаний</button>
+      </div>
+
+      <!-- Inventory -->
+      <div class="mode-content active" id="contentInventory">
+        <div class="inventory-container">
+          <h3 class="inventory-title">Режим "Инвентарь"</h3>
+          <p class="inventory-subtitle">Добавляйте карты вручную для подсчёта общего количества</p>
+          
+          <div class="inventory-reference" id="inventoryReference">
+            <div class="inventory-reference-header">
+              <div class="inventory-reference-title">📋 Справочник карт</div>
+              <input type="text" class="inventory-search" id="inventorySearch" placeholder="Быстрый поиск карты (название или эмодзи)...">
+            </div>
+            <div class="inventory-reference-hint">Подсказка: клик по карте добавит 1 шт. в инвентарь.</div>
+            <div id="inventoryReferenceGroups"></div>
+          </div>
+          
+          <div class="inventory-controls">
+            <select class="inventory-select" id="inventoryCardSelect">
+              <option value="">Выберите карту</option>
+              <optgroup label="🀄️ Обычные карты">
+                <option value="Комиссия">🔘 Комиссия</option>
+                <option value="Серая">☑️ Серая</option>
+                <option value="Синяя">🟦 Синяя</option>
+                <option value="Зелёная">🟩 Зелёная</option>
+                <option value="Белая">⬜️ Белая</option>
+                <option value="Золотая">🟧 Золотая</option>
+                <option value="Изумрудная">💎 Изумрудная</option>
+                <option value="Рубиновая">🚨 Рубиновая</option>
+              </optgroup>
+              <optgroup label="🎴 Карты Активаций">
+                <option value="Магнит">Ⓜ️ Магнит</option>
+                <option value="Бита">🅱️ Бита</option>
+                <option value="Страшный Суд">♎️ Страшный Суд</option>
+                <option value="Конвертер">♻️🎴 Конвертер</option>
+                <option value="Джокер">🃏 Джокер</option>
+                <option value="Пацифик">☮️ Пацифик</option>
+                <option value="Пергамент">📜 Пергамент</option>
+                <option value="Антиэкран">🚾 Антиэкран</option>
+                <option value="Чёрно-Белая">🔲 Чёрно-Белая</option>
+                <option value="Радужная">🌈 Радужная</option>
+                <option value="Карта Контента">🎦 Карта Контента</option>
+                <option value="Музыкальная карта">🎹 Музыкальная карта</option>
+              </optgroup>
+            </select>
+            
+            <input type="number" class="inventory-input" id="inventoryCardCount" min="1" max="999" value="1" placeholder="Кол-во">
+            
+            <button class="inventory-btn" id="inventoryAddBtn">Добавить</button>
+          </div>
+          
+          <div class="inventory-list" id="inventoryList">
+            <div class="empty-inventory">
+              <div class="empty-inventory-emoji">📭</div>
+              <p>Инвентарь пуст</p>
+              <p style="font-size: 0.9rem; margin-top: 8px;">Добавьте карты с помощью формы выше</p>
+            </div>
+          </div>
+          
+          <div class="inventory-summary" id="inventorySummary" style="display: none;">
+            <div class="inventory-total">Всего карт: <span id="inventoryTotalCount">0</span></div>
+            <button class="inventory-clear-btn" id="inventoryClearBtn">Очистить инвентарь</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Autolent (Parser) -->
+      <div class="mode-content" id="contentParser">
+        <div class="autolent-section">
+<button type="button" id="loadFromTelegramBtn" class="btn btn-secondary"  aria-label="Загрузить пост из Telegram">📥 Загрузить из Telegram</button>
+<div id="tgLoadStatus" class="tg-load-status"></div>
+
+          <div class="autolent-header">
+            <h2 class="autolent-title">🎲 АвтоЛень - Парсер инвентаря PRO</h2>
+            <p class="autolent-subtitle">Вставьте посты со списком карточек и получите структурированный список карт по пользователям</p>
+          
+          <div class="vip-links-box" id="vipLinksBox">
+            <div class="vip-links-title">🔒 Только для участников ВИП чата</div>
+            <div class="vip-links-text">Перейдите по ссылкам ниже, скопируйте оба поста и вставьте их в это окно.</div>
+            <div class="vip-links">
+              <a href="https://t.me/c/2387324636/20536" target="_blank" rel="noopener">Пост 20536</a>
+              <a href="https://t.me/c/2387324636/20535" target="_blank" rel="noopener">Пост 20535</a>
+            </div>
+          </div>
+</div>
+          
+          <div class="autolent-input-container">
+            <div class="autolent-file-input-wrapper">
+              <label class="autolent-file-label">
+                📁 Выбрать TXT файл
+                <input type="file" id="autolentFileInput" class="autolent-file-input" accept=".txt,text/plain">
+              </label>
+            </div>
+            
+            <div class="autolent-upload-info" id="autolentUploadInfo">
+              <span class="autolent-upload-text" id="autolentUploadInfoText"></span>
+              <button class="autolent-close-upload" id="autolentClearUploadInfo">✕</button>
+            </div>
+            
+            <textarea class="autolent-textarea" id="autolentText" placeholder="Вставьте сюда текст с постами, содержащими списки карточек..."></textarea>
+            
+            <div class="autolent-buttons">
+              <button class="autolent-btn primary" id="autolentParseBtn">
+                🔍 Проанализировать текст
+              </button>
+              <button class="autolent-btn danger" id="autolentClearBtn">
+                🗑️ Очистить поле
+              </button>
+            </div>
+            
+            <div class="autolent-quick-download" id="autolentQuickDownload">
+              <h3 style="margin-bottom: 12px;"></h3>
+              <div class="autolent-buttons">
+                <button class="autolent-btn success" id="autolentDownloadSelectedBtn">
+                  📥 Скачать выбранного
+                </button>
+                <button class="autolent-btn success" id="autolentDownloadAllBtn">
+                  📥 Скачать ВСЕХ (TXT)
+                </button>
+              </div>
+            </div>
+            
+            <div class="autolent-user-selector" id="autolentUserSelector">
+              <label for="autolentUserSelect">🔍 Кто ты воен?</label>
+              <select id="autolentUserSelect">
+                <option value="">-- Все пользователи --</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="autolent-results" id="autolentResults">
+            <h3 style="margin-bottom: 16px;">📊 Результаты анализа</h3>
+            
+            <div class="autolent-stats" id="autolentStats">
+              <div class="autolent-stat-box">
+                <div class="autolent-stat-value" id="autolentTotalUsers">0</div>
+                <div class="autolent-stat-label">Уникальных пользователей</div>
+              </div>
+            </div>
+            
+            <div class="autolent-cards-detail">
+              <h4 style="color: var(--brand); margin-bottom: 12px;">📊 Карты по типам</h4>
+              <div class="autolent-cards-grid" id="autolentCardsGrid"></div>
+            </div>
+            
+            <div class="autolent-users-section">
+              <h4 style="color: var(--brand); margin-bottom: 12px;" id="autolentResultsTitle">👤 Карты по пользователям</h4>
+              <div id="autolentUserResults"></div>
+            </div>
+          </div>
+          
+          <div class="autolent-reference-section" id="autolentReferenceSection">
+            <h3 style="margin-bottom: 16px;">📚 Памятка по картам "Капитализм и Коммунизм"</h3>
+            
+            <div class="autolent-category">
+              <h4>🎴 КАРТЫ АКТИВАЦИЙ (Особые)</h4>
+              <div class="autolent-card-list">
+                <span class="autolent-card-tag">🚨 Рубиновая</span>
+                <span class="autolent-card-tag">Ⓜ️ Магнит</span>
+                <span class="autolent-card-tag">🅱️ Бита</span>
+                <span class="autolent-card-tag">♎️ Страшный Суд</span>
+                <span class="autolent-card-tag">♻️ Конвертер</span>
+                <span class="autolent-card-tag">🃏 Джокер</span>
+                <span class="autolent-card-tag">☮️ Пацифик</span>
+                <span class="autolent-card-tag">📜 Пергамент</span>
+                <span class="autolent-card-tag">🚾 Антиэкран</span>
+                <span class="autolent-card-tag">🔲 Чёрно-Белая</span>
+                <span class="autolent-card-tag">🌈 Радужная</span>
+                <span class="autolent-card-tag">🎦 Карта Контента</span>
+                <span class="autolent-card-tag">🎹 Музыкальная карта</span>
+              </div>
+            </div>
+            
+            <div class="autolent-category">
+              <h4>🀄️ ОБЫЧНЫЕ КАРТЫ (Базовые)</h4>
+              <div class="autolent-card-list">
+                <span class="autolent-card-tag">🔘 Комиссия</span>
+                <span class="autolent-card-tag">☑️ Серая</span>
+                <span class="autolent-card-tag">🟦 Синяя</span>
+                <span class="autolent-card-tag">🟩 Зелёная</span>
+                <span class="autolent-card-tag">⬜️ Белая</span>
+                <span class="autolent-card-tag">🟧 Золотая</span>
+                <span class="autolent-card-tag">💎 Изумрудная</span>
+              </div>
+            </div>
+            
+            <div class="autolent-category">
+              <h4>🧧 КАРТЫ НАРУШЕНИЙ (Штрафные)</h4>
+              <div class="autolent-card-list">
+                <span class="autolent-card-tag">🟪 Розовая</span>
+                <span class="autolent-card-tag">🟥 Красная</span>
+                <span class="autolent-card-tag">🟨 Жёлтая</span>
+                <span class="autolent-card-tag">⬛️ Чёрная</span>
+                <span class="autolent-card-tag">🟫 Коричневая</span>
+                <span class="autolent-card-tag">🅾️ Обнуление</span>
+                <span class="autolent-card-tag">💠 Заморозка</span>
+              </div>
+            </div>
+            
+            <div class="autolent-category">
+              <h4>📱 ОПАСНЫЕ КАРТЫ (Редкие)</h4>
+              <div class="autolent-card-list">
+                <span class="autolent-card-tag">⚫️ Банкрот</span>
+                <span class="autolent-card-tag">💣 Экстерминатус</span>
+              </div>
+            </div>
+            
+            <h4 style="color: var(--brand); margin: 20px 0 12px 0;">🧮 МАТЕМАТИКА КАРТ (основная иерархия):</h4>
+            
+            <div class="autolent-formula-list">
+              <div class="autolent-formula-item">
+                <span class="autolent-formula-result">1 🚨 Рубиновая</span> = 3 💎 Изумрудных
+              </div>
+              <div class="autolent-formula-item">
+                <span class="autolent-formula-result">1 💎 Изумрудная</span> = 2 🟧 Золотых
+              </div>
+              <div class="autolent-formula-item">
+                <span class="autolent-formula-result">1 🟧 Золотая</span> = 2 ⬜️ Белых
+              </div>
+              <div class="autolent-formula-item">
+                <span class="autolent-formula-result">1 ⬜️ Белая</span> = 2 🟩 Зеленых
+              </div>
+              <div class="autolent-formula-item">
+                <span class="autolent-formula-result">1 🟩 Зелёная</span> = 2 🟦 Синих
+              </div>
+              <div class="autolent-formula-item">
+                <span class="autolent-formula-result">1 🟦 Синяя</span> = 3 ☑️ Серых
+              </div>
+              <div class="autolent-formula-item">
+                <span class="autolent-formula-result">1 ☑️ Серая</span> = 2 🔘 Комиссии
+              </div>
+              <div class="autolent-formula-item" style="font-weight: bold; border-left-color: var(--brand);">
+                <span class="autolent-formula-result">ИТОГО: 1 🚨 = 288 🔘</span>
+              </div>
+            </div>
+            
+            <div class="autolent-formula-list">
+              <h5>⚙️ МЕХАНИКА СЪЁМА КАРТ:</h5>
+              <div class="autolent-formula-item">☑️ Снимает 🟪</div>
+              <div class="autolent-formula-item">🟦 Снимает 🟨</div>
+              <div class="autolent-formula-item">🟩 Снимает 🟥</div>
+              <div class="autolent-formula-item">⬜️ Снимает ⬛️ и 🟫</div>
+              <div class="autolent-formula-item">☮️ Снимает 🟫 и 🅾️</div>
+              <div class="autolent-formula-item">🃏 Снимает 🚾</div>
+              <div class="autolent-formula-item">🔲 Снимает 💎</div>
+              <div class="autolent-formula-item">🏳️‍🌈 Снимает 🅾️</div>
+            </div>
+            
+            <div class="autolent-formula-list">
+              <h5>🔧 ФОРМУЛЫ СБОРКИ КАРТ (Компактный вид):</h5>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🟪</span> = ☑️ + ☑️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🟦</span> = ☑️ + ☑️ + ☑️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🟩</span> = 🟦 + 🟦</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">⬜️</span> = 🟩 + 🟩</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🟧</span> = ⬜️ + ⬜️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">💎</span> = 🟧 + 🟧</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🃏</span> = 🟩 + ☑️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">☮️</span> = 🟩 + 🟦</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">📜</span> = 🟦 + ☑️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🚾</span> = ☑️ + ☑️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🎦</span> = 🟧 + ⬜️ + ☑️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🎹</span> = ⬜️ + ☑️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🏳️‍🌈</span> = 💎 + 🟧×3 + ⬜️ + ☮️ + 🟩 + 🟦 + 📜 + ☑️</div>
+              <div class="autolent-formula-item"><span class="autolent-formula-result">🅱️</span> = 🔲 + 🏳️‍🌈 + 🚨 + 💎 + 🟧 + ⬜️ + 🎦 + 🎹 + 🃏 + 🚾 + 📜 + ☮️ + 🟩 + 🟦 + ☑️</div>
+            </div>
+            
+            <div class="autolent-formula-list">
+              <h5>⚡️ ОСОБЫЕ МЕХАНИКИ:</h5>
+              <ul style="padding-left: 20px; margin-top: 10px; font-size: 0.9rem; color: var(--text);">
+                <li><strong>⚡️🧿 ТВ Колесо</strong> - получается в акциях, флешмобах, от ведущего</li>
+                <li><strong>Ⓜ️ Магнит</strong> - крадёт карты у других (3 кражи за игру)</li>
+                <li><strong>♎️ Страшный Суд</strong> - крадёт ВСЕ карты у одного игрока</li>
+                <li><strong>♻️ Конвертер</strong> - 10☑️ → 10🧿</li>
+                <li><strong>⚫️ Банкрот</strong> - забирает все карты, если казна пуста - уничтожает карты у другого</li>
+                <li><strong>💣 Экстерминатус</strong> - завершает эфир, даёт 🅾️ и 10🧿</li>
+              </ul>
+            </div>
+            
+            <div class="autolent-buttons" style="margin-top: 20px;">
+              <button class="autolent-btn danger" id="autolentHideReferenceBtn">
+                ✖️ Скрыть памятку
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Info (База знаний) -->
+      <div class="mode-content" id="contentCardInfo">
+        <div style="text-align: center; padding: 20px;">
+          <h3 style="margin-bottom: 20px;">📚 База знаний по картам</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 30px;">Выберите карту для просмотра полной информации о её свойствах, применении и сборке</p>
+          
+          <select id="cardInfoSelect" style="max-width: 400px; margin: 0 auto 30px;">
+            <option value="">Выберите карту для просмотра информации</option>
+            <optgroup label="🀄️ Обычные карты">
+              <option value="Комиссия">🔘 Комиссия</option>
+              <option value="Серая">☑️ Серая карта</option>
+              <option value="Синяя">🟦 Синяя карта</option>
+              <option value="Зелёная">🟩 Зелёная карта</option>
+              <option value="Белая">⬜️ Белая карта</option>
+              <option value="Золотая">🟧 Золотая карта</option>
+              <option value="Изумрудная">💎 Изумрудная карта</option>
+              <option value="Рубиновая">🚨 Рубиновая карта</option>
+            </optgroup>
+            <optgroup label="🎴 Карты Активаций">
+              <option value="Магнит">Ⓜ️ Магнит</option>
+              <option value="Бита">🅱️ Бита</option>
+              <option value="Страшный Суд">♎️ Страшный Суд</option>
+              <option value="Конвертер">♻️🎴 Конвертер</option>
+              <option value="Джокер">🃏 Дуэт Джокер</option>
+              <option value="Пацифик">☮️ Пацифик</option>
+              <option value="Пергамент">📜 Пергамент</option>
+              <option value="Антиэкран">🚾 Антиэкран</option>
+              <option value="Чёрно-Белая">🔲 Чёрно-Белая карта</option>
+              <option value="Радужная">🏳️‍🌈 Радужная карта</option>
+              <option value="Карта Контента">🎦 Карта Контента</option>
+              <option value="Музыкальная карта">🎹 Музыкальная карта</option>
+              <option value="Кость">🎲🎴 Кость</option>
+              <option value="Рубиновая Кость">♦️🎴 Рубиновая Кость</option>
+            </optgroup>
+            <optgroup label="🧧 Карты нарушений">
+              <option value="Розовая">🟪 Розовая карта</option>
+              <option value="Красная">🟥 Красная карта</option>
+              <option value="Жёлтая">🟨 Жёлтая карта</option>
+              <option value="Чёрная">⬛️ Чёрная карта</option>
+              <option value="Коричневая">🟫 Коричневая карта</option>
+              <option value="Обнуление">🅾️ Карта обнуления</option>
+              <option value="Заморозка">💠🧧 Заморозка</option>
+            </optgroup>
+            <optgroup label="📱 Опасные карты">
+              <option value="Банкрот">⚫️📱 Банкрот</option>
+              <option value="Экстерминатус">💣📱 Экстерминатус</option>
+            </optgroup>
+            <optgroup label="🪟 Супер карты">
+              <option value="Джекпот">🎰🪟 Джекпот</option>
+              <option value="Сладкий подарок">🍫 Сладкий подарок</option>
+              <option value="Супер подарок">🎁 Супер подарок</option>
+              <option value="Хамелеон">🦎 Хамелеон</option>
+              <option value="Храм">🛐 Храм</option>
+              <option value="Банк">🏧 Банк</option>
+              <option value="Ведро Егора">🪣🪟 Ведро Егора</option>
+              <option value="Преисподняя">🌋📱 Преисподняя</option>
+              <option value="Грабители">🥷📱 Грабители</option>
+            </optgroup>
+          </select>
+        </div>
+        
+        <div id="cardInfoContainer" class="card-info-container" style="display: none;">
+          <!-- Информация о карте будет загружаться здесь -->
+        </div>
+      </div>
+
+      <div class="results-section">
+        <h3 class="results-title"><span>📊</span> Результаты:</h3>
+        <div class="results-container" id="results">
+          <div style="text-align:center;padding:30px;color:var(--text-secondary)">
+            <div style="font-size:3rem;margin-bottom:16px;opacity:0.5"><span aria-hidden="true">📊</span></div>
+            <p style="font-size:1rem;margin-bottom:8px">Выберите карту, чтобы увидеть информацию</p>
+            <p style="font-size:0.85rem;opacity:0.7">Или перейдите в другой раздел</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p style="margin-top:8px;font-size:0.8rem;opacity:0.8">2026 год от Рождества Христова</p>
+    </footer>
+  </div>
+
+  <!-- Контейнер для уведомлений -->
+  <div id="notificationContainer"></div>
+
+  <script>
+    // Эмодзи для карт (полный список из правил)
+    const cardEmojis = {
+        // Обычные карты
+        'Комиссия': '🔘',
+        'Серая': '☑️',
+        'Синяя': '🟦',
+        'Зелёная': '🟩',
+        'Белая': '⬜️',
+        'Золотая': '🟧',
+        'Изумрудная': '💎',
+        'Рубиновая': '🚨',
+        
+        // Карты активаций
+        'Магнит': 'Ⓜ️',
+        'Бита': '🅱️',
+        'Страшный Суд': '♎️',
+        'Конвертер': '♻️🎴',
+        'Джокер': '🃏',
+        'Пацифик': '☮️',
+        'Пергамент': '📜',
+        'Антиэкран': '🚾',
+        'Чёрно-Белая': '🔲',
+        'Радужная': '🏳️‍🌈',
+        'Карта Контента': '🎦',
+        'Музыкальная карта': '🎹',
+        'Кость': '🎲🎴',
+        'Рубиновая Кость': '♦️🎴',
+        
+        // Карты нарушений
+        'Розовая': '🟪',
+        'Красная': '🟥',
+        'Жёлтая': '🟨',
+        'Чёрная': '⬛️',
+        'Коричневая': '🟫',
+        'Обнуление': '🅾️',
+        'Заморозка': '💠🧧',
+        
+        // Опасные карты
+        'Банкрот': '⚫️📱',
+        'Экстерминатус': '💣📱',
+        'Грабители': '🥷📱',
+        
+        // Супер карты
+        'Джекпот': '🎰🪟',
+        'Сладкий подарок': '🍫',
+        'Супер подарок': '🎁',
+        'Хамелеон': '🦎',
+        'Храм': '🛐',
+        'Банк': '🏧',
+        'Ведро Егора': '🪣🪟',
+        'Преисподняя': '🌋📱'
+    };
+    
+    // Типы карт
+    const cardTypes = {
+        'Комиссия': 'normal',
+        'Серая': 'normal',
+        'Синяя': 'normal',
+        'Зелёная': 'normal',
+        'Белая': 'normal',
+        'Золотая': 'normal',
+        'Изумрудная': 'normal',
+        'Рубиновая': 'activation',
+        
+        'Магнит': 'activation',
+        'Бита': 'activation',
+        'Страшный Суд': 'activation',
+        'Конвертер': 'activation',
+        'Джокер': 'activation',
+        'Пацифик': 'activation',
+        'Пергамент': 'activation',
+        'Антиэкран': 'activation',
+        'Чёрно-Белая': 'activation',
+        'Радужная': 'activation',
+        'Карта Контента': 'activation',
+        'Музыкальная карта': 'activation',
+        'Кость': 'activation',
+        'Рубиновая Кость': 'activation',
+        
+        'Розовая': 'violation',
+        'Красная': 'violation',
+        'Жёлтая': 'violation',
+        'Чёрная': 'violation',
+        'Коричневая': 'violation',
+        'Обнуление': 'violation',
+        'Заморозка': 'violation',
+        
+        'Банкрот': 'danger',
+        'Экстерминатус': 'danger',
+        'Грабители': 'danger',
+        
+        'Джекпот': 'super',
+        'Сладкий подарок': 'super',
+        'Супер подарок': 'super',
+        'Хамелеон': 'super',
+        'Храм': 'super',
+        'Банк': 'super',
+        'Ведро Егора': 'super',
+        'Преисподняя': 'super'
+    };
+    
+    // Тип забирания карты
+    const cardTakingType = {
+        'Комиссия': 'normal',
+        'Серая': 'normal',
+        'Синяя': 'normal',
+        'Зелёная': 'normal',
+        'Белая': 'normal',
+        'Золотая': 'normal',
+        'Изумрудная': 'normal',
+        'Рубиновая': 'activation',
+        
+        'Магнит': 'activation',
+        'Бита': 'activation',
+        'Страшный Суд': 'activation',
+        'Конвертер': 'activation',
+        'Джокер': 'activation',
+        'Пацифик': 'activation',
+        'Пергамент': 'activation',
+        'Антиэкран': 'activation',
+        'Чёрно-Белая': 'activation',
+        'Радужная': 'activation',
+        'Карта Контента': 'activation',
+        'Музыкальная карта': 'activation',
+        'Кость': 'activation',
+        'Рубиновая Кость': 'activation',
+        
+        'Розовая': 'violation',
+        'Красная': 'violation',
+        'Жёлтая': 'violation',
+        'Чёрная': 'violation',
+        'Коричневая': 'violation',
+        'Обнуление': 'violation',
+        'Заморозка': 'violation',
+        
+        'Банкрот': 'danger',
+        'Экстерминатус': 'danger',
+        'Грабители': 'danger',
+        
+        'Джекпот': 'super',
+        'Сладкий подарок': 'super',
+        'Супер подарок': 'super',
+        'Хамелеон': 'super',
+        'Храм': 'super',
+        'Банк': 'super',
+        'Ведро Егора': 'super',
+        'Преисподняя': 'super'
+    };
+    
+    // База знаний о картах (из предоставленных правил)
+    const cardDatabase = {
+        'Джекпот': {
+            effects: 'Вам выпадает 12 карт: 🔲🅱️🌈💎🟧⬜️🎦🎹Ⓜ️♎️♻️🚨, плюс 30 🧿 ТВ колёс и 🎲♦️.',
+            application: 'После распаковки. 🎲♦️ кости играют сразу до распаковки (2️⃣ кубика с коэффициентом 1–(+1)).',
+            obtain: '🧿 ТВ колесо. Покупка.',
+            features: 'Требует распаковки. Стоимость распаковки: 1 🚨.',
+            removes: 'Нет',
+            takenBy: 'super',
+            sale: 'Да (3 🚨, продаётся запакованный)',
+            transfer: 'Нет',
+            conversion: 'Да (🎰↩️🀄️🎴🧿)',
+            protection: 'Да',
+            cannotUse: 'Без распаковки',
+            formula: 'Нет',
+            description: 'Запакованный супер-приз: выдаёт большой набор карт и 🧿, требует распаковки за 🚨.'
+        },
+        'Рубиновая Кость': {
+            effects: 'Умножает вашу одну 🚨 Рубиновую карту из инвентаря при броске 🎲 кубика.',
+            application: '1 раз во время вращения 🧿 ТВ колеса.',
+            obtain: '🧿 ТВ колесо.',
+            features: 'Даёт дополнительную игру. Значения: 1→1 карта, 2→2, 3→3, 4→4, 5→5, 6→6. Коэффициент: 1–(+1 🚨). В 🎰 Джекпоте играет 2️⃣ кубика с коэффициентом 1–(+1).',
+            removes: 'Нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Да (♦️↩️🚨)',
+            protection: 'Да',
+            cannotUse: '🪟🀄️🧿',
+            formula: 'Нет',
+            description: 'Игровая 🎴-карта: умножает 🚨 по броску кубика.'
+        },
+        'Кость': {
+            effects: 'Умножает вашу одну обычную 🀄️ карту или 🧿 ТВ колесо из инвентаря при броске 🎲 кубика.',
+            application: '1 раз во время вращения 🧿 ТВ колеса.',
+            obtain: '🧿 ТВ колесо.',
+            features: 'Даёт дополнительную игру. Значения: 1→0 карт, 2→1, 3→2, 4→3, 5→4, 6→5. Коэффициент: 1–x1 🀄️/🧿. В 🎰 Джекпоте играет 2️⃣ кубика с коэффициентом 1–(+1).',
+            removes: 'Нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Да (🎲↩️🀄️🧿)',
+            protection: 'Да',
+            cannotUse: '🎴🪟',
+            formula: 'Нет',
+            description: 'Игровая 🎴-карта: умножает одну выбранную 🀄️ или 🧿 по броску кубика.'
+        },
+        'Грабители': {
+            effects: 'Грабит 🏧 Банк, в котором больше всего 🀄️🎴 карт. Крадёт половину или больше половины карт; украденные карты исчезают. Ограбленный получает 5 🧿 ТВ колёс.',
+            application: '1 раз. Активируется с 🧿 ТВ колеса.',
+            obtain: '🧿 ТВ колесо. Сборка. Получение.',
+            features: 'Можно снять залогом: 3 🚨 от одного спикера после вращения колеса. Выбивает из инвентаря при наличии у спикера или ведущего. Залог исчезает после активации. Может использовать ведущий.',
+            removes: 'Нет',
+            takenBy: 'danger',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: 'Да',
+            cannotUse: '🛐🪣🌋',
+            formula: '⚫️↩️🎴 + 💣↩️🎴 = 🥷',
+            description: 'Опасная карта: ограбление банка с уничтожением части карт и компенсацией 🧿 ограбленному.'
+        },
+        'Преисподняя': {
+            effects: 'Уничтожает или переносит в 🪣 ведро 🀄️🎴 карты всех спикеров. Генерирует карты 🧧📱.',
+            application: 'Ведущим при выпадении с 🧿 ТВ колеса или строительстве. Спикерами при строительстве, покупке, получении.',
+            obtain: '🧿 ТВ колесо. Постройка. Покупка. Получение.',
+            features: 'Работает по принципу 🏧 Банка и 🛐 Храма. Может использовать ведущий и спикеры. Можно построить за 6 🚨 (1 раз).',
+            removes: 'Нет',
+            takenBy: 'super',
+            sale: 'Да (раз в 2 месяца)',
+            transfer: 'Да (раз в 2 месяца)',
+            conversion: 'Нет',
+            protection: 'Да',
+            cannotUse: '🛐🏧',
+            formula: '6 🚨',
+            description: 'Супер-объект: влияет на карты всех спикеров и генерирует 🧧📱 по правилам.'
+        },
+        'Ведро Егора': {
+            effects: 'Ведущий забирает 1 обычную 🀄️ карту у любого спикера и кладёт себе в 🪣 ведро.',
+            application: 'Сразу же при выпадении.',
+            obtain: '🧿 ТВ колесо. 🌋 Преисподняя.',
+            features: 'Безлимитное накопление и хранение 🎴🀄️ карт: активация, складывание, передача, разделение, накладывание на спикеров.',
+            removes: 'Нет',
+            takenBy: 'super',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Нет',
+            protection: 'Да',
+            cannotUse: '🎴🪟',
+            formula: 'Нет',
+            description: 'Супер-карта хранилища ведущего: изымает у спикера 1 🀄️ и сохраняет в ведре.'
+        },
+        'Комиссия': {
+            effects: 'Оплата передачи карт между спикерами',
+            application: 'Для передачи карт между спикерами',
+            obtain: 'Разделение 1 ☑️. Получить. Собрать.',
+            features: 'Нельзя передать',
+            removes: 'нет',
+            takenBy: 'normal',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: 'нет',
+            formula: '1 ☑️ = 2 🔘',
+            description: 'Базовая карта для проведения операций между спикерами'
+        },
+        'Серая': {
+            effects: 'Съём спикера или всех на 12 минут, либо монолог 12 минут',
+            application: '1 раз за эфир от каждого. Действует на всех кроме 🏳️‍🌈',
+            obtain: '1 час продления. 🧿ТВ колесо. Первый на эфире. Получить. Собрать.',
+            features: 'Базовая карта. Передаётся с остатком времени',
+            removes: '🟪',
+            takenBy: 'normal',
+            sale: 'Да',
+            transfer: 'Да',
+            conversion: 'Да',
+            protection: '🏧🛐',
+            cannotUse: 'в зависимости от правил эфира',
+            formula: '2 🔘 = 1 ☑️',
+            description: 'Основная карта для воздействия на других спикеров'
+        },
+        'Синяя': {
+            effects: 'Снимает жёлтую карту (🟨)',
+            application: 'На жёлтую карту',
+            obtain: 'Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Передаётся с остатком времени',
+            removes: '🟨',
+            takenBy: 'normal',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: 'на карты выше по иерархии',
+            formula: '3 ☑️ = 1 🟦',
+            description: 'Карта для снятия жёлтых карт нарушений'
+        },
+        'Зелёная': {
+            effects: 'Снимает красную карту (🟥)',
+            application: 'На красную карту',
+            obtain: 'Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Передаётся с остатком времени',
+            removes: '🟥',
+            takenBy: 'normal',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: 'на карты выше по иерархии',
+            formula: '2 🟦 = 1 🟩',
+            description: 'Карта для снятия красных карт нарушений'
+        },
+        'Белая': {
+            effects: 'Снимает ⬛️. Либо продлевает эфир на 30 минут',
+            application: 'Каждый день. Продление 1 раз за эфир',
+            obtain: 'Топ зрители. Топ Батлы. Топ Лиги. Получить. Собрать. 🧿ТВ колесо. 🛐🏧',
+            features: 'Конвертация. Превращается в 🟪🟥🟨🟫⬛️☮️',
+            removes: '⬛️🟫',
+            takenBy: 'normal',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Да (⬜️➕🔘🟰🧿)',
+            protection: '🏧🛐',
+            cannotUse: 'в зависимости от превращения 🃏☮️🔲🌈🚨💎🟧',
+            formula: '2 🟩 = 1 ⬜️',
+            description: 'Многофункциональная карта для снятия серьёзных нарушений'
+        },
+        'Золотая': {
+            effects: 'Модерка на сутки или продление эфира',
+            application: 'Активация каждый день. Безлимитное количество 🟪🟥🟨🟫',
+            obtain: 'Топ спонсоры. Топ зрители. Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Работает с 🚨💎☮️🃏🔲 и 🏳️‍🌈',
+            removes: 'нет',
+            takenBy: 'normal',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Да',
+            protection: '🟧☮️🃏🏳️‍🌈🏧🛐',
+            cannotUse: 'в зависимости от правил эфира',
+            formula: '2 ⬜️ = 1 🟧',
+            description: 'Мощная карта для модерации и продления эфира'
+        },
+        'Изумрудная': {
+            effects: 'Модерка + продление эфира на 3 часа',
+            application: 'Активация раз в 2 дня. Безлимитное количество 🟪🚾🟥🟨🟫',
+            obtain: 'Топ спонсоры. Топ зрители. Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Работает с 🚨🟧☮️🃏 и 🏳️‍🌈',
+            removes: '🔲',
+            takenBy: 'normal',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Да',
+            protection: '🟧☮️🃏🏳️‍🌈🏧🛐',
+            cannotUse: 'в зависимости от правил эфира',
+            formula: '2 🟧 = 1 💎',
+            description: 'Элитная карта для расширенных возможностей модерации'
+        },
+        'Рубиновая': {
+            effects: 'Соведущий на 3 дня. Продление на 10 часов',
+            application: 'Активация 1 раз в 5 дней',
+            obtain: 'Топ спонсор. Топ Лиги. Топ зритель. Топ Батлы. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Работает с 🟧💎',
+            removes: 'нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: 'в зависимости от правил эфира',
+            formula: '3 💎 = 1 🚨',
+            description: 'Высшая карта для статуса соведущего'
+        },
+        'Магнит': {
+            effects: 'Крадёт карты у других спикеров',
+            application: 'Доступно 3 кражи у разных спикеров',
+            obtain: 'Только в 🧿ТВ колесе. Получить.',
+            features: 'Забирает карту, может переносить активацию на себя или другого',
+            removes: 'нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: 'на карты 🎰🍫🎁🦎⚫️💣♎️🏧🛐',
+            formula: 'Только в 🧿ТВ колесе',
+            description: 'Карта для кражи карт у других участников'
+        },
+        'Бита': {
+            effects: 'Разбивает, снимает, деактивирует почти все карты: 🧿🔘☑️🟦🟩⬜️🟧💎🚨Ⓜ️♻️🃏☮️📜🚾🔲🎦🎹🟪🟥🟨⬛️🟫🅾️💠',
+            application: 'Разрешено 4 удара Битой по карте. Передаётся с остатком ударов. После удара часы с карты сгорают. Нельзя разбивать карту которую выдали сами',
+            obtain: '🧿ТВ колесо. Собрать. Получить. 🛐',
+            features: '1 Удар - 9 часов. 2 Удар - 7 часов. 3 Удар - 5 часов. 4 Удар - 3 часа в запас',
+            removes: '⚫️💣',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: '🌈🎰🍫🎁🦎⚫️💣♎️🏧🛐',
+            formula: '🔲➕🏳️‍🌈➕🚨➕💎➕🟧➕⬜️➕🎦➕🎹➕🃏➕🚾➕📜➕☮️➕🟩➕🟦➕☑️🟰 🅱️',
+            description: 'Мощнейшая карта для разрушения других карт'
+        },
+        'Страшный Суд': {
+            effects: 'Крадёт все карты и колёса у одного спикера',
+            application: 'На одного спикера',
+            obtain: 'Только в 🧿ТВ колесе. Получить.',
+            features: 'Забирает даже активные карты',
+            removes: 'нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: 'Только в 🧿ТВ колесе',
+            description: 'Полное ограбление одного спикера'
+        },
+        'Конвертер': {
+            effects: 'Конвертирует 10 ☑️ карт в 10 🧿 ТВ колёс в собственном инвентаре. Можно дробить.',
+            application: 'По желанию.',
+            obtain: '🧿 ТВ колесо. 🛐. Покупка.',
+            features: 'Нельзя передавать карту.',
+            removes: '🅱️⚫️🌋',
+            takenBy: 'activation',
+            sale: 'Да (5 ⬜️ карт)',
+            transfer: 'Нет',
+            conversion: 'Да (♻️↩️🧿)',
+            protection: 'Нет',
+            cannotUse: 'На чужом инвентаре',
+            formula: 'Нет',
+            description: 'Карта активации для обмена ☑️ на 🧿 по фиксированному курсу.'
+        },
+        'Джокер': {
+            effects: 'Позволяет нарушать правила против оппонента',
+            application: 'Действует 20 минут батла и 12 часов обход правил',
+            obtain: 'Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Нельзя снять. Нельзя выключать микрофон',
+            removes: 'нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: 'в зависимости от правил батла',
+            formula: '🟩➕☑️🟰🃏',
+            description: 'Карта для батлов, позволяющая нарушать правила'
+        },
+        'Пацифик': {
+            effects: 'Возвращает доступ к чату, иммунитет к некоторым картам',
+            application: 'На 12 часов',
+            obtain: 'Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Включает чат при активной 🅾️',
+            removes: '🟫🅾️',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: 'нет',
+            formula: '🟩➕🟦🟰☮️',
+            description: 'Карта защиты от нарушений'
+        },
+        'Пергамент': {
+            effects: 'Возвращает доступ к чату',
+            application: '1 раз',
+            obtain: 'Топ зрители. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'нет',
+            removes: 'нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: '🟦➕☑️🟰📜',
+            description: 'Карта для возврата доступа к чату'
+        },
+        'Антиэкран': {
+            effects: 'Запрещает проситься на экран',
+            application: '1 раз',
+            obtain: 'Топ зрители. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Снимается 🃏',
+            removes: 'нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: '☑️➕☑️🟰🚾',
+            description: 'Карта для запрета просьбы на экран'
+        },
+        'Чёрно-Белая': {
+            effects: 'Соведущий на 1 неделю. Продление на 3 ч. 7 дней подряд.',
+            application: 'Активация 1 раз в 10 дней',
+            obtain: 'Только спонсоры топ 10 за 3 месяца. 🧿ТВ колесо. Получить. Собрать. 🛐',
+            features: 'Работает с 🌈🟧🃏☮️🎦🎹. (Безлимитное количество🟪🚾🟥🟨🟫⬛️🅾️💠)',
+            removes: '🅱️⚫️💣',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐🪣',
+            cannotUse: '🌈',
+            formula: '🚨➕💎➕💎➕💎➕🟧➕⬜️➕🃏➕🟩➕🟦➕🚾➕☑️🟰🔲',
+            description: 'Элитная карта для топ-спонсоров'
+        },
+        'Радужная': {
+            effects: 'Иммунитет к картам нарушений',
+            application: 'Активация каждый день',
+            obtain: 'Топ Батлы. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Может быть активна у нескольких спикеров одновременно',
+            removes: '🅾️',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: '🏧🛐',
+            cannotUse: 'нет',
+            formula: '💎➕🟧➕🟧➕🟧➕⬜️➕☮️➕🟩➕🟦➕📜➕☑️🟰🏳️‍🌈',
+            description: 'Карта иммунитета к нарушениям'
+        },
+        'Карта Контента': {
+            effects: 'Просмотр видеоматериала',
+            application: '1 раз за эфир',
+            obtain: 'Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Нельзя снять',
+            removes: 'нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: '🟧➕⬜️➕☑️🟰🎦',
+            description: 'Карта для просмотра контента'
+        },
+        'Музыкальная карта': {
+            effects: 'Прослушивание музыки',
+            application: '1 раз за эфир',
+            obtain: 'Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.',
+            features: 'Нельзя снять',
+            removes: 'нет',
+            takenBy: 'activation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: '⬜️➕☑️🟰🎹',
+            description: 'Карта для прослушивания музыки'
+        },
+        'Розовая': {
+            effects: 'Предупреждение, спуск вниз',
+            application: 'Первое нарушение',
+            obtain: 'Нарушение правил. Получить.',
+            features: 'нет',
+            removes: 'нет',
+            takenBy: 'violation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: '☑️➕☑️🟰🟪',
+            description: 'Первое предупреждение за нарушение'
+        },
+        'Красная': {
+            effects: 'Снятие спикера с эфира до конца эфира',
+            application: 'Третье нарушение',
+            obtain: 'Нарушение правил. Получить.',
+            features: 'нет',
+            removes: '🟩',
+            takenBy: 'violation',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: 'Собирается ⬜️',
+            description: 'Серьёзное нарушение - снятие с эфира'
+        },
+        'Жёлтая': {
+            effects: 'Спуск вниз на 30 минут',
+            application: 'Второе нарушение',
+            obtain: 'Нарушение правил. Получить.',
+            features: 'нет',
+            removes: 'нет',
+            takenBy: 'violation',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: 'Собирается ⬜️',
+            description: 'Второе предупреждение за нарушение'
+        },
+        'Чёрная': {
+            effects: 'Блокировка на 1 неделю',
+            application: 'За серьёзные нарушения',
+            obtain: 'Нарушение правил. Получить.',
+            features: 'нет',
+            removes: 'нет',
+            takenBy: 'violation',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: 'нет',
+            description: 'Серьёзное нарушение - блокировка на неделю'
+        },
+        'Коричневая': {
+            effects: 'Отключение комментариев',
+            application: 'Действует 1 эфир на 1 аккаунт',
+            obtain: 'Нарушение правил. Получить.',
+            features: 'нет',
+            removes: 'нет',
+            takenBy: 'violation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: 'нет',
+            description: 'Нарушение - отключение комментариев'
+        },
+        'Обнуление': {
+            effects: 'Запрет в гостевой и чате на 4 недели',
+            application: 'За серьёзные нарушения',
+            obtain: 'Нарушение правил эфира. Получить.',
+            features: 'Можно вернуть доступ к чату активацией ☮️',
+            removes: 'нет',
+            takenBy: 'violation',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Нет',
+            protection: 'нет',
+            cannotUse: 'нет',
+            formula: '🟧➕⬜️➕☮️➕🟩➕🟦➕☑️🟰🅾️',
+            description: 'Серьёзное нарушение - обнуление прав'
+        },
+        'Заморозка': {
+            effects: 'Ваша активная карта деактивируется. Спикеру запрещено использовать, активировать и передавать 🀄️🎴 карты и 🧿 ТВ колёса 4 недели.',
+            application: '1 раз.',
+            obtain: 'От 🔲. Нарушение правил. 🧿 ТВ колесо. Из 🪣/🌋.',
+            features: 'Собирается за 🚨. При выпадении с 🧿 ТВ колеса действует на всех, и вам выдаётся 1 🧿 ТВ колесо: можно крутить сразу или через 4 недели. При снятии эффекта колесо сгорает.',
+            removes: '🅱️🛐🌈',
+            takenBy: 'violation',
+            sale: 'Нет',
+            transfer: 'Нет',
+            conversion: 'Нет',
+            protection: 'Да',
+            cannotUse: '🌈🃏☮️🔲🌈🚨💎🟧⬜️🎦🎹Ⓜ️♎️♻️',
+            formula: '1 🚨',
+            description: 'Карта нарушения: блокирует карты и 🧿 на 4 недели и снимает активную карту.'
+        },
+        'Банкрот': {
+            effects: 'Забирает все ваши карты, кроме 🧿, при выпадении с 🧿 ТВ колеса.',
+            application: '1 раз.',
+            obtain: '🧿 ТВ колесо. 🌋 (⚫️↩️🎴).',
+            features: 'Если при выпадении с 🧿 ТВ колеса ваш инвентарь 🎴🀄️ пуст, превращается в карту активации ⚫️↩️🎴 и падает в инвентарь: можно уничтожить все карты и 🧿 у одного спикера.',
+            removes: 'Нет',
+            takenBy: 'danger',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Да (⚫️↩️🎴)',
+            protection: 'Да',
+            cannotUse: '🏧🛐🌋🪣',
+            formula: 'Нет',
+            description: 'Опасная карта: обнуляет ваши карты при выпадении или становится активацией для тотального уничтожения у одного спикера.'
+        },
+        'Экстерминатус': {
+            effects: 'Эфир завершается. Запасное время исчезает. Вы получаете 🅾️ и 10 🧿 ТВ колёс. Прошлый донатер получает 5 🧿 ТВ колес.',
+            application: '1 раз. Как карту 💣↩️🎴 активации при наличии запасного времени больше 3 часов.',
+            obtain: '🧿 ТВ колесо. 🌋 Преисподняя. 💣↩️🎴.',
+            features: 'Нельзя снять. Во время вращения 🧿 ТВ колеса при отсутствии запасного времени превращается в 🎴 активацию без 🅾️. Ведущий может держать карту до активации.',
+            removes: 'Ведущим',
+            takenBy: 'danger',
+            sale: 'Нет',
+            transfer: 'Да',
+            conversion: 'Да (💣↩️🎴🧿)',
+            protection: 'Да',
+            cannotUse: 'Донатерам, не входящим в топ 10 спонсоров',
+            formula: 'Нет',
+            description: 'Опасная карта завершения эфира: обнуляет запасное время и выдаёт 🅾️ и 🧿.'
+        }};
+    
+
+
+    // ============== ИНВЕНТАРЬ: СПРАВОЧНИК КАРТ (СГРУППИРОВАННЫЙ) ==============
+    function getCardGroupTitle(type) {
+        if (type === 'normal') return '🀄️ Обычные';
+        if (type === 'activation') return '🎴 Активации';
+        if (type === 'violation') return '🚨 Нарушения';
+        return 'Супер Карты';
+    }
+
+    function normalizeSearch(s) {
+        return (s || '').toString().trim().toLowerCase();
+    }
+
+    function renderInventoryReferenceGrouped() {
+        const groupsContainer = document.getElementById('inventoryReferenceGroups');
+        if (!groupsContainer) return;
+
+        const searchInput = document.getElementById('inventorySearch');
+        const query = normalizeSearch(searchInput ? searchInput.value : '');
+
+        // Собираем карточки, фильтруем по запросу
+        const entries = Object.entries(cardDatabase)
+            .map(([name, data]) => {
+                const emoji = cardEmojis[name] || '🃏';
+                const type = cardTypes[name] || 'normal';
+                return { name, data, emoji, type };
+            })
+            .filter(({ name, emoji }) => {
+                if (!query) return true;
+                return normalizeSearch(name).includes(query) || normalizeSearch(emoji).includes(query);
+            })
+            .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+
+        // Группируем: обычные / активации / нарушения (+ другое, если есть)
+        const allowed = ['normal', 'activation', 'violation'];
+        const buckets = { normal: [], activation: [], violation: [], other: [] };
+
+        for (const item of entries) {
+            if (allowed.includes(item.type)) buckets[item.type].push(item);
+            else buckets.other.push(item);
+        }
+
+        groupsContainer.innerHTML = '';
+
+        const orderedGroups = ['normal', 'activation', 'violation', 'other'];
+        for (const g of orderedGroups) {
+            const items = buckets[g];
+            if (!items.length) continue;
+
+            const group = document.createElement('div');
+            // Свернуто по умолчанию. При поиске раскрываем группы автоматически.
+            group.className = query ? 'inventory-reference-group open' : 'inventory-reference-group';
+
+            const title = document.createElement('div');
+            title.className = 'inventory-reference-group-title';
+            if (g === 'other') {
+                title.innerHTML = `<span class="group-emoji" aria-hidden="true">🎲</span> ${getCardGroupTitle(g)} (${items.length})`;
+            } else {
+                title.textContent = `${getCardGroupTitle(g)} (${items.length})`;
+            }
+            group.appendChild(title);
+
+            // Разворачиваем/сворачиваем по клику на заголовок группы
+            title.addEventListener('click', () => {
+                group.classList.toggle('open');
+            });
+
+            const grid = document.createElement('div');
+            grid.className = 'inventory-reference-grid';
+
+            for (const { name, data, emoji } of items) {
+                const card = document.createElement('div');
+                card.className = 'inventory-reference-card';
+                card.tabIndex = 0;
+
+                card.innerHTML = `
+                    <div class="inventory-reference-card-title">
+                        <span class="emoji" aria-hidden="true">${emoji}</span>
+                        <span>${name}</span>
+                    </div>
+                    <div class="inventory-reference-card-desc">${data.description || 'Описание отсутствует'}</div>
+                `;
+
+                // Клик по карте: добавить 1 шт. в инвентарь
+                const applyToInventory = () => {
+                    addToInventory(name, 1);
+                    const sel = document.getElementById('inventoryCardSelect');
+                    if (sel) sel.value = name;
+                };
+
+                card.addEventListener('click', applyToInventory);
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        applyToInventory();
+                    }
+                });
+
+                grid.appendChild(card);
+            }
+
+            group.appendChild(grid);
+            groupsContainer.appendChild(group);
+        }
+
+        // Если после фильтра ничего не найдено
+        if (!groupsContainer.children.length) {
+            groupsContainer.innerHTML = `<div style="color: var(--text-secondary); padding: 10px 2px;">Ничего не найдено по запросу: <b>${query}</b></div>`;
+        }
+    }
+
+    // Хранилище инвентаря
+    let inventory = {};
+    
+    // ============== ФУНКЦИИ ОБЩИЕ ==============
+    
+    // Функция для показа уведомлений
+    function showNotification(message, type = 'info') {
+        const container = document.getElementById('notificationContainer');
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = message;
+        
+        container.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (container.contains(notification)) {
+                    container.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+    
+    // Функция для расчета стоимости карты
+    function calculateCardCost(cardName) {
+        const hierarchy = {
+            'Комиссия': 1,
+            'Серая': 2,
+            'Синяя': 6,
+            'Зелёная': 12,
+            'Белая': 24,
+            'Золотая': 48,
+            'Изумрудная': 96,
+            'Рубиновая': 288
+        };
+        
+        return hierarchy[cardName] || 0;
+    }
+    
+    // Функция: Получить все варианты разбора карты
+    function getCardBreakdown(cardName, count = 1) {
+        const hierarchy = [
+            { name: 'Рубиновая', emoji: '🚨', value: 288 },
+            { name: 'Изумрудная', emoji: '💎', value: 96 },
+            { name: 'Золотая', emoji: '🟧', value: 48 },
+            { name: 'Белая', emoji: '⬜️', value: 24 },
+            { name: 'Зелёная', emoji: '🟩', value: 12 },
+            { name: 'Синяя', emoji: '🟦', value: 6 },
+            { name: 'Серая', emoji: '☑️', value: 2 },
+            { name: 'Комиссия', emoji: '🔘', value: 1 }
+        ];
+        
+        // Найти текущую карту
+        const currentCard = hierarchy.find(c => c.name === cardName);
+        if (!currentCard) return [];
+        
+        const totalValue = currentCard.value * count;
+        
+        // Генерировать все возможные комбинации
+        const breakdowns = [];
+        
+        // Для каждой карты выше в иерархии
+        hierarchy.slice(0, hierarchy.findIndex(c => c.name === cardName)).forEach(targetCard => {
+            const amount = Math.floor(totalValue / targetCard.value);
+            if (amount > 0) {
+                breakdowns.push({
+                    card: targetCard.name,
+                    emoji: targetCard.emoji,
+                    amount: amount,
+                    remainder: totalValue % targetCard.value
+                });
+            }
+        });
+        
+        return breakdowns;
+    }
+    
+    // ============== ФУНКЦИИ ИНВЕНТАРЯ ==============
+    
+    // Функция для обновления инвентаря в интерфейсе
+    function updateInventoryDisplay() {
+        const inventoryList = document.getElementById('inventoryList');
+        const inventorySummary = document.getElementById('inventorySummary');
+        const inventoryTotalCount = document.getElementById('inventoryTotalCount');
+        
+        // Очищаем список
+        inventoryList.innerHTML = '';
+        
+        // Подсчитываем общее количество карт
+        let totalCards = 0;
+        let hasCards = false;
+        
+        // Добавляем карты в список
+        for (const [cardName, count] of Object.entries(inventory)) {
+            if (count > 0) {
+                hasCards = true;
+                totalCards += count;
+                
+                const emoji = cardEmojis[cardName] || '🃏';
+                
+                const item = document.createElement('div');
+                item.className = 'inventory-item';
+                item.innerHTML = `
+                    <div class="inventory-item-info">
+                        <span class="inventory-item-emoji">${emoji}</span>
+                        <span class="inventory-item-name">${cardName}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="inventory-item-count">${count}</span>
+                        <button class="inventory-item-remove" data-card="${cardName}">✕</button>
+                    </div>
+                `;
+                
+                inventoryList.appendChild(item);
+            }
+        }
+        
+        // Если нет карт, показываем сообщение
+        if (!hasCards) {
+            inventoryList.innerHTML = `
+                <div class="empty-inventory">
+                    <div class="empty-inventory-emoji">📭</div>
+                    <p>Инвентарь пуст</p>
+                    <p style="font-size: 0.9rem; margin-top: 8px;">Добавьте карты с помощью формы выше</p>
+                </div>
+            `;
+            inventorySummary.style.display = 'none';
+        } else {
+            inventorySummary.style.display = 'flex';
+            inventoryTotalCount.textContent = totalCards;
+            
+            // Обновляем результаты
+            updateResultsFromInventory();
+        }
+        
+        // Добавляем обработчики для кнопок удаления
+        document.querySelectorAll('.inventory-item-remove').forEach(button => {
+            button.addEventListener('click', function() {
+                const cardName = this.getAttribute('data-card');
+                removeFromInventory(cardName);
+            });
+        });
+    }
+    
+    // Функция для добавления карты в инвентарь
+    function addToInventory(cardName, count) {
+        if (!cardName || count < 1) {
+            showNotification('Выберите карту и укажите количество', 'warning');
+            return;
+        }
+        
+        if (!inventory[cardName]) {
+            inventory[cardName] = 0;
+        }
+        
+        inventory[cardName] += count;
+        updateInventoryDisplay();
+        
+        const emoji = cardEmojis[cardName] || '🃏';
+        showNotification(`Добавлено: ${emoji} ${cardName} × ${count}`, 'success');
+    }
+    
+    // Функция для удаления карты из инвентаря
+    function removeFromInventory(cardName) {
+        if (inventory[cardName]) {
+            const count = inventory[cardName];
+            delete inventory[cardName];
+            updateInventoryDisplay();
+            
+            const emoji = cardEmojis[cardName] || '🃏';
+            showNotification(`Удалено: ${emoji} ${cardName} × ${count}`, 'info');
+        }
+    }
+    
+    // Функция для очистки всего инвентаря
+    function clearInventory() {
+        if (Object.keys(inventory).length === 0) {
+            showNotification('Инвентарь уже пуст', 'warning');
+            return;
+        }
+        
+        const cardCount = Object.values(inventory).reduce((a, b) => a + b, 0);
+        inventory = {};
+        updateInventoryDisplay();
+        
+        showNotification(`Инвентарь очищен (удалено ${cardCount} карт)`, 'info');
+    }
+    
+    // Функция для обновления результатов на основе инвентаря
+    function updateResultsFromInventory() {
+        const resultsContainer = document.getElementById('results');
+        
+        if (Object.keys(inventory).length === 0) {
+            resultsContainer.innerHTML = `
+                <div style="text-align:center;padding:30px;color:var(--text-secondary)">
+                    <div style="font-size:3rem;margin-bottom:16px;opacity:0.5"><span aria-hidden="true">📊</span></div>
+                    <p style="font-size:1rem;margin-bottom:8px">Инвентарь пуст</p>
+                    <p style="font-size:0.85rem;opacity:0.7">Добавьте карты в инвентарь</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let totalValue = 0;
+        let totalCards = 0;
+        let totalTypes = Object.keys(inventory).length;
+        
+        let html = '<div style="padding: 10px;">';
+        html += '<h4 style="background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 15px;">📦 Ваш инвентарь</h4>';
+        
+        // Сортируем карты по стоимости (от дорогих к дешевым)
+        const sortedCards = Object.keys(inventory).sort((a, b) => {
+            return calculateCardCost(b) - calculateCardCost(a);
+        });
+        
+        sortedCards.forEach(cardName => {
+            const count = inventory[cardName];
+            const cardValue = calculateCardCost(cardName) * count;
+            totalValue += cardValue;
+            totalCards += count;
+            const emoji = cardEmojis[cardName] || '🃏';
+            
+            html += `
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="emoji" aria-hidden="true">${emoji}</span>
+                        <span style="color: var(--text);">${cardName}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span style="font-weight: 700; color: var(--brand);">${count} шт.</span>
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">(${cardValue} 🔘)</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Добавим итоговую стоимость и варианты сборки
+        html += `
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid var(--brand);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text);">Всего карт:</span>
+                    <span style="font-weight: 700; color: var(--brand);">${totalCards} шт.</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span style="color: var(--text);">Общая стоимость:</span>
+                    <span style="font-weight: 700; color: var(--brand);">${totalValue} 🔘</span>
+                </div>
+        `;
+        
+        // Покажем, что можно собрать из этого
+        if (totalValue > 0) {
+            const valuableCards = [
+                { name: 'Рубиновая', emoji: '🚨', value: 288 },
+                { name: 'Изумрудная', emoji: '💎', value: 96 },
+                { name: 'Золотая', emoji: '🟧', value: 48 },
+                { name: 'Белая', emoji: '⬜️', value: 24 },
+                { name: 'Зелёная', emoji: '🟩', value: 12 },
+                { name: 'Синяя', emoji: '🟦', value: 6 },
+                { name: 'Серая', emoji: '☑️', value: 2 }
+            ];
+            
+            let hasValuableCards = false;
+            
+            valuableCards.forEach(card => {
+                const amount = Math.floor(totalValue / card.value);
+                
+                if (amount > 0) {
+                    if (!hasValuableCards) {
+                        html += `<div style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);">Можно собрать:</div>`;
+                        hasValuableCards = true;
+                    }
+                    
+                    html += `
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(73, 185, 255, 0.1); border-radius: 6px; margin-bottom: 5px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span>${card.emoji}</span>
+                                <span style="color: var(--text);">${card.name}</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--brand);">${amount} шт.</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        html += `
+            </div>
+        `;
+        
+        html += '</div>';
+        resultsContainer.innerHTML = html;
+    }
+    
+    // ============== ФУНКЦИИ ИНФОРМАЦИИ О КАРТЕ ==============
+
+    // --- Helpers: корректная обработка эмодзи и текстовых полей ---
+    // Важно: split('') ломает суррогатные пары и ZWJ-секвенции (например 🏳️‍🌈),
+    // поэтому используем Unicode property escapes.
+    const EMOJI_RE = /\p{Extended_Pictographic}(?:\uFE0F|\uFE0E|\u200D\p{Extended_Pictographic})*/gu;
+
+    function extractEmojis(text) {
+        if (!text) return [];
+        const m = String(text).match(EMOJI_RE);
+        return m ? m : [];
+    }
+
+    function stripEmojis(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(EMOJI_RE, '')
+            .replace(/[\s,.;:+×\-–—()\[\]{}]/g, '')
+            .trim();
+    }
+
+    function emojiToCardName(emoji) {
+        // Ищем по точному совпадению эмодзи-секвенции
+        const hit = Object.entries(cardEmojis).find(([, e]) => e === emoji);
+        return hit ? hit[0] : '';
+    }
+
+    function renderEmojiTagList(titleIcon, titleText, rawValue, wrapperClass) {
+        const emojis = extractEmojis(rawValue);
+        if (!emojis.length) return '';
+
+        let html = `
+            <div class="${wrapperClass}">
+                <div class="card-info-title">${titleIcon} ${titleText}</div>
+                <div class="card-tags">
+        `;
+
+        for (const em of emojis) {
+            const name = emojiToCardName(em);
+            if (name) {
+                html += `<span class="card-tag"><span class="emoji" aria-hidden="true">${em}</span> ${name}</span>`;
+            } else {
+                html += `<span class="card-tag"><span class="emoji" aria-hidden="true">${em}</span></span>`;
+            }
+        }
+
+        html += `
+                </div>
+            </div>
+        `;
+        return html;
+    }
+    
+    // Показать информацию о карте
+    function showCardInfo(cardName) {
+        const resultsContainer = document.getElementById('results');
+        const cardInfoContainer = document.getElementById('cardInfoContainer');
+        
+        if (!cardDatabase[cardName]) {
+            showNotification('Информация об этой карте пока недоступна', 'warning');
+            return;
+        }
+        
+        const cardData = cardDatabase[cardName];
+        const emoji = cardEmojis[cardName] || '🃏';
+        const cardType = cardTypes[cardName] || 'normal';
+        const takingType = cardTakingType[cardName] || 'normal';
+        
+        // Определяем название типа
+        let typeName = 'Обычная';
+        let typeClass = 'type-normal';
+        
+        switch(cardType) {
+            case 'activation':
+                typeName = 'Активация';
+                typeClass = 'type-activation';
+                break;
+            case 'violation':
+                typeName = 'Нарушение';
+                typeClass = 'type-violation';
+                break;
+            case 'danger':
+                typeName = 'Опасная';
+                typeClass = 'type-danger';
+                break;
+            case 'super':
+                typeName = 'Супер';
+                typeClass = 'type-super';
+                break;
+        }
+        
+        // Определяем тип забирания
+        let takingName = 'Обычный';
+        switch(takingType) {
+            case 'activation':
+                takingName = 'Активация';
+                break;
+            case 'violation':
+                takingName = 'Нарушение';
+                break;
+            case 'danger':
+                takingName = 'Опасный';
+                break;
+            case 'super':
+                takingName = 'Супер';
+                break;
+        }
+        
+        // Создаем HTML для информации о карте
+        let html = `
+            <div class="card-info-header">
+                <div class="card-info-emoji">${emoji}</div>
+                <div>
+                    <div class="card-info-name">${cardName}</div>
+                    <span class="card-info-type ${typeClass}">${typeName} карта</span>
+                </div>
+            </div>
+            
+            <div class="card-info-grid">
+                <div class="card-info-box">
+                    <div class="card-info-title">🎯 Эффекты</div>
+                    <div class="card-info-content">${cardData.effects}</div>
+                </div>
+                
+                <div class="card-info-box">
+                    <div class="card-info-title">⚡️ Применение</div>
+                    <div class="card-info-content">${cardData.application}</div>
+                </div>
+                
+                <div class="card-info-box">
+                    <div class="card-info-title">📥 Получение</div>
+                    <div class="card-info-content">${cardData.obtain}</div>
+                </div>
+                
+                <div class="card-info-box">
+                    <div class="card-info-title">🔧 Особенности</div>
+                    <div class="card-info-content">${cardData.features}</div>
+                </div>
+            </div>
+            
+            <div class="card-formula-box">
+                <div class="card-formula-title">🧮 Формула сборки</div>
+                <div class="card-formula">${cardData.formula}</div>
+                <div class="card-info-content">${cardData.description}</div>
+            </div>
+            
+            <div class="card-info-grid">
+                <div class="card-info-box">
+                    <div class="card-info-title">🛡️ Защита карты</div>
+                    <div class="card-info-content">${cardData.protection}</div>
+                </div>
+                
+                <div class="card-info-box">
+                    <div class="card-info-title">📊 Тип забирания</div>
+                    <div class="card-info-content">${takingName} (${takingType})</div>
+                </div>
+                
+                <div class="card-info-box">
+                    <div class="card-info-title">💰 Продажа</div>
+                    <div class="card-info-content">${cardData.sale}</div>
+                </div>
+                
+                <div class="card-info-box">
+                    <div class="card-info-title">🔄 Передача</div>
+                    <div class="card-info-content">${cardData.transfer}</div>
+                </div>
+                
+                <div class="card-info-box">
+                    <div class="card-info-title">🔄 Конвертация</div>
+                    <div class="card-info-content">${cardData.conversion}</div>
+                </div>
+            </div>
+        `;
+        
+        // Добавляем информацию о снимаемых картах, если есть
+        if (cardData.removes && cardData.removes !== 'нет' && cardData.removes !== 'Ведущим') {
+            html += renderEmojiTagList('✅', 'Снимает карты', cardData.removes, 'card-removes-box');
+        }
+        
+        // Добавляем информацию о защите, если есть
+        if (cardData.protection && cardData.protection !== 'нет' && cardData.protection !== 'Да') {
+            html += renderEmojiTagList('🛡️', 'Защищено от', cardData.protection, 'card-protected-box');
+        }
+        
+        // Добавляем информацию о том, на что нельзя использовать, если есть
+        if (cardData.cannotUse && cardData.cannotUse !== 'нет') {
+            const raw = String(cardData.cannotUse).trim();
+            const emojis = extractEmojis(raw);
+            const hasText = stripEmojis(raw).length > 0;
+
+            // Если это текстовое ограничение (например "Донатерам..."), показываем нормальным текстом,
+            // а не "пузырьками" по символам.
+            if (!emojis.length || hasText) {
+                html += `
+                    <div class="card-cannot-box">
+                        <div class="card-info-title">🚫 Нельзя использовать на</div>
+                        <div class="card-info-content">${raw}</div>
+                    </div>
+                `;
+            } else {
+                html += renderEmojiTagList('🚫', 'Нельзя использовать на', raw, 'card-cannot-box');
+            }
+        }
+        
+        // Обновляем контейнер
+        cardInfoContainer.innerHTML = html;
+        cardInfoContainer.style.display = 'block';
+        
+        // Также обновляем основной контейнер результатов
+        resultsContainer.innerHTML = `
+            <div style="padding: 20px;">
+                <h4 style="background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    ${emoji} Информация о карте: ${cardName}
+                </h4>
+                <div style="background: rgba(73, 185, 255, 0.15); border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 4px solid var(--brand);">
+                    <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 5px;">
+                        Тип карты:
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--brand);">
+                            ${typeName}
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-left: auto;">
+                            Забирается: ${takingName}
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                        <strong>📝 Описание:</strong> ${cardData.description}
+                    </div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.85rem; color: var(--text-secondary); text-align: center;">
+                    Полная информация о карте отображается выше в разделе "База знаний"
+                </div>
+            </div>
+        `;
+        
+        showNotification(`Загружена информация о карте: ${emoji} ${cardName}`, 'success');
+    }
+    
+    // ============== ФУНКЦИИ ПАРСЕРА ==============
+    
+    // Результаты парсинга
+    let autolentResults = {
+        users: {},
+        cards: {},
+        totalUsers: 0,
+        totalCards: 0
+    };
+    
+    // Парсинг текста
+    function parseAutolentText(text) {
+        // Нормализация имени пользователя:
+        // - склеивает варианты вида "🇩🇪Балтик", "Балтик🇩🇪", "Балтик 🇩🇪" в "Балтик"
+        // - схлопывает лишние пробелы
+        // - убирает повторяющиеся подряд слова ("Протвень Протвень" -> "Протвень")
+        // Примечание: логика карт/парсинга не меняется, нормализуется только ключ пользователя.
+        function normalizeUsername(raw) {
+            let s = String(raw || '').trim();
+
+            // Убираем флаги (региональные индикаторы) в начале/конце и в виде отдельного токена
+            // Флаг = пара суррогатов: \uD83C[\uDDE6-\uDDFF]\uD83C[\uDDE6-\uDDFF]
+            const flagRe = /\uD83C[\uDDE6-\uDDFF]\uD83C[\uDDE6-\uDDFF]/g;
+            s = s.replace(flagRe, ' ');
+
+            // Точки в именах считаем разделителями ("Бел.Еврей" => "Бел Еврей")
+            s = s.replace(/\.+/g, ' ');
+
+            // Схлопываем пробелы
+            s = s.replace(/\s+/g, ' ').trim();
+
+            // Разлепляем приклеенные коды страны/региона (латиница) в конце слова: "АлексеяRU" => "Алексея RU"
+            s = s.replace(/([A-Za-zА-Яа-яЁё]+)(RU|UA|KZ|BY|RB|RF|EU|US)\b/g, '$1 $2');
+
+            // Разлепляем приклеенные коды страны/региона (кириллица) в конце слова: "ПавелРБ" => "Павел РБ"
+            s = s.replace(/([A-Za-zА-Яа-яЁё]+)(РБ|РФ)\b/gu, '$1 $2');
+
+            // Схлопываем пробелы
+            s = s.replace(/\s+/g, ' ').trim();
+
+            // Схлопываем подряд идущие повторы слов
+            s = s.replace(/\b([A-Za-zА-Яа-яЁё0-9_]+)(?:\s+\1\b)+/gu, '$1');
+
+            // Спец-правило для "Павел": "Павел РБ" должен быть отдельным пользователем,
+            // остальные варианты "Павел" (включая "Павел.", "Павел RU", "Павел РФ" и т.п.) объединяем в "Павел".
+            const parts = s.split(' ').filter(Boolean);
+            if (parts.length >= 1 && /^Павел$/iu.test(parts[0])) {
+                const codes = new Set(['RU','UA','KZ','BY','RB','RF','EU','US','РФ']);
+                if (parts.some(p => /^РБ$/iu.test(p))) {
+                    return 'Павел РБ';
+                }
+                // Если после "Павел" идут только коды/сокращения — считаем это тем же Павлом
+                if (parts.length === 1 || parts.slice(1).every(p => codes.has(p.toUpperCase()))) {
+                    return 'Павел';
+                }
+            }
+
+            return s;
+        }
+
+        // Убираем дублирование текста (иногда пост приходит дважды подряд)
+        function dedupeTelegramPost(rawText) {
+            const t = String(rawText || "").trim();
+            const anchor = '🎲Игра "Капитализм и Коммунизм".';
+            const first = t.indexOf(anchor);
+            if (first === -1) return t;
+
+            const second = t.indexOf(anchor, first + anchor.length);
+            if (second === -1) return t;
+
+            const a = t.slice(0, second).trim();
+            const b = t.slice(second).trim();
+
+            // Если вторая часть идентична первой (или почти идентична) — берём первую
+            if (b === a) return a;
+
+            // Частый случай: текст = A + "\n\n" + A
+            // Сравнение по "половине" с допуском пробелов/переносов
+            const norm = (x) => x.replace(/\s+/g, " ").trim();
+            if (norm(a) === norm(b)) return a;
+
+            return t;
+        }
+        // Сброс результатов
+        autolentResults = {
+            users: {},
+            cards: {},
+            totalUsers: 0,
+            totalCards: 0
+        };
+        
+        if (!text.trim()) {
+            showNotification('Введите текст для анализа', 'warning');
+            return false;
+        }
+        
+        text = dedupeTelegramPost(text);
+        const lines = text.split('\n');
+        let currentCard = null;
+        let currentCardName = '';
+        
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
+
+            // Заголовки разделов/категорий (не карты) — сбрасываем текущую карту
+            // ВАЖНО: без этого строки после "🎹 Музыкальная карта" ошибочно продолжают накапливаться как музыкальные
+            if (/^⚡️?\s*🧿/u.test(trimmedLine) && /ТВ\s*колесо/u.test(trimmedLine)) {
+                // Это отдельный тип в парсинге
+                currentCard = 'ТВ колесо';
+                currentCardName = 'ТВ колесо';
+                if (!autolentResults.cards['ТВ колесо']) {
+                    autolentResults.cards['ТВ колесо'] = { total: 0, users: {} };
+                }
+                continue;
+            }
+
+            // Разделители верхнего уровня (категории), не должны "держать" текущую карту
+            if (/^⚡️/u.test(trimmedLine) && (/(Карты\s*Активац|Обычные)/iu.test(trimmedLine) || /🎴|🀄️/u.test(trimmedLine))) {
+                currentCard = null;
+                currentCardName = '';
+                continue;
+            }
+
+            // Декоративные заголовки/повтор названия игры — сброс
+            if (/^🎲Игра\s*["“”]?Капитализм\s*и\s*Коммунизм/iu.test(trimmedLine)) {
+                currentCard = null;
+                currentCardName = '';
+                continue;
+            }
+            
+            // Проверяем, является ли строка картой (содержит эмодзи или название карты)
+            let isCardLine = false;
+            let cardName = '';
+            
+            // Ищем по эмодзи
+            for (const [name, emoji] of Object.entries(cardEmojis)) {
+                if (trimmedLine.includes(emoji)) {
+                    isCardLine = true;
+                    cardName = name;
+                    break;
+                }
+            }
+            
+            // Ищем по названию
+            if (!isCardLine) {
+                for (const name of Object.keys(cardEmojis)) {
+                    if (trimmedLine.toLowerCase().includes(name.toLowerCase())) {
+                        isCardLine = true;
+                        cardName = name;
+                        break;
+                    }
+                }
+            }
+            
+            if (isCardLine) {
+                currentCard = cardName;
+                currentCardName = cardName;
+                
+                // Инициализируем карту если её нет
+                if (!autolentResults.cards[cardName]) {
+                    autolentResults.cards[cardName] = {
+                        total: 0,
+                        users: {}
+                    };
+                }
+            } else if (currentCard) {
+                // Это строка с пользователем и количеством
+                const userMatch = trimmedLine.match(/(.+?)\s*[-‐‑‒–—―−﹣－]\s*(\d+)/);
+                if (userMatch) {
+                    const username = normalizeUsername(userMatch[1]);
+                    const count = parseInt(userMatch[2]);
+                    
+                    if (!isNaN(count) && count > 0) {
+                        // Добавляем пользователя
+                        if (!autolentResults.users[username]) {
+                            autolentResults.users[username] = {
+                                cards: {},
+                                total: 0
+                            };
+                        }
+                        
+                        // Добавляем карту пользователю
+                        if (!autolentResults.users[username].cards[currentCard]) {
+                            autolentResults.users[username].cards[currentCard] = 0;
+                        }
+                        
+                        autolentResults.users[username].cards[currentCard] += count;
+                        autolentResults.users[username].total += count;
+                        
+                        // Обновляем общую статистику по карте
+                        autolentResults.cards[currentCard].total += count;
+                        autolentResults.cards[currentCard].users[username] = 
+                            (autolentResults.cards[currentCard].users[username] || 0) + count;
+                        
+                        autolentResults.totalCards += count;
+                    }
+                }
+            }
+        }
+        
+        // Подсчитываем уникальных пользователей
+        autolentResults.totalUsers = Object.keys(autolentResults.users).length;
+        
+        return autolentResults.totalCards > 0;
+    }
+    
+    // Показать результаты парсинга
+    function showAutolentResults() {
+        const resultsContainer = document.getElementById('autolentResults');
+        const statsContainer = document.getElementById('autolentStats');
+        const cardsGrid = document.getElementById('autolentCardsGrid');
+        const userResults = document.getElementById('autolentUserResults');
+        const totalUsersElement = document.getElementById('autolentTotalUsers');
+        const quickDownload = document.getElementById('autolentQuickDownload');
+        const userSelector = document.getElementById('autolentUserSelector');
+        const userSelect = document.getElementById('autolentUserSelect');
+        
+        // Показываем контейнеры
+        resultsContainer.classList.add('visible');
+        quickDownload.classList.add('visible');
+        userSelector.classList.add('visible');
+        // Статистика отключена (по ТЗ): не выводим счётчики и блок "Карты по типам"
+
+        // Обновляем селектор пользователей
+        userSelect.innerHTML = '<option value="">-- Все пользователи --</option>';
+        const sortedUsers = Object.keys(autolentResults.users)
+            .sort((a, b) => autolentResults.users[b].total - autolentResults.users[a].total);
+        
+        sortedUsers.forEach(username => {
+            const option = document.createElement('option');
+            option.value = username;
+            option.textContent = `${username} (${autolentResults.users[username].total} карт)`;
+            userSelect.appendChild(option);
+        });
+        
+        // Показываем всех пользователей
+        showSelectedUser('');
+        
+        showNotification(`Проанализировано: ${autolentResults.totalCards} карт от ${autolentResults.totalUsers} пользователей`, 'success');
+    }
+    
+    // Показать карты выбранного пользователя
+    function showSelectedUser(username) {
+        const userResults = document.getElementById('autolentUserResults');
+        const resultsTitle = document.getElementById('autolentResultsTitle');
+        
+        userResults.innerHTML = '';
+        
+        if (username) {
+            // Показать одного пользователя
+            resultsTitle.textContent = `👤 Карты пользователя: ${username}`;
+            const userData = autolentResults.users[username];
+            
+            if (userData) {
+                const userCard = document.createElement('div');
+                userCard.className = 'autolent-user-card';
+                
+                let cardsHTML = '';
+                const sortedCards = Object.entries(userData.cards)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                sortedCards.forEach(([cardName, count]) => {
+                    const emoji = cardEmojis[cardName] || '🃏';
+                    cardsHTML += `
+                        <div class="autolent-user-card-item">
+                            <div class="autolent-user-card-name">
+                                <span class="emoji" aria-hidden="true">${emoji}</span>
+                                <span>${cardName}</span>
+                            </div>
+                            <span class="autolent-user-card-count">${count}</span>
+                        </div>
+                    `;
+                });
+                
+                userCard.innerHTML = `
+                    <div class="autolent-user-name">
+                        👤 ${username}
+                        <span style="font-size: 0.9rem; color: var(--brand); background: rgba(73, 185, 255, 0.2); padding: 4px 12px; border-radius: 20px;">
+                            Всего карт: ${userData.total}
+                        </span>
+                    </div>
+                    ${cardsHTML}
+                `;
+                
+                userCard.style.cursor = 'pointer';
+                userCard.addEventListener('click', () => applyUserToInventory(username));
+
+                userResults.appendChild(userCard);
+            }
+        } else {
+            // Показать всех пользователей
+            resultsTitle.textContent = `👤 Карты по пользователям (${autolentResults.totalUsers})`;
+            
+            const sortedUsers = Object.entries(autolentResults.users)
+                .sort((a, b) => b[1].total - a[1].total);
+            
+            sortedUsers.forEach(([username, userData]) => {
+                const userCard = document.createElement('div');
+                userCard.className = 'autolent-user-card';
+                
+                // Создаем список топ-3 карт
+                const topCards = Object.entries(userData.cards)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 3);
+                
+                let cardsHTML = '';
+                topCards.forEach(([cardName, count]) => {
+                    const emoji = cardEmojis[cardName] || '🃏';
+                    cardsHTML += `
+                        <div class="autolent-user-card-item">
+                            <div class="autolent-user-card-name">
+                                <span class="emoji" aria-hidden="true">${emoji}</span>
+                                <span>${cardName}</span>
+                            </div>
+                            <span class="autolent-user-card-count">${count}</span>
+                        </div>
+                    `;
+                });
+                
+                // Если карт больше 3, показываем количество остальных
+                const otherCardsCount = Object.keys(userData.cards).length - 3;
+                if (otherCardsCount > 0) {
+                    cardsHTML += `
+                        <div class="autolent-user-card-item">
+                            <div class="autolent-user-card-name">
+                                <span>📊</span>
+                                <span>Другие карты</span>
+                            </div>
+                            <span class="autolent-user-card-count">+${otherCardsCount} типов</span>
+                        </div>
+                    `;
+                }
+                
+                userCard.innerHTML = `
+                    <div class="autolent-user-name">
+                        👤 ${username}
+                        <span style="font-size: 0.9rem; color: var(--brand); background: rgba(73, 185, 255, 0.2); padding: 4px 12px; border-radius: 20px;">
+                            ${userData.total} карт
+                        </span>
+                    </div>
+                    ${cardsHTML}
+                `;
+                
+                userCard.style.cursor = 'pointer';
+                userCard.addEventListener('click', () => applyUserToInventory(username));
+
+                userResults.appendChild(userCard);
+            });
+        }
+    }
+    
+    
+    // Применить карты пользователя в Инвентарь (по клику на пользователя)
+    function applyUserToInventory(username) {
+        const userData = autolentResults.users[username];
+        if (!userData) return;
+
+        // Очищаем инвентарь и заполняем из парсинга
+        clearInventory();
+        const entries = Object.entries(userData.cards).sort((a,b)=>b[1]-a[1]);
+        entries.forEach(([cardName, count]) => {
+            addToInventory(cardName, count);
+        });
+        updateResultsFromInventory();
+
+        // Переключаемся на Инвентарь для наглядности
+        try {
+            const modeInventoryBtn = document.getElementById('modeInventoryBtn');
+            if (modeInventoryBtn) modeInventoryBtn.click();
+        } catch(e) {}
+
+        showNotification(`Инвентарь заполнен по пользователю: ${username}`, 'success');
+    }
+
+// Скачать результаты в TXT
+    function downloadAutolentResults(selectedUser = '') {
+        if (!autolentResults || autolentResults.totalCards === 0) {
+            showNotification('Нет данных для скачивания', 'warning');
+            return;
+        }
+        
+        let content = '=== РЕЗУЛЬТАТЫ ПАРСИНГА КАРТ ===\n';
+        content += `Сгенерировано: ${new Date().toLocaleString('ru-RU')}\n`;
+        content += '=================================\n\n';
+        
+        if (selectedUser) {
+            // Скачать только выбранного пользователя
+            const userData = autolentResults.users[selectedUser];
+            if (!userData) return;
+            
+            content += `ПОЛЬЗОВАТЕЛЬ: ${selectedUser}\n`;
+            content += `Всего карт: ${userData.total}\n\n`;
+            content += 'СПИСОК КАРТ:\n';
+            
+            const sortedCards = Object.entries(userData.cards)
+                .sort((a, b) => b[1] - a[1]);
+            
+            sortedCards.forEach(([cardName, count]) => {
+                const emoji = cardEmojis[cardName] || '🃏';
+                content += `${emoji} ${cardName} - ${count}\n`;
+            });
+        } else {
+            // Скачать всех пользователей
+            content += `ОБЩАЯ СТАТИСТИКА:\n`;
+            content += `• Уникальных пользователей: ${autolentResults.totalUsers}\n`;
+            content += `• Всего карт: ${autolentResults.totalCards}\n`;
+            content += `• Типов карт: ${Object.keys(autolentResults.cards).length}\n\n`;
+            
+            content += 'КАРТЫ ПО ТИПАМ:\n';
+            const sortedCards = Object.entries(autolentResults.cards)
+                .sort((a, b) => b[1].total - a[1].total);
+            
+            sortedCards.forEach(([cardName, cardData]) => {
+                const emoji = cardEmojis[cardName] || '🃏';
+                content += `${emoji} ${cardName}: ${cardData.total} карт\n`;
+            });
+            
+            content += '\n\nКАРТЫ ПО ПОЛЬЗОВАТЕЛЯМ:\n';
+            const sortedUsers = Object.entries(autolentResults.users)
+                .sort((a, b) => b[1].total - a[1].total);
+            
+            sortedUsers.forEach(([username, userData]) => {
+                content += `\n--- ${username} (${userData.total} карт) ---\n`;
+                
+                const sortedUserCards = Object.entries(userData.cards)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                sortedUserCards.forEach(([cardName, count]) => {
+                    const emoji = cardEmojis[cardName] || '🃏';
+                    content += `  ${emoji} ${cardName}: ${count}\n`;
+                });
+            });
+        }
+        
+        // Создаем blob и ссылку для скачивания
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = selectedUser ? `карты_${selectedUser}.txt` : 'все_карты.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('Файл скачан', 'success');
+    }
+    
+    // Загрузить файл
+    function handleFileUpload(file) {
+        if (!file || !file.name.endsWith('.txt')) {
+            showNotification('Выберите TXT файл', 'warning');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            document.getElementById('autolentText').value = text;
+            
+            // Показываем информацию о загруженном файле
+            const uploadInfo = document.getElementById('autolentUploadInfo');
+            const uploadInfoText = document.getElementById('autolentUploadInfoText');
+            uploadInfoText.textContent = `Загружен файл: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+            uploadInfo.classList.add('visible');
+            
+            showNotification(`Файл "${file.name}" загружен`, 'success');
+        };
+        reader.readAsText(file);
+    }
+    
+    // ============== ИНИЦИАЛИЗАЦИЯ ==============
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация переключения режимов
+const modeInventoryBtn = document.getElementById('modeInventoryBtn');
+        const modeParserBtn = document.getElementById('modeParserBtn');
+        const modeCardInfoBtn = document.getElementById('modeCardInfoBtn');
+const contentInventory = document.getElementById('contentInventory');
+        const contentParser = document.getElementById('contentParser');
+        const contentCardInfo = document.getElementById('contentCardInfo');
+        
+        function switchMode(mode) {
+            // Сбрасываем активные классы
+modeInventoryBtn.classList.remove('active');
+            modeParserBtn.classList.remove('active');
+            modeCardInfoBtn.classList.remove('active');
+contentInventory.classList.remove('active');
+            contentParser.classList.remove('active');
+            contentCardInfo.classList.remove('active');
+            
+            // Устанавливаем активный режим
+            if (mode === 'inventory') {
+                modeInventoryBtn.classList.add('active');
+                contentInventory.classList.add('active');
+            } else if (mode === 'parser') {
+                modeParserBtn.classList.add('active');
+                contentParser.classList.add('active');
+            } else if (mode === 'cardinfo') {
+                modeCardInfoBtn.classList.add('active');
+                contentCardInfo.classList.add('active');
+            }
+            
+            // Обновляем результаты в зависимости от режима
+            if (mode === 'inventory') {
+                updateResultsFromInventory();
+                renderInventoryReferenceGrouped();
+            }
+        }
+modeInventoryBtn.addEventListener('click', () => switchMode('inventory'));
+        modeParserBtn.addEventListener('click', () => switchMode('parser'));
+        modeCardInfoBtn.addEventListener('click', () => switchMode('cardinfo'));
+
+        // Инвентарь: быстрый поиск по справочнику (обычные / активации / нарушения)
+        const inventorySearch = document.getElementById('inventorySearch');
+        if (inventorySearch) {
+            
+// Debounce для поиска (мобильные устройства)
+let __invSearchTimer = null;
+inventorySearch.addEventListener('input', () => {
+    if (__invSearchTimer) clearTimeout(__invSearchTimer);
+    __invSearchTimer = setTimeout(() => {
+        renderInventoryReferenceGrouped();
+    }, 250);
+});
+}
+        // Рендер справочника при загрузке страницы
+        renderInventoryReferenceGrouped();
+
+
+        
+        // Инициализация времени
+        function updateMoscowTime() {
+            const now = new Date();
+            const moscowTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+            
+            const hours = moscowTime.getHours().toString().padStart(2, '0');
+            const minutes = moscowTime.getMinutes().toString().padStart(2, '0');
+            const seconds = moscowTime.getSeconds().toString().padStart(2, '0');
+            
+            document.getElementById('timeDisplay').textContent = `${hours}:${minutes}:${seconds}`;
+            
+            // Проверка на ночное время
+            const nightWarning = document.getElementById('nightWarning');
+            if (moscowTime.getHours() >= 23 || moscowTime.getHours() < 6) {
+                nightWarning.classList.add('visible');
+            } else {
+                nightWarning.classList.remove('visible');
+            }
+        }
+        
+        updateMoscowTime();
+        setInterval(updateMoscowTime, 1000);
+        
+        // Инициализация инвентаря
+        const inventoryCardSelect = document.getElementById('inventoryCardSelect');
+        const inventoryCardCount = document.getElementById('inventoryCardCount');
+        const inventoryAddBtn = document.getElementById('inventoryAddBtn');
+        const inventoryClearBtn = document.getElementById('inventoryClearBtn');
+        
+        inventoryAddBtn.addEventListener('click', function() {
+            const cardName = inventoryCardSelect.value;
+            const count = parseInt(inventoryCardCount.value) || 1;
+            
+            addToInventory(cardName, count);
+            
+            // Сбрасываем форму
+            inventoryCardSelect.value = '';
+            inventoryCardCount.value = '1';
+        });
+        
+        inventoryClearBtn.addEventListener('click', clearInventory);
+        
+        // Обработчик для Enter в поле количества
+        inventoryCardCount.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                inventoryAddBtn.click();
+            }
+        });
+        // Инициализация Базы знаний
+        const cardInfoSelect = document.getElementById('cardInfoSelect');
+
+        // Автопоказ информации при выборе карты
+        cardInfoSelect.addEventListener('change', function() {
+            const cardName = this.value;
+            if (cardName) showCardInfo(cardName);
+        });
+
+        // Инициализация АвтоЛень
+        const autolentText = document.getElementById('autolentText');
+        const autolentParseBtn = document.getElementById('autolentParseBtn');
+        const autolentClearBtn = document.getElementById('autolentClearBtn');
+        const autolentDownloadAllBtn = document.getElementById('autolentDownloadAllBtn');
+        const autolentDownloadSelectedBtn = document.getElementById('autolentDownloadSelectedBtn');
+        const autolentUserSelect = document.getElementById('autolentUserSelect');
+        const autolentToggleReferenceBtn = document.getElementById('autolentToggleReferenceBtn');
+        const autolentHideReferenceBtn = document.getElementById('autolentHideReferenceBtn');
+        const autolentReferenceSection = document.getElementById('autolentReferenceSection');
+        const autolentFileInput = document.getElementById('autolentFileInput');
+        const autolentClearUploadInfo = document.getElementById('autolentClearUploadInfo');
+        const autolentUploadInfo = document.getElementById('autolentUploadInfo');
+        
+        // Обработчик парсинга
+        autolentParseBtn.addEventListener('click', function() {
+            const text = autolentText.value.trim();
+            if (!text) {
+                showNotification('Введите текст для анализа', 'warning');
+                return;
+            }
+            
+            const success = parseAutolentText(text);
+            if (success) {
+                showAutolentResults();
+            } else {
+                showNotification('Не удалось распознать карты в тексте', 'error');
+            }
+        });
+        
+        // Очистить поле
+        autolentClearBtn.addEventListener('click', function() {
+            autolentText.value = '';
+            document.getElementById('autolentResults').classList.remove('visible');
+            document.getElementById('autolentQuickDownload').classList.remove('visible');
+            document.getElementById('autolentUserSelector').classList.remove('visible');
+            autolentUploadInfo.classList.remove('visible');
+            showNotification('Поле очищено', 'info');
+        });
+        
+        // Скачать всех
+        autolentDownloadAllBtn.addEventListener('click', function() {
+            downloadAutolentResults('');
+        });
+        
+        // Скачать выбранного пользователя
+        autolentDownloadSelectedBtn.addEventListener('click', function() {
+            const selectedUser = autolentUserSelect.value;
+            if (!selectedUser) {
+                showNotification('Выберите пользователя из списка', 'warning');
+                return;
+            }
+            downloadAutolentResults(selectedUser);
+        });
+        
+        // Обработчик выбора пользователя
+        autolentUserSelect.addEventListener('change', function() {
+            showSelectedUser(this.value);
+        });
+        
+        // Показать/скрыть памятку
+        if (autolentToggleReferenceBtn) {
+        autolentToggleReferenceBtn.addEventListener('click', function() {
+            autolentReferenceSection.classList.add('visible');
+        });
+        }
+        
+        autolentHideReferenceBtn.addEventListener('click', function() {
+            autolentReferenceSection.classList.remove('visible');
+        });
+        
+        // Обработчик загрузки файла
+        autolentFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        });
+        
+        // Очистить информацию о загрузке
+        autolentClearUploadInfo.addEventListener('click', function() {
+            autolentUploadInfo.classList.remove('visible');
+        });
+        
+        // Просто показываем пустой placeholder
+        setTimeout(() => {
+            if (!autolentText.value.trim()) {
+                autolentText.placeholder = "Вставьте сюда текст с постами, содержащими списки карточек...\n\nПример:\n🎴Карты Активаций\n🚨Рубиновая\n🇩🇪Балтик - 1\n\n🀄️Обычные\n☑️Серая\nОксана - 1\nОксана🇷🇺 - 2\nОксана🇰🇿 - 1\n🟦Синяя\nОксана - 1";
+            }
+        }, 500);
+    });
+  
+// === Worker Inventory Auto-Load (inv.v1) ===
+const WORKER_INVENTORY_URL = "https://noisy-grass-2be4.nurlinec.workers.dev/api/inventory";
+
+function invV1CardKeyToName(inv) {
+  const map = Object.create(null);
+  if (inv && Array.isArray(inv.cardCatalog)) {
+    for (const c of inv.cardCatalog) {
+      if (c && c.cardKey && c.cardName) map[c.cardKey] = c.cardName;
+    }
+  }
+  return map;
+}
+
+function invV1NormalizeError(data) {
+  if (!data) return "Пустой ответ воркера";
+  const err = data.error;
+  if (!err) return "Некорректный ответ воркера";
+  if (typeof err === "string") return err;
+  if (err && typeof err === "object") {
+    if (typeof err.message === "string" && err.message.trim()) return err.message;
+    if (typeof err.code === "string" && err.code.trim()) return err.code;
+  }
+  try { return JSON.stringify(err); } catch (_) { return String(err); }
+}
+
+function buildAutolentResultsFromInvV1(payload) {
+  const inv = payload && payload.inventory ? payload.inventory : null;
+  const nameMap = invV1CardKeyToName(inv);
+
+  const res = { users: {}, cards: {}, totalCards: 0, totalUsers: 0 };
+  if (!inv || !Array.isArray(inv.users)) return res;
+
+  for (const u of inv.users) {
+    const uname = String((u && (u.name || u.key)) || "").trim();
+    if (!uname) continue;
+
+    if (!res.users[uname]) res.users[uname] = { cards: {}, total: 0, active: [] };
+
+    const counts = (u && u.counts) ? u.counts : {};
+    for (const k of Object.keys(counts)) {
+      const n = Number(counts[k]);
+      if (!Number.isFinite(n) || n <= 0) continue;
+
+      const cardName = nameMap[k] || k;
+      res.users[uname].cards[cardName] = (res.users[uname].cards[cardName] || 0) + n;
+      res.users[uname].total += n;
+
+      if (!res.cards[cardName]) res.cards[cardName] = { total: 0, users: {} };
+      res.cards[cardName].total += n;
+      res.cards[cardName].users[uname] = (res.cards[cardName].users[uname] || 0) + n;
+
+      res.totalCards += n;
+    }
+
+    if (u && Array.isArray(u.active)) {
+      for (const a of u.active) {
+        const aName = String((a && (a.cardName || nameMap[a.cardKey] || a.cardKey)) || "").trim();
+        const aText = String((a && (a.text || a.untilText)) || "").trim();
+        if (!aName) continue;
+        res.users[uname].active.push({ cardName: aName, text: aText, type: String((a && a.type) || "").trim() });
+      }
+    }
+  }
+
+  res.totalUsers = Object.keys(res.users).length;
+  return res;
+}
+
+async function loadWorkerInventoryToAutoLent(options) {
+  const statusEl = document.getElementById("tgLoadStatus");
+  const btn = document.getElementById("loadFromTelegramBtn");
+  const setStatus = (msg) => { if (statusEl) statusEl.textContent = msg; };
+
+  const force = !!(options && options.force);
+  const url = WORKER_INVENTORY_URL + (force ? "?force=1" : "");
+
+  try {
+    if (btn) btn.disabled = true;
+    setStatus(force ? "Обновляю данные (force=1)…" : "Загружаю инвентарь из Worker…");
+
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+
+    const data = await r.json();
+    if (!data || !data.ok) throw new Error(invV1NormalizeError(data));
+
+    window.autolentResults = buildAutolentResultsFromInvV1(data);
+
+    if (!window.autolentResults.totalUsers) {
+      throw new Error("Инвентарь пуст (0 пользователей)");
+    }
+
+    setStatus("Инвентарь загружен. Обновляю список…");
+    if (typeof showAutolentResults === "function") {
+      showAutolentResults();
+    }
+    setStatus("Готово.");
+  } catch (e) {
+    const msg = (e && e.message) ? e.message : String(e);
+    setStatus("Ошибка автозагрузки: " + msg);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("loadFromTelegramBtn");
+  if (btn) {
+    btn.addEventListener("click", (ev) => {
+      // Shift+Click: принудительное обновление кэша воркера
+      loadWorkerInventoryToAutoLent({ force: !!(ev && ev.shiftKey) });
+    });
+  }
+});
+</script>
+</body>
+</html>
