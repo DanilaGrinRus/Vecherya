@@ -100,9 +100,10 @@
     };
     
     // Тип забирания карты
-    
-    // База знаний о картах (из предоставленных правил)
-    const cardDatabase = {
+    // ========== База знаний (data-driven) ==========
+    // Источник истины: /data/cards_registry.json (GitHub Pages).
+    // Встроенная база ниже используется только как fallback, если JSON не загрузился.
+    const FALLBACK_CARD_DATABASE = {
         'Джекпот': {
             effects: 'Вам выпадает 12 карт: 🔲🅱️🌈💎🟧⬜️🎦🎹Ⓜ️♎️♻️🚨, плюс 30 🧿 ТВ колёс и 🎲♦️.',
             application: 'После распаковки. 🎲♦️ кости играют сразу до распаковки (2️⃣ кубика с коэффициентом 1–(+1)).',
@@ -628,6 +629,54 @@
             formula: 'Нет',
             description: 'Опасная карта завершения эфира: обнуляет запасное время и выдаёт 🅾️ и 🧿.'
         }};
+    let cardDatabase = { ...FALLBACK_CARD_DATABASE };
+
+    async function loadCardRegistryFromJson() {
+        try {
+            const url = './data/cards_registry.json?v=' + Date.now();
+            const res = await fetch(url, { cache: 'no-store' });
+            if (!res.ok) throw new Error('cards_registry.json HTTP ' + res.status);
+            const payload = await res.json();
+            if (!payload || !Array.isArray(payload.cards)) throw new Error('cards_registry.json: invalid format');
+            const nextDb = {};
+            for (const c of payload.cards) {
+                if (!c || !c.name) continue;
+                // Нормализуем поля, чтобы UI не падал на отсутствующих ключах
+                nextDb[c.name] = {
+                    effects: c.effects ?? 'Нет данных',
+                    application: c.application ?? 'Нет данных',
+                    obtain: c.obtain ?? 'Нет данных',
+                    features: c.features ?? 'Нет данных',
+                    removes: c.removes ?? 'Нет',
+                    takenBy: c.takenBy ?? c.type ?? 'other',
+                    sale: c.sale ?? 'Нет',
+                    transfer: c.transfer ?? 'Нет',
+                    conversion: c.conversion ?? 'Нет',
+                    protection: c.protection ?? 'Нет',
+                    cannotUse: c.cannotUse ?? 'Нет',
+                    formula: c.formula ?? 'Нет',
+                    description: c.description ?? ''
+                };
+            }
+            // Подменяем базу знаний
+            cardDatabase = nextDb;
+            // Подмешиваем категории из type/takenBy, если в UI нет явного маппинга
+            if (typeof cardCategories === 'object' && cardCategories) {
+                for (const [name, c] of Object.entries(nextDb)) {
+                    if (!cardCategories[name]) {
+                        cardCategories[name] = (c.takenBy === 'activation') ? 'activation' :
+                                            (c.takenBy === 'violation') ? 'violation' :
+                                            (c.takenBy === 'danger') ? 'danger' :
+                                            (c.takenBy === 'super') ? 'super' : 'other';
+                    }
+                }
+            }
+        } catch (e) {
+            // Фоллбек: остаёмся на встроенной базе знаний
+            console.warn('Не удалось загрузить /data/cards_registry.json, использую fallback базу:', e);
+        }
+    }
+
 
     // ============== ИНВЕНТАРЬ: СПРАВОЧНИК КАРТ (СГРУППИРОВАННЫЙ) ==============
     function getCardGroupTitle(type) {
@@ -804,6 +853,9 @@
             if (count > 0) {
                 hasCards = true;
                 totalCards += count;
+            if (cardName !== 'Комиссия') {
+                totalGreyEq += (greyEqPerCard[cardName] || 0) * count;
+            }
                 
                 const emoji = cardEmojis[cardName] || '🃏';
                 
@@ -910,7 +962,7 @@
             return;
         }
         
-        let totalValue = 0;
+        let totalGreyEq = 0;
         let totalCards = 0;
         let totalTypes = Object.keys(inventory).length;
         
@@ -918,15 +970,26 @@
         html += '<h4 style="background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand) 45%, var(--brand-light) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 15px;">📦 Ваш инвентарь</h4>';
         
         // Сортируем карты по стоимости (от дорогих к дешевым)
+        const greyEqPerCard = {
+            'Рубиновая': 144,
+            'Изумрудная': 48,
+            'Золотая': 24,
+            'Белая': 12,
+            'Зелёная': 6,
+            'Синяя': 3,
+            'Серая': 1
+        };
+
         const sortedCards = Object.keys(inventory).sort((a, b) => {
             return calculateCardCost(b) - calculateCardCost(a);
         });
         
         sortedCards.forEach(cardName => {
             const count = inventory[cardName];
-            const cardValue = calculateCardCost(cardName) * count;
-            totalValue += cardValue;
             totalCards += count;
+            if (cardName !== 'Комиссия') {
+                totalGreyEq += (greyEqPerCard[cardName] || 0) * count;
+            }
             const emoji = cardEmojis[cardName] || '🃏';
             
             html += `
@@ -937,66 +1000,35 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <span style="font-weight: 700; color: var(--brand);">${count} шт.</span>
-                        <span style="font-size: 0.85rem; color: var(--text-secondary);">(${cardValue} 🔘)</span>
                     </div>
                 </div>
             `;
         });
         
-        // Добавим итоговую стоимость и варианты сборки
+        // Добавим итоговую сводку (разбор до серых, без комиссии)
         html += `
             <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid var(--brand);">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                     <span style="color: var(--text);">Всего карт:</span>
                     <span style="font-weight: 700; color: var(--brand);">${totalCards} шт.</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <span style="color: var(--text);">Общая стоимость:</span>
-                    <span style="font-weight: 700; color: var(--brand);">${totalValue} 🔘</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span style="color: var(--text);">Эквивалент в серых (без комиссии):</span>
+                    <span style="font-weight: 700; color: var(--brand);">${totalGreyEq} ☑️</span>
                 </div>
-        `;
-        
-        // Покажем, что можно собрать из этого
-        if (totalValue > 0) {
-            const valuableCards = [
-                { name: 'Рубиновая', emoji: '🚨', value: 288 },
-                { name: 'Изумрудная', emoji: '💎', value: 96 },
-                { name: 'Золотая', emoji: '🟧', value: 48 },
-                { name: 'Белая', emoji: '⬜️', value: 24 },
-                { name: 'Зелёная', emoji: '🟩', value: 12 },
-                { name: 'Синяя', emoji: '🟦', value: 6 },
-                { name: 'Серая', emoji: '☑️', value: 2 }
-            ];
-            
-            let hasValuableCards = false;
-            
-            valuableCards.forEach(card => {
-                const amount = Math.floor(totalValue / card.value);
-                
-                if (amount > 0) {
-                    if (!hasValuableCards) {
-                        html += `<div style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);">Можно собрать:</div>`;
-                        hasValuableCards = true;
-                    }
-                    
-                    html += `
-                        <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(73, 185, 255, 0.1); border-radius: 6px; margin-bottom: 5px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span>${card.emoji}</span>
-                                <span style="color: var(--text);">${card.name}</span>
-                            </div>
-                            <span style="font-weight: 600; color: var(--brand);">${amount} шт.</span>
-                        </div>
-                    `;
-                }
-            });
-        }
-        
-        html += `
+
+                <div style="margin-top: 10px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 6px;">🧾 Памятка разбора (до серых)</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.35;">
+                        1 🚨 = 3 💎 = 6 🟧 = 12 ⬜️ (Белая) = 24 🟩 = 48 🟦 = 144 ☑️ (Серая, базовая)
+                        <br>1 💎 = 2 🟧 · 1 🟧 = 2 ⬜️ · 1 ⬜️ = 2 🟩 · 1 🟩 = 2 🟦 · 1 🟦 = 3 ☑️
+                        <br>1 ☑️ = 2 🔘 (Комиссия — обратно в ☑️ не собирается)
+                    </div>
+                </div>
             </div>
         `;
-        
-        html += '</div>';
+
+html += '</div>';
         resultsContainer.innerHTML = html;
     }
     
@@ -1948,7 +1980,9 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadCardRegistryFromJson();
+
       const btn = document.getElementById('loadFromTelegramBtn');
       if (btn) btn.addEventListener('click', loadTelegramIntoAutoLent);
     });
