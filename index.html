@@ -1611,14 +1611,6 @@
 
   return (flagPrefix + s).trim();
 }
-                // Если после "Павел" идут только коды/сокращения — считаем это тем же Павлом
-                if (parts.length === 1 || parts.slice(1).every(p => codes.has(p.toUpperCase()))) {
-                    return 'Павел';
-                }
-            }
-
-            return s;
-        }
 
         // Убираем дублирование текста (иногда пост приходит дважды подряд)
         function dedupeTelegramPost(rawText) {
