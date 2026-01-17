@@ -6,7 +6,8 @@
         <meta name="description" content="Калькулятор и автопарсер инвентаря карт для игры «Капитализм и Коммунизм» на стриме: подсчёт карт по редкостям, активные карты, поиск и автозаполнение.">
 <title>Калькулятор инвентаря карт — «Капитализм и Коммунизм» (Vecherya)</title>
     
-    <link rel="stylesheet" href="styles_vecherya.css">
+    <!-- Cache-bust для GitHub Pages: меняй версию при релизах, чтобы не ловить старый CSS/JS из кеша -->
+    <link rel="stylesheet" href="styles_vecherya.css?v=2026-01-17">
 </head>
 
 <body>
@@ -240,6 +241,9 @@
 </main>
 
 <footer class="footer">
+      <div style="font-size:0.85rem;opacity:0.9">
+        UI build: 2026-01-17 · API: noisy-grass-2be4.nurlinec.workers.dev
+      </div>
       <p style="margin-top:8px;font-size:0.8rem;opacity:0.8">2026 год от Рождества Христова</p>
     </footer>
   </div>
@@ -247,6 +251,7 @@
   <!-- Контейнер для уведомлений -->
   <div id="notificationContainer"></div>
 
-  <script src="app_vecherya.js" defer></script>
+  <!-- Cache-bust для GitHub Pages: меняй версию при релизах -->
+  <script src="app_vecherya.js?v=2026-01-17" defer></script>
 </body>
 </html>
