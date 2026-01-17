@@ -3899,13 +3899,13 @@ async function loadTelegramIntoAutoLent() {
   try {
     const now = Date.now();
     if (now - __tgLoadLastTs < 10000) {
-      setStatus("Харе блядь тыкать — интернет не резиновый. Подожди 10 секунд.");
+      setStatus("Харе, блядь, тыкать. Интернет не резиновый, когда ИИ восстанет тебя внесут в список на расстрел.");
       return;
     }
     __tgLoadLastTs = now;
 
     if (btn) btn.disabled = true;
-    setStatus("Загружаю текст из Telegram…");
+    setStatus("Ебашу магию…");
 
     const r = await fetch(TG_TEXT_URL, { cache: "no-store" });
 
@@ -3940,3 +3940,4 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
+
