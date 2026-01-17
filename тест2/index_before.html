@@ -35,18 +35,6 @@
         <div class="inventory-container">
           <h3 class="inventory-title">Режим "Инвентарь"</h3>
           <p class="inventory-subtitle">Добавляйте карты вручную для подсчёта общего количества</p>
-
-          <div class="inventory-modebar" id="inventoryModeBar" role="group" aria-label="Режим инвентаря">
-            <button type="button" class="inventory-modebtn active" id="inventoryModeMainBtn">Основной инвентарь</button>
-            <button type="button" class="inventory-modebtn" id="inventoryModeSandboxBtn">Песочница</button>
-            <div class="inventory-modebadge" id="inventoryModeBadge" style="display:none;">🧪 Песочница — изменения не применяются автоматически</div>
-          </div>
-
-          <div class="inventory-sandbox-actions" id="inventorySandboxActions" style="display:none;">
-            <button type="button" class="inventory-btn" id="sandboxCopyFromMainBtn">Скопировать из основного</button>
-            <button type="button" class="inventory-btn" id="sandboxClearBtn">Очистить песочницу</button>
-            <button type="button" class="inventory-btn" id="sandboxApplyToMainBtn">Применить результат в основной (дельта)</button>
-          </div>
           
           <div class="inventory-reference" id="inventoryReference">
             <div class="inventory-reference-header">
@@ -74,7 +62,7 @@
                 <option value="Магнит">Ⓜ️ Магнит</option>
                 <option value="Бита">🅱️ Бита</option>
                 <option value="Страшный Суд">♎️ Страшный Суд</option>
-                <option value="Конвертер">♻️ Конвертер</option>
+                <option value="Конвертер">♻️🎴 Конвертер</option>
                 <option value="Джокер">🃏 Джокер</option>
                 <option value="Пацифик">☮️ Пацифик</option>
                 <option value="Пергамент">📜 Пергамент</option>
@@ -102,55 +90,6 @@
           <div class="inventory-summary" id="inventorySummary" style="display: none;">
             <div class="inventory-total">Всего карт: <span id="inventoryTotalCount">0</span></div>
             <button class="inventory-clear-btn" id="inventoryClearBtn">Очистить инвентарь</button>
-          </div>
-
-          <!-- Tools always available in Inventory mode (even without parser) -->
-          <div class="inventory-tools" id="inventoryTools">
-            <div class="inventory-tools-grid">
-              <div class="inventory-tools-card" id="inventoryMemoBox">
-                <div class="inventory-tools-title">🧾 Памятка</div>
-                <div class="inventory-tools-text" id="inventoryMemoText"></div>
-              </div>
-
-              <div class="inventory-tools-card" id="inventorySummaryBox">
-                <div class="inventory-tools-title">📌 Краткая сводка</div>
-                <div class="inventory-tools-text" id="inventoryShortSummary"></div>
-              </div>
-            </div>
-
-            <div class="inventory-tools-card" style="margin-top: 14px;">
-              <div class="inventory-tools-title">🧩 Сборка и разборка</div>
-
-              <div class="inventory-tools-split">
-                <div class="inventory-tools-sub">
-                  <div class="inventory-tools-subtitle">Сборка из текущего инвентаря</div>
-                  <div class="inventory-tools-hint">Показывает, что можно собрать прямо сейчас (максимально возможное количество по рецептам).</div>
-                  <div id="inventoryCraftList" class="inventory-tools-list"></div>
-                </div>
-
-                <div class="inventory-tools-sub">
-                  <div class="inventory-tools-subtitle">Калькулятор рецепта</div>
-                  <div class="inventory-tools-hint">Выберите карту и узнайте её рецепт, а также сколько раз она собирается из инвентаря.</div>
-                  <div class="inventory-tools-controls">
-                    <select id="inventoryRecipeSelect" class="inventory-select">
-                      <option value="">Выберите карту/рецепт</option>
-                    </select>
-                    <button class="inventory-btn" id="inventoryRecipeCalcBtn" type="button">Посчитать</button>
-                  </div>
-                  <div id="inventoryRecipeResult" class="inventory-tools-text" style="margin-top: 10px;"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="inventory-tools-card" id="sandboxOptimizeBox" style="margin-top: 14px; display:none;">
-              <div class="inventory-tools-title">🧪 Автопоиск оптимальной сборки (Песочница)</div>
-              <div class="inventory-tools-hint">Строит детерминированный план сборок по рецептам, используя текущий инвентарь песочницы как вход. Не изменяет инвентарь, пока вы явно не примените план.</div>
-              <div class="inventory-tools-controls" style="margin-top: 10px;">
-                <button class="inventory-btn" id="sandboxOptimizeBtn" type="button">Найти оптимальную сборку</button>
-                <button class="inventory-btn" id="sandboxOptimizeApplyBtn" type="button" style="display:none;">Применить план к песочнице</button>
-              </div>
-              <div id="sandboxOptimizeResult" class="inventory-tools-text" style="margin-top: 10px;"></div>
-            </div>
           </div>
         </div>
       </div>
@@ -226,59 +165,58 @@
           <p style="color: var(--text-secondary); margin-bottom: 30px;">Выберите карту для просмотра полной информации о её свойствах, применении и сборке</p>
           
           <select id="cardInfoSelect" style="max-width: 400px; margin: 0 auto 30px;">
-    <option value="">Выберите карту для просмотра информации</option>
-    <optgroup label="🀄️ Обычные карты">
-        <option value="Комиссия">🔘 Комиссия</option>
-        <option value="Серая">☑️ Серая карта</option>
-        <option value="Синяя">🟦 Синяя карта</option>
-        <option value="Зелёная">🟩 Зелёная карта</option>
-        <option value="Белая">⬜️ Белая карта</option>
-        <option value="Золотая">🟧 Золотая карта</option>
-        <option value="Изумрудная">💎 Изумрудная карта</option>
-        <option value="Рубиновая">🚨 Рубиновая карта</option>
-    </optgroup>
-    <optgroup label="🎴 Карты Активаций">
-        <option value="Магнит">Ⓜ️ Магнит</option>
-        <option value="Бита">🅱️ Бита</option>
-        <option value="Страшный Суд">♎️ Страшный Суд</option>
-        <option value="Конвертер">♻️ Конвертер</option> 
-        <option value="Джокер">🃏 Дуэт Джокер</option>
-        <option value="Пацифик">☮️ Пацифик</option>
-        <option value="Пергамент">📜 Пергамент</option>
-        <option value="Антиэкран">🚾 Антиэкран</option>
-        <option value="Чёрно-Белая">🔲 Чёрно-Белая карта</option>
-        <option value="Радужная">🏳️‍🌈 Радужная карта</option>
-        <option value="Карта Контента">🎦 Карта Контента</option>
-        <option value="Музыкальная карта">🎹 Музыкальная карта</option>
-        <option value="Кость">🎲 Кость</option> 
-        <option value="Рубиновая Кость">♦️ Рубиновая Кость</option> 
-    </optgroup>
-    <optgroup label="🧧 Карты нарушений">
-        <option value="Розовая">🟪 Розовая карта</option>
-        <option value="Красная">🟥 Красная карта</option>
-        <option value="Жёлтая">🟨 Жёлтая карта</option>
-        <option value="Чёрная">⬛️ Чёрная карта</option>
-        <option value="Коричневая">🟫 Коричневая карта</option>
-        <option value="Обнуление">🅾️ Карта обнуления</option>
-        <option value="Заморозка">💠 Заморозка</option> 
-    </optgroup>
-    <optgroup label="📱 Опасные карты">
-        <option value="Банкрот">⚫️ Банкрот</option> 
-        <option value="Экстерминатус">💣 Экстерминатус</option> 
-        <option value="Грабители">🥷 Грабители</option>
-    </optgroup>
-    <optgroup label="🪟 Супер карты">
-        <option value="Джекпот">🎰 Джекпот</option>
-        <option value="Сладкий подарок">🍫 Сладкий подарок</option>
-        <option value="Супер подарок">🎁 Супер подарок</option>
-        <option value="Хамелеон">🦎 Хамелеон</option>
-        <option value="Храм">🛐 Храм</option>
-        <option value="Банк">🏧 Банк</option>
-        <option value="Ведро Егора">🪣 Ведро Егора</option> 
-        <option value="Преисподняя">🌋 Преисподняя</option> 
-        <option value="Грабители">🥷 Грабители</option> 
-    </optgroup>
-</select>
+            <option value="">Выберите карту для просмотра информации</option>
+            <optgroup label="🀄️ Обычные карты">
+              <option value="Комиссия">🔘 Комиссия</option>
+              <option value="Серая">☑️ Серая карта</option>
+              <option value="Синяя">🟦 Синяя карта</option>
+              <option value="Зелёная">🟩 Зелёная карта</option>
+              <option value="Белая">⬜️ Белая карта</option>
+              <option value="Золотая">🟧 Золотая карта</option>
+              <option value="Изумрудная">💎 Изумрудная карта</option>
+              <option value="Рубиновая">🚨 Рубиновая карта</option>
+            </optgroup>
+            <optgroup label="🎴 Карты Активаций">
+              <option value="Магнит">Ⓜ️ Магнит</option>
+              <option value="Бита">🅱️ Бита</option>
+              <option value="Страшный Суд">♎️ Страшный Суд</option>
+              <option value="Конвертер">♻️🎴 Конвертер</option>
+              <option value="Джокер">🃏 Дуэт Джокер</option>
+              <option value="Пацифик">☮️ Пацифик</option>
+              <option value="Пергамент">📜 Пергамент</option>
+              <option value="Антиэкран">🚾 Антиэкран</option>
+              <option value="Чёрно-Белая">🔲 Чёрно-Белая карта</option>
+              <option value="Радужная">🏳️‍🌈 Радужная карта</option>
+              <option value="Карта Контента">🎦 Карта Контента</option>
+              <option value="Музыкальная карта">🎹 Музыкальная карта</option>
+              <option value="Кость">🎲🎴 Кость</option>
+              <option value="Рубиновая Кость">♦️🎴 Рубиновая Кость</option>
+            </optgroup>
+            <optgroup label="🧧 Карты нарушений">
+              <option value="Розовая">🟪 Розовая карта</option>
+              <option value="Красная">🟥 Красная карта</option>
+              <option value="Жёлтая">🟨 Жёлтая карта</option>
+              <option value="Чёрная">⬛️ Чёрная карта</option>
+              <option value="Коричневая">🟫 Коричневая карта</option>
+              <option value="Обнуление">🅾️ Карта обнуления</option>
+              <option value="Заморозка">💠🧧 Заморозка</option>
+            </optgroup>
+            <optgroup label="📱 Опасные карты">
+              <option value="Банкрот">⚫️📱 Банкрот</option>
+              <option value="Экстерминатус">💣📱 Экстерминатус</option>
+            </optgroup>
+            <optgroup label="🪟 Супер карты">
+              <option value="Джекпот">🎰🪟 Джекпот</option>
+              <option value="Сладкий подарок">🍫 Сладкий подарок</option>
+              <option value="Супер подарок">🎁 Супер подарок</option>
+              <option value="Хамелеон">🦎 Хамелеон</option>
+              <option value="Храм">🛐 Храм</option>
+              <option value="Банк">🏧 Банк</option>
+              <option value="Ведро Егора">🪣🪟 Ведро Егора</option>
+              <option value="Преисподняя">🌋📱 Преисподняя</option>
+              <option value="Грабители">🥷📱 Грабители</option>
+            </optgroup>
+          </select>
         </div>
         
         <div id="cardInfoContainer" class="card-info-container" style="display: none;">
@@ -320,5 +258,11 @@
 
 <div class="inventory-updated" id="inventoryLastUpdated">Инвентарь ещё не обновлялся</div>
 
+  <script src="engine/operators.js" defer></script>
+  <script src="engine/stateEngine.js" defer></script>
+  <script src="engine/containers.js" defer></script>
+  <script src="engine/resolver.js" defer></script>
+  <script src="engine/optimizer.js" defer></script>
+  <script src="engine/engine.js" defer></script>
 </body>
 </html>

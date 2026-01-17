@@ -9,44 +9,10 @@
 */
 
 (function(){
-  function isFileScheme(){
-    try { return String(window.location && window.location.protocol) === 'file:'; } catch { return false; }
-  }
-
-  function buildFallbackUrls(url){
-    const u = String(url||'');
-    const fallbacks = [u];
-
-    // If UI expects ./data/* but user keeps JSON in the project root, try root as fallback.
-    // Examples:
-    //  - ./data/rules_mapping.json -> ./rules_mapping.json
-    //  - data/cards_registry.json  -> cards_registry.json
-    const dataPrefixVariants = ['./data/', 'data/'];
-    for(const p of dataPrefixVariants){
-      if(u.startsWith(p)) fallbacks.push('./' + u.slice(p.length));
-    }
-    if(u.includes('/data/')) fallbacks.push(u.replace('/data/', '/'));
-
-    // Deduplicate while preserving order
-    return [...new Set(fallbacks)];
-  }
-
   async function loadJSON(url){
-    const candidates = buildFallbackUrls(url);
-    const errs = [];
-    for(const cu of candidates){
-      try {
-        const r = await fetch(cu, { cache: 'no-store' });
-        if(!r.ok) throw new Error(`HTTP ${r.status}`);
-        return await r.json();
-      } catch(e){
-        errs.push(`${cu} → ${String(e && e.message ? e.message : e)}`);
-      }
-    }
-    const hint = isFileScheme()
-      ? ' (file:// режим может блокировать загрузку JSON. Запустите локальный HTTP-сервер: python -m http.server 8000 или npx serve .)'
-      : '';
-    throw new Error(`Failed to load JSON: ${errs.join(' | ')}${hint}`);
+    const r = await fetch(url, { cache: 'no-store' });
+    if(!r.ok) throw new Error(`Failed to load ${url}: HTTP ${r.status}`);
+    return await r.json();
   }
 
   function buildRegistry(cards){

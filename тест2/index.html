@@ -35,18 +35,6 @@
         <div class="inventory-container">
           <h3 class="inventory-title">Режим "Инвентарь"</h3>
           <p class="inventory-subtitle">Добавляйте карты вручную для подсчёта общего количества</p>
-
-          <div class="inventory-modebar" id="inventoryModeBar" role="group" aria-label="Режим инвентаря">
-            <button type="button" class="inventory-modebtn active" id="inventoryModeMainBtn">Основной инвентарь</button>
-            <button type="button" class="inventory-modebtn" id="inventoryModeSandboxBtn">Песочница</button>
-            <div class="inventory-modebadge" id="inventoryModeBadge" style="display:none;">🧪 Песочница — изменения не применяются автоматически</div>
-          </div>
-
-          <div class="inventory-sandbox-actions" id="inventorySandboxActions" style="display:none;">
-            <button type="button" class="inventory-btn" id="sandboxCopyFromMainBtn">Скопировать из основного</button>
-            <button type="button" class="inventory-btn" id="sandboxClearBtn">Очистить песочницу</button>
-            <button type="button" class="inventory-btn" id="sandboxApplyToMainBtn">Применить результат в основной (дельта)</button>
-          </div>
           
           <div class="inventory-reference" id="inventoryReference">
             <div class="inventory-reference-header">
@@ -102,55 +90,6 @@
           <div class="inventory-summary" id="inventorySummary" style="display: none;">
             <div class="inventory-total">Всего карт: <span id="inventoryTotalCount">0</span></div>
             <button class="inventory-clear-btn" id="inventoryClearBtn">Очистить инвентарь</button>
-          </div>
-
-          <!-- Tools always available in Inventory mode (even without parser) -->
-          <div class="inventory-tools" id="inventoryTools">
-            <div class="inventory-tools-grid">
-              <div class="inventory-tools-card" id="inventoryMemoBox">
-                <div class="inventory-tools-title">🧾 Памятка</div>
-                <div class="inventory-tools-text" id="inventoryMemoText"></div>
-              </div>
-
-              <div class="inventory-tools-card" id="inventorySummaryBox">
-                <div class="inventory-tools-title">📌 Краткая сводка</div>
-                <div class="inventory-tools-text" id="inventoryShortSummary"></div>
-              </div>
-            </div>
-
-            <div class="inventory-tools-card" style="margin-top: 14px;">
-              <div class="inventory-tools-title">🧩 Сборка и разборка</div>
-
-              <div class="inventory-tools-split">
-                <div class="inventory-tools-sub">
-                  <div class="inventory-tools-subtitle">Сборка из текущего инвентаря</div>
-                  <div class="inventory-tools-hint">Показывает, что можно собрать прямо сейчас (максимально возможное количество по рецептам).</div>
-                  <div id="inventoryCraftList" class="inventory-tools-list"></div>
-                </div>
-
-                <div class="inventory-tools-sub">
-                  <div class="inventory-tools-subtitle">Калькулятор рецепта</div>
-                  <div class="inventory-tools-hint">Выберите карту и узнайте её рецепт, а также сколько раз она собирается из инвентаря.</div>
-                  <div class="inventory-tools-controls">
-                    <select id="inventoryRecipeSelect" class="inventory-select">
-                      <option value="">Выберите карту/рецепт</option>
-                    </select>
-                    <button class="inventory-btn" id="inventoryRecipeCalcBtn" type="button">Посчитать</button>
-                  </div>
-                  <div id="inventoryRecipeResult" class="inventory-tools-text" style="margin-top: 10px;"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="inventory-tools-card" id="sandboxOptimizeBox" style="margin-top: 14px; display:none;">
-              <div class="inventory-tools-title">🧪 Автопоиск оптимальной сборки (Песочница)</div>
-              <div class="inventory-tools-hint">Строит детерминированный план сборок по рецептам, используя текущий инвентарь песочницы как вход. Не изменяет инвентарь, пока вы явно не примените план.</div>
-              <div class="inventory-tools-controls" style="margin-top: 10px;">
-                <button class="inventory-btn" id="sandboxOptimizeBtn" type="button">Найти оптимальную сборку</button>
-                <button class="inventory-btn" id="sandboxOptimizeApplyBtn" type="button" style="display:none;">Применить план к песочнице</button>
-              </div>
-              <div id="sandboxOptimizeResult" class="inventory-tools-text" style="margin-top: 10px;"></div>
-            </div>
           </div>
         </div>
       </div>

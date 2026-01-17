@@ -739,544 +739,11 @@
         }
     }
 
-    // ===================== INVENTORY STATE: MAIN vs SANDBOX =====================
-    // inventoryMain is the "real" inventory (can be filled from parser / user selection)
-    // inventorySandbox is a safe playground for calculations.
-    let inventoryMain = {};
-    let inventorySandbox = {};
-    let inventoryMode = (localStorage.getItem('vecherya_inventory_mode') || 'main'); // 'main' | 'sandbox'
-
-    function getActiveInventory() {
-        return inventoryMode === 'sandbox' ? inventorySandbox : inventoryMain;
-    }
-
-    function setInventoryMode(mode) {
-        inventoryMode = (mode === 'sandbox') ? 'sandbox' : 'main';
-        localStorage.setItem('vecherya_inventory_mode', inventoryMode);
-        syncInventoryModeUI();
-        updateInventoryDisplay();
-    }
-
-    function syncInventoryModeUI() {
-        const mainBtn = document.getElementById('inventoryModeMainBtn');
-        const sandBtn = document.getElementById('inventoryModeSandboxBtn');
-        const badge = document.getElementById('inventoryModeBadge');
-        const actions = document.getElementById('inventorySandboxActions');
-        const optimizeBox = document.getElementById('sandboxOptimizeBox');
-        const container = document.querySelector('#contentInventory .inventory-container');
-
-        if (mainBtn) mainBtn.classList.toggle('active', inventoryMode === 'main');
-        if (sandBtn) sandBtn.classList.toggle('active', inventoryMode === 'sandbox');
-
-        if (badge) badge.style.display = (inventoryMode === 'sandbox') ? 'inline-block' : 'none';
-        if (actions) actions.style.display = (inventoryMode === 'sandbox') ? 'flex' : 'none';
-        if (optimizeBox) optimizeBox.style.display = (inventoryMode === 'sandbox') ? 'block' : 'none';
-        if (container) container.classList.toggle('sandbox-active', inventoryMode === 'sandbox');
-    }
-
-    // ============== ИНВЕНТАРЬ: ПАМЯТКА + СБОРКА/РАЗБОРКА + МИНИ-КАЛЬКУЛЯТОР ==============
-    const INVENTORY_MEMO_TEXT = [
-        '1 🚨 = 3 💎 = 6 🟧 = 12 ⬜️ = 24 🟩 = 48 🟦 = 144 ☑️ (Серая, базовая)',
-        '1 💎 = 2 🟧 · 1 🟧 = 2 ⬜️ · 1 ⬜️ = 2 🟩 · 1 🟩 = 2 🟦 · 1 🟦 = 3 ☑️',
-        '1 ☑️ = 2 🔘 (Комиссия — обратно в ☑️ не собирается)'
-    ].join('\n');
-
-    let __rulesMapping = { recipes: [] };
-    let __rulesMappingLoadError = null;
-
-    function isFileScheme() {
-        try { return String(window.location && window.location.protocol) === 'file:'; } catch { return false; }
-    }
-
-    async function fetchJsonFirstOk(urls) {
-        const errs = [];
-        for (const url of (urls || [])) {
-            try {
-                const r = await fetch(url, { cache: "no-store" });
-                if (!r.ok) throw new Error("HTTP " + r.status);
-                return await r.json();
-            } catch (e) {
-                errs.push(url + " → " + String(e && e.message ? e.message : e));
-            }
-        }
-        const msg = errs.length ? ("All candidates failed: " + errs.join(" | ")) : "No candidate URLs";
-        throw new Error(msg);
-    }
-
-    async function loadRulesMapping() {
-        __rulesMappingLoadError = null;
-        try {
-            const baseHref = (document.querySelector("base") && document.querySelector("base").href) ? document.querySelector("base").href : window.location.href;
-            const urlData = new URL("data/rules_mapping.json", baseHref).toString();
-            const urlRoot = new URL("rules_mapping.json", baseHref).toString();
-            const json = await fetchJsonFirstOk([urlData, urlRoot]);
-            if (json && Array.isArray(json.recipes)) {
-                __rulesMapping = json;
-                return;
-            }
-            throw new Error("Invalid rules_mapping.json schema (recipes[])");
-        } catch (e) {
-            const base = String(e && e.message ? e.message : e);
-            const hint = isFileScheme()
-                ? " (Локальный запуск через file:// часто блокирует fetch к JSON. Запустите локальный сервер: python -m http.server 8000 или npx serve .)"
-                : "";
-            __rulesMappingLoadError = base + hint;
-            __rulesMapping = { recipes: [] };
-        }
-    }
-
-    function getEmojiCountsFromInventory(inv) {
-        const out = {};
-        for (const [name, count] of Object.entries(inv || {})) {
-            if (!count || count <= 0) continue;
-            const em = cardEmojis[name];
-            if (!em) continue;
-            out[em] = (out[em] || 0) + count;
-        }
-        return out;
-    }
-
-    function countMultiset(arr) {
-        const m = {};
-        for (const x of (arr || [])) m[x] = (m[x] || 0) + 1;
-        return m;
-    }
-
-    function computeMaxCraftCount(recipe, emojiCounts) {
-        if (!recipe || !Array.isArray(recipe.inputs) || !recipe.output) return 0;
-        const need = countMultiset(recipe.inputs);
-        let k = Infinity;
-        for (const [emoji, req] of Object.entries(need)) {
-            const have = emojiCounts[emoji] || 0;
-            k = Math.min(k, Math.floor(have / req));
-            if (k === 0) return 0;
-        }
-        return Number.isFinite(k) ? k : 0;
-    }
-
-    function emojiToNameSafe(emoji) {
-        const hit = Object.entries(cardEmojis).find(([, e]) => e === emoji);
-        return hit ? hit[0] : '';
-    }
-
-    function formatRecipeLine(recipe) {
-        const outName = emojiToNameSafe(recipe.output) || recipe.name || 'Результат';
-        const outEmoji = recipe.output;
-        const need = countMultiset(recipe.inputs);
-        const parts = Object.entries(need)
-            .map(([e, n]) => `${e}×${n}`)
-            .join(' + ');
-        return { outName, outEmoji, parts };
-    }
-
-    function renderInventoryMemo() {
-        const memoEl = document.getElementById('inventoryMemoText');
-        if (!memoEl) return;
-        memoEl.innerHTML = INVENTORY_MEMO_TEXT
-            .split('\n')
-            .map(l => `<div>${l}</div>`)
-            .join('');
-    }
-
-    function renderInventoryRecipeSelect() {
-        const sel = document.getElementById('inventoryRecipeSelect');
-        if (!sel) return;
-
-        // Сохраняем выбранное значение
-        const prev = sel.value || '';
-
-        const recipes = Array.isArray(__rulesMapping.recipes) ? __rulesMapping.recipes : [];
-        const options = recipes
-            .map(r => {
-                const line = formatRecipeLine(r);
-                return {
-                    key: r.name || (line.outName + '|' + line.outEmoji),
-                    label: `${line.outEmoji} ${line.outName}`
-                };
-            })
-            .sort((a, b) => a.label.localeCompare(b.label, 'ru'));
-
-        if (!options.length) {
-            sel.disabled = true;
-            const err = __rulesMappingLoadError ? " (" + __rulesMappingLoadError + ")" : "";
-            sel.innerHTML = "<option value=\"\">Рецепты не загружены" + err + "</option>";
-            return;
-        }
-
-        sel.disabled = false;
-        sel.innerHTML = '<option value="">Выберите карту/рецепт</option>';
-        for (const o of options) {
-            const opt = document.createElement('option');
-            opt.value = o.key;
-            opt.textContent = o.label;
-            sel.appendChild(opt);
-        }
-
-        if (prev) sel.value = prev;
-    }
-
-    function getRecipeByKey(key) {
-        const recipes = Array.isArray(__rulesMapping.recipes) ? __rulesMapping.recipes : [];
-        return recipes.find(r => (r.name || '') === key) || null;
-    }
-
-    function renderInventoryShortSummary() {
-        const inventory = getActiveInventory();
-        const el = document.getElementById('inventoryShortSummary');
-        if (!el) return;
-
-        const emojiCounts = getEmojiCountsFromInventory(inventory);
-        const totalCards = Object.values(inventory).reduce((a, b) => a + (Number(b) || 0), 0);
-
-        // Эквивалент в серых — только для базовой линейки и без комиссии
-        const greyEqPerCard = {
-            'Рубиновая': 144,
-            'Изумрудная': 48,
-            'Золотая': 24,
-            'Белая': 12,
-            'Зелёная': 6,
-            'Синяя': 3,
-            'Серая': 1
-        };
-        let totalGreyEq = 0;
-        for (const [name, count] of Object.entries(inventory)) {
-            if (!count || count <= 0) continue;
-            if (name === 'Комиссия') continue;
-            totalGreyEq += (greyEqPerCard[name] || 0) * count;
-        }
-
-        let rem = totalGreyEq;
-        const whites = Math.floor(rem / 12); rem -= whites * 12;
-        const greens = Math.floor(rem / 6);  rem -= greens * 6;
-        const blues  = Math.floor(rem / 3);  rem -= blues * 3;
-        const greys  = rem;
-
-        const breakdown = [
-            whites ? `⬜️×${whites}` : '',
-            greens ? `🟩×${greens}` : '',
-            blues ? `🟦×${blues}` : '',
-            greys ? `☑️×${greys}` : ''
-        ].filter(Boolean).join(' + ');
-
-        if (!totalCards) {
-            el.innerHTML = [
-                '<div>Инвентарь пуст — вы можете пользоваться калькулятором рецептов и памяткой без парсинга.</div>',
-                '<div style="margin-top:8px;">Добавьте карты сверху или кликните по справочнику.</div>'
-            ].join('');
-            return;
-        }
-
-        el.innerHTML = [
-            `<div><b>Всего карт:</b> ${totalCards}</div>`,
-            `<div><b>Эквивалент (без комиссии):</b> ${totalGreyEq} ☑️</div>`,
-            `<div><b>Разбор в старшие:</b> ${breakdown || '—'}</div>`
-        ].join('');
-    }
-
-    function renderInventoryCraftList() {
-        const inventory = getActiveInventory();
-        const listEl = document.getElementById('inventoryCraftList');
-        if (!listEl) return;
-
-        const recipes = Array.isArray(__rulesMapping.recipes) ? __rulesMapping.recipes : [];
-        if (!recipes.length) {
-
-            const err = __rulesMappingLoadError
-                ? "<div style=\"margin-top:6px; color: var(--danger); font-size: 12px;\">" + escapeHtml(__rulesMappingLoadError) + "</div>"
-                : "";
-
-            listEl.innerHTML =
-                "<div style=\"color: var(--text-secondary);\">Рецепты не загружены (rules_mapping.json).</div>" +
-                err +
-                "<div style=\"margin-top:6px; font-size: 12px; color: var(--text-secondary);\">UI ищет рецепты по путям <b>data/rules_mapping.json</b> и <b>rules_mapping.json</b>. Если вы тестируете локально, запускайте через HTTP (а не file://), например: <b>python -m http.server 8000</b> или <b>npx serve .</b></div>";
-
-            return;
-        }
-
-        const emojiCounts = getEmojiCountsFromInventory(inventory);
-        const craftable = recipes
-            .map(r => ({ r, k: computeMaxCraftCount(r, emojiCounts) }))
-            .filter(x => x.k > 0)
-            .sort((a, b) => {
-                // Приоритет: более дорогие/старшие карты, затем количество
-                const nameA = emojiToNameSafe(a.r.output) || a.r.name || '';
-                const nameB = emojiToNameSafe(b.r.output) || b.r.name || '';
-                const costA = calculateCardCost(nameA) || 0;
-                const costB = calculateCardCost(nameB) || 0;
-                if (costB !== costA) return costB - costA;
-                return b.k - a.k;
-            });
-
-        if (!craftable.length) {
-            listEl.innerHTML = '<div style="color: var(--text-secondary);">Сейчас из вашего инвентаря ничего не собирается по известным рецептам.</div>';
-            return;
-        }
-
-        const top = craftable.slice(0, 10);
-        listEl.innerHTML = '';
-        for (const { r, k } of top) {
-            const line = formatRecipeLine(r);
-            const row = document.createElement('div');
-            row.className = 'inventory-tools-item';
-            row.innerHTML = `
-                <div class="inventory-tools-item-left">
-                    <span class="emoji" aria-hidden="true">${line.outEmoji}</span>
-                    <span class="name">${line.outName}</span>
-                </div>
-                <div class="inventory-tools-item-right">×${k}</div>
-            `;
-            listEl.appendChild(row);
-        }
-    }
-
-    function renderInventoryRecipeResult() {
-        const inventory = getActiveInventory();
-        const sel = document.getElementById('inventoryRecipeSelect');
-        const out = document.getElementById('inventoryRecipeResult');
-        if (!sel || !out) return;
-
-        const key = sel.value || '';
-        if (!key) {
-            out.innerHTML = 'Выберите рецепт.';
-            return;
-        }
-
-        const recipe = getRecipeByKey(key);
-        if (!recipe) {
-            out.innerHTML = 'Рецепт не найден.';
-            return;
-        }
-
-        const line = formatRecipeLine(recipe);
-        const emojiCounts = getEmojiCountsFromInventory(inventory);
-        const k = computeMaxCraftCount(recipe, emojiCounts);
-
-        out.innerHTML = [
-            `<div><b>Рецепт:</b> ${line.parts} → ${line.outEmoji}</div>`,
-            `<div><b>Можно собрать сейчас:</b> ${k ? ('×' + k) : '0'}</div>`,
-            `<div style="margin-top:8px;"><b>Примечание:</b> подсчёт не изменяет инвентарь; это только калькуляция.</div>`
-        ].join('');
-    }
-
-    function updateInventoryTools() {
-        renderInventoryMemo();
-        renderInventoryShortSummary();
-        renderInventoryCraftList();
-    }
-
-    // ===================== SANDBOX: AUTOPSEARCH OPTIMIZER =====================
-    let __sandboxLastOptimization = null; // { initialCounts, finalCounts, planAgg }
-
-    function buildEmojiRegistryForOptimizer() {
-        const byId = {};
-        for (const [name, emoji] of Object.entries(cardEmojis || {})) {
-            byId[emoji] = { name, type: cardTypes[name] || 'normal' };
-        }
-        return { byId };
-    }
-
-    function aggregatePlan(planArr) {
-        const agg = new Map(); // key -> { recipe, times }
-        for (const step of (planArr || [])) {
-            const r = step.recipe;
-            const key = (r && (r.name || r.output)) ? (r.name || r.output) : 'recipe';
-            const cur = agg.get(key) || { recipe: r, times: 0 };
-            cur.times += Number(step.times || 0) || 0;
-            agg.set(key, cur);
-        }
-        return agg;
-    }
-
-    function formatEmojiDelta(initialCounts, finalCounts) {
-        const all = new Set([...Object.keys(initialCounts || {}), ...Object.keys(finalCounts || {})]);
-        const rows = [];
-        for (const e of all) {
-            const a = Number(initialCounts?.[e] || 0);
-            const b = Number(finalCounts?.[e] || 0);
-            const d = b - a;
-            if (!d) continue;
-            rows.push({ emoji: e, delta: d, name: emojiToNameSafe(e) });
-        }
-        // deterministic: positives first (crafted), then negatives (spent)
-        rows.sort((x, y) => {
-            const sx = x.delta > 0 ? 0 : 1;
-            const sy = y.delta > 0 ? 0 : 1;
-            if (sx !== sy) return sx - sy;
-            // then by abs desc
-            const ax = Math.abs(x.delta);
-            const ay = Math.abs(y.delta);
-            if (ay !== ax) return ay - ax;
-            return String(x.name || '').localeCompare(String(y.name || ''), 'ru');
-        });
-        return rows;
-    }
-
-    function runSandboxOptimization() {
-        const resultEl = document.getElementById('sandboxOptimizeResult');
-        const applyBtn = document.getElementById('sandboxOptimizeApplyBtn');
-        if (!resultEl) return;
-
-        if (inventoryMode !== 'sandbox') {
-            resultEl.innerHTML = 'Переключитесь в режим <b>Песочница</b>, чтобы использовать автопоиск.';
-            if (applyBtn) applyBtn.style.display = 'none';
-            return;
-        }
-
-        const recipes = Array.isArray(__rulesMapping.recipes) ? __rulesMapping.recipes : [];
-        if (!recipes.length) {
-            const err = __rulesMappingLoadError ? ('<div style="margin-top:6px;color:var(--danger);font-size:12px;">' + escapeHtml(__rulesMappingLoadError) + '</div>') : '';
-            resultEl.innerHTML = 'Рецепты не загружены — автопоиск недоступен.' + err;
-            if (applyBtn) applyBtn.style.display = 'none';
-            return;
-        }
-
-        const inv = inventorySandbox;
-        const initialCounts = getEmojiCountsFromInventory(inv);
-        const startTotal = Object.values(initialCounts).reduce((a, b) => a + (Number(b) || 0), 0);
-        if (!startTotal) {
-            resultEl.innerHTML = 'Песочница пуста — добавьте карты, затем запустите автопоиск.';
-            if (applyBtn) applyBtn.style.display = 'none';
-            return;
-        }
-
-        if (!window.VecheryaOptimizer || typeof window.VecheryaOptimizer.computeCraftPlan !== 'function') {
-            resultEl.innerHTML = 'Оптимизатор не найден (engine/optimizer.js). Проверьте сборку проекта.';
-            if (applyBtn) applyBtn.style.display = 'none';
-            return;
-        }
-
-        const registry = buildEmojiRegistryForOptimizer();
-        const working = JSON.parse(JSON.stringify(initialCounts));
-        const res = window.VecheryaOptimizer.computeCraftPlan(working, recipes, registry);
-
-        const finalCounts = res && res.finalInventory ? res.finalInventory : working;
-        const planAgg = aggregatePlan(res && res.plan ? res.plan : []);
-        const deltaRows = formatEmojiDelta(initialCounts, finalCounts);
-
-        if (!planAgg.size) {
-            resultEl.innerHTML = 'Автопоиск не нашёл сборок, которые можно выполнить из текущей песочницы.';
-            __sandboxLastOptimization = null;
-            if (applyBtn) applyBtn.style.display = 'none';
-            return;
-        }
-
-        // build result HTML
-        const lines = [];
-        lines.push('<div><b>План сборки (жадный, детерминированный):</b></div>');
-
-        // sort plan outputs by card cost desc, then times desc
-        const items = Array.from(planAgg.values()).map(x => {
-            const outEmoji = x.recipe?.output;
-            const outName = emojiToNameSafe(outEmoji) || x.recipe?.name || 'Результат';
-            const cost = calculateCardCost(outName);
-            return { ...x, outEmoji, outName, cost };
-        }).sort((a, b) => (b.cost - a.cost) || (b.times - a.times) || String(a.outName).localeCompare(String(b.outName), 'ru'));
-
-        lines.push('<div style="margin-top:6px;">' + items.map(it => {
-            const em = it.outEmoji || '';
-            const nm = escapeHtml(it.outName || '');
-            return `<div style="margin:4px 0;">• ${em} ${nm}: <b>×${it.times}</b></div>`;
-        }).join('') + '</div>');
-
-        lines.push('<div style="margin-top:10px;"><b>Изменения (дельта):</b></div>');
-        lines.push('<div style="margin-top:6px;">' + deltaRows.map(r => {
-            const sign = r.delta > 0 ? '+' : '';
-            const nm = r.name ? (' ' + escapeHtml(r.name)) : '';
-            return `<div style="margin:3px 0;">${r.emoji}${nm}: <b>${sign}${r.delta}</b></div>`;
-        }).join('') + '</div>');
-
-        lines.push('<div style="margin-top:10px; opacity:0.9;">План не применяется автоматически. Нажмите "Применить план", если хотите записать результат в песочницу.</div>');
-
-        resultEl.innerHTML = lines.join('');
-        __sandboxLastOptimization = { initialCounts, finalCounts, planAgg };
-        if (applyBtn) applyBtn.style.display = 'inline-block';
-    }
-
-    function applySandboxOptimizationToSandbox() {
-        const resultEl = document.getElementById('sandboxOptimizeResult');
-        if (inventoryMode !== 'sandbox') {
-            if (resultEl) resultEl.innerHTML = 'Переключитесь в режим <b>Песочница</b>.';
-            return;
-        }
-        if (!__sandboxLastOptimization || !__sandboxLastOptimization.finalCounts) {
-            if (resultEl) resultEl.innerHTML = 'Сначала выполните автопоиск, затем примените план.';
-            return;
-        }
-
-        const finalCounts = __sandboxLastOptimization.finalCounts;
-        const next = {};
-        // Convert emoji counts to cardName counts (best-effort)
-        for (const [name, emoji] of Object.entries(cardEmojis || {})) {
-            const c = Number(finalCounts[emoji] || 0);
-            if (c > 0) next[name] = c;
-        }
-        inventorySandbox = next;
-        updateInventoryDisplay();
-        showNotification('План применён к песочнице', 'success');
-    }
-
-    function sandboxCopyFromMain() {
-        inventorySandbox = JSON.parse(JSON.stringify(inventoryMain || {}));
-        updateInventoryDisplay();
-        showNotification('Песочница заполнена копией основного инвентаря', 'info');
-    }
-
-    function sandboxClear() {
-        inventorySandbox = {};
-        __sandboxLastOptimization = null;
-        const applyBtn = document.getElementById('sandboxOptimizeApplyBtn');
-        if (applyBtn) applyBtn.style.display = 'none';
-        updateInventoryDisplay();
-        showNotification('Песочница очищена', 'info');
-    }
-
-    function sandboxApplyDeltaToMain() {
-        // Apply delta (sandbox - main) to main, with confirmation.
-        const main = inventoryMain || {};
-        const sand = inventorySandbox || {};
-        const names = new Set([...Object.keys(main), ...Object.keys(sand)]);
-        const changes = [];
-        for (const name of names) {
-            const a = Number(main[name] || 0);
-            const b = Number(sand[name] || 0);
-            const d = b - a;
-            if (!d) continue;
-            changes.push({ name, delta: d, emoji: cardEmojis[name] || '🃏' });
-        }
-        if (!changes.length) {
-            showNotification('Изменений нет: песочница совпадает с основным', 'warning');
-            return;
-        }
-        // Sort: positives first, then negatives
-        changes.sort((x, y) => {
-            const sx = x.delta > 0 ? 0 : 1;
-            const sy = y.delta > 0 ? 0 : 1;
-            if (sx !== sy) return sx - sy;
-            return Math.abs(y.delta) - Math.abs(x.delta);
-        });
-
-        const preview = changes.slice(0, 14)
-            .map(c => `${c.emoji} ${c.name}: ${c.delta > 0 ? '+' : ''}${c.delta}`)
-            .join('\n');
-        const more = changes.length > 14 ? `\n…и ещё ${changes.length - 14}` : '';
-
-        const ok = window.confirm(
-            'Применить изменения из песочницы в основной инвентарь (дельта)?\n\n' + preview + more
-        );
-        if (!ok) return;
-
-        for (const c of changes) {
-            const next = (Number(inventoryMain[c.name] || 0) + c.delta);
-            if (next > 0) inventoryMain[c.name] = next;
-            else delete inventoryMain[c.name];
-        }
-
-        // Switch to main after apply (explicit user action)
-        setInventoryMode('main');
-        showNotification('Изменения из песочницы применены к основному (дельта)', 'success');
-    }
-
+    // Хранилище инвентаря
+    let inventory = {};
+    
     // ============== ФУНКЦИИ ОБЩИЕ ==============
+    
     // Функция для показа уведомлений
     function showNotification(message, type = 'info') {
         const container = document.getElementById('notificationContainer');
@@ -1321,7 +788,6 @@
     
     // Функция для обновления инвентаря в интерфейсе
     function updateInventoryDisplay() {
-        const inventory = getActiveInventory();
         const inventoryList = document.getElementById('inventoryList');
         const inventorySummary = document.getElementById('inventorySummary');
         const inventoryTotalCount = document.getElementById('inventoryTotalCount');
@@ -1338,6 +804,9 @@
             if (count > 0) {
                 hasCards = true;
                 totalCards += count;
+            if (cardName !== 'Комиссия') {
+                totalGreyEq += (greyEqPerCard[cardName] || 0) * count;
+            }
                 
                 const emoji = cardEmojis[cardName] || '🃏';
                 
@@ -1375,10 +844,6 @@
             // Обновляем результаты
             updateResultsFromInventory();
         }
-
-        // Инвентарь: обновляем встроенные инструменты (памятка/сводка/рецепты)
-        renderInventoryShortSummary();
-        renderInventoryCraftList();
         
         // Добавляем обработчики для кнопок удаления
         document.querySelectorAll('.inventory-item-remove').forEach(button => {
@@ -1396,11 +861,11 @@
             return;
         }
         
-        const inv = getActiveInventory();
-        if (!inv[cardName]) {
-            inv[cardName] = 0;
+        if (!inventory[cardName]) {
+            inventory[cardName] = 0;
         }
-        inv[cardName] += count;
+        
+        inventory[cardName] += count;
         updateInventoryDisplay();
         
         const emoji = cardEmojis[cardName] || '🃏';
@@ -1409,10 +874,9 @@
     
     // Функция для удаления карты из инвентаря
     function removeFromInventory(cardName) {
-        const inv = getActiveInventory();
-        if (inv[cardName]) {
-            const count = inv[cardName];
-            delete inv[cardName];
+        if (inventory[cardName]) {
+            const count = inventory[cardName];
+            delete inventory[cardName];
             updateInventoryDisplay();
             
             const emoji = cardEmojis[cardName] || '🃏';
@@ -1422,14 +886,13 @@
     
     // Функция для очистки всего инвентаря
     function clearInventory() {
-        const inv = getActiveInventory();
-        if (Object.keys(inv).length === 0) {
+        if (Object.keys(inventory).length === 0) {
             showNotification('Инвентарь уже пуст', 'warning');
             return;
         }
-
-        const cardCount = Object.values(inv).reduce((a, b) => a + b, 0);
-        if (inventoryMode === 'sandbox') inventorySandbox = {}; else inventoryMain = {};
+        
+        const cardCount = Object.values(inventory).reduce((a, b) => a + b, 0);
+        inventory = {};
         updateInventoryDisplay();
         
         showNotification(`Инвентарь очищен (удалено ${cardCount} карт)`, 'info');
@@ -1437,7 +900,6 @@
     
     // Функция для обновления результатов на основе инвентаря
     function updateResultsFromInventory() {
-        const inventory = getActiveInventory();
         const resultsContainer = document.getElementById('results');
         
         if (Object.keys(inventory).length === 0) {
@@ -2091,9 +1553,8 @@ html += '</div>';
         const userData = autolentResults.users[username];
         if (!userData) return;
 
-        // Очищаем ОСНОВНОЙ инвентарь и заполняем из парсинга
-        setInventoryMode('main');
-        inventoryMain = {};
+        // Очищаем инвентарь и заполняем из парсинга
+        clearInventory();
         const entries = Object.entries(userData.cards).sort((a,b)=>b[1]-a[1]);
         entries.forEach(([cardName, count]) => {
             addToInventory(cardName, count);
@@ -2293,35 +1754,6 @@ html += '</div>';
         const inventoryCardCount = document.getElementById('inventoryCardCount');
         const inventoryAddBtn = document.getElementById('inventoryAddBtn');
         const inventoryClearBtn = document.getElementById('inventoryClearBtn');
-
-        // Main/Sandbox mode UI
-        const inventoryModeMainBtn = document.getElementById('inventoryModeMainBtn');
-        const inventoryModeSandboxBtn = document.getElementById('inventoryModeSandboxBtn');
-        const sandboxCopyFromMainBtn = document.getElementById('sandboxCopyFromMainBtn');
-        const sandboxClearBtn = document.getElementById('sandboxClearBtn');
-        const sandboxApplyToMainBtn = document.getElementById('sandboxApplyToMainBtn');
-        const sandboxOptimizeBtn = document.getElementById('sandboxOptimizeBtn');
-        const sandboxOptimizeApplyBtn = document.getElementById('sandboxOptimizeApplyBtn');
-
-        // Инвентарь: инструменты (памятка/сборка/разборка/калькулятор рецепта)
-        renderInventoryMemo();
-        loadRulesMapping().then(() => {
-            renderInventoryRecipeSelect();
-            renderInventoryCraftList();
-        });
-        renderInventoryShortSummary();
-
-        const inventoryRecipeCalcBtn = document.getElementById('inventoryRecipeCalcBtn');
-        const inventoryRecipeSelect = document.getElementById('inventoryRecipeSelect');
-        if (inventoryRecipeCalcBtn) {
-            inventoryRecipeCalcBtn.addEventListener('click', renderInventoryRecipeResult);
-        }
-        if (inventoryRecipeSelect) {
-            inventoryRecipeSelect.addEventListener('change', () => {
-                // Мягкое UX: показываем расчёт сразу при смене
-                renderInventoryRecipeResult();
-            });
-        }
         
         inventoryAddBtn.addEventListener('click', function() {
             const cardName = inventoryCardSelect.value;
@@ -2335,21 +1767,6 @@ html += '</div>';
         });
         
         inventoryClearBtn.addEventListener('click', clearInventory);
-
-        // Inventory mode switch
-        if (inventoryModeMainBtn) inventoryModeMainBtn.addEventListener('click', () => setInventoryMode('main'));
-        if (inventoryModeSandboxBtn) inventoryModeSandboxBtn.addEventListener('click', () => setInventoryMode('sandbox'));
-
-        // Sandbox actions
-        if (sandboxCopyFromMainBtn) sandboxCopyFromMainBtn.addEventListener('click', sandboxCopyFromMain);
-        if (sandboxClearBtn) sandboxClearBtn.addEventListener('click', sandboxClear);
-        if (sandboxApplyToMainBtn) sandboxApplyToMainBtn.addEventListener('click', sandboxApplyDeltaToMain);
-        if (sandboxOptimizeBtn) sandboxOptimizeBtn.addEventListener('click', runSandboxOptimization);
-        if (sandboxOptimizeApplyBtn) sandboxOptimizeApplyBtn.addEventListener('click', applySandboxOptimizationToSandbox);
-
-        // Initial sync
-        syncInventoryModeUI();
-        updateInventoryDisplay();
         
         // Обработчик для Enter в поле количества
         inventoryCardCount.addEventListener('keypress', function(e) {
