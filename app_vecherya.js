@@ -98,7 +98,6 @@
         'Ведро Егора': 'super',
         'Преисподняя': 'super'
     };
-    
     // База знаний о картах (из предоставленных правил)
     const cardDatabase = {
         'Джекпот': {
@@ -781,11 +780,6 @@
         
         return hierarchy[cardName] || 0;
     }
-        });
-        
-        return breakdowns;
-    }
-    
     // ============== ФУНКЦИИ ИНВЕНТАРЯ ==============
     
     // Функция для обновления инвентаря в интерфейсе
@@ -1882,13 +1876,24 @@
     }
 
     function getAutoLentTextarea() {
-      return document.getElementById('autolentText');
+      return (
+        document.querySelector('#autolentText') ||
+        document.querySelector('#autoLentText') ||
+        document.querySelector('#inventoryInput') ||
+        document.querySelector('#inputText') ||
+        document.querySelector('textarea')
+      );
     }
 
     function clickAnalyzeButton() {
-      const btn = document.getElementById('autolentParseBtn');
-      if (btn) btn.click();
-    });
+      const btn =
+        document.querySelector('#autolentParseBtn') ||
+        document.querySelector('#magicBtn') ||
+        document.querySelector("button[data-action='analyze']") ||
+        Array.from(document.querySelectorAll('button')).find(b => {
+          const t = (b.textContent || '').trim();
+          return t === '🪄 Сотворить чудо' || t === '✨ Магия' || t === '🔍 Проанализировать текст';
+        });
       if (btn) btn.click();
     }
 
@@ -1912,20 +1917,6 @@
           throw new Error((t && t.trim()) ? t.trim() : `HTTP ${r.status}`);
         }
 
-
-    // Инициализация кнопки загрузки из Telegram (работает и на локальном открытии файла, и на GitHub Pages)
-    (function initTelegramLoadButton() {
-      const wire = () => {
-        const btn = document.getElementById('loadFromTelegramBtn');
-        if (btn) btn.addEventListener('click', loadTelegramIntoAutoLent);
-      };
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', wire);
-      } else {
-        wire();
-      }
-    })();
-
         const text = normalizeTelegramText(await r.text());
         if (!text) throw new Error('Пустота... магия не сработала');
 
@@ -1947,3 +1938,8 @@
         if (btn) btn.disabled = false;
       }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('loadFromTelegramBtn');
+      if (btn) btn.addEventListener('click', loadTelegramIntoAutoLent);
+    });
