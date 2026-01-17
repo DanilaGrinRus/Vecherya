@@ -1378,3 +1378,23 @@
 .btn-secondary:hover{background:rgba(73,185,255,.22)}
 
 .tg-load-status{margin-top:8px;font-size:13px;opacity:.9}
+
+
+/* === GitHub Pages: inventory last-updated indicator === */
+.inventory-updated{
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 12px;
+  opacity: .9;
+  backdrop-filter: blur(6px);
+}
+
+
+/* --- GitHub Pages: inventory last-updated indicator --- */
+.tg-load-updated{
+  margin-top:6px;
+  font-size:12px;
+  opacity:.85;
+}
