@@ -1,4 +1,6 @@
 
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -3837,108 +3839,84 @@ inventorySearch.addEventListener('input', () => {
     });
   
 // === Telegram Worker Auto-Load (Vecherya) ===
-// PROD v1: UI does not parse Telegram HTML. It fetches prepared inventory JSON from Worker.
-// Then we inject the underlying source text into the analyzer textarea and trigger the same flow
-// as manual "Проанализировать текст" ("✨ Магия").
+// PROD v1 TEXT-ONLY: fetch text from Worker -> paste into AutoLent textarea -> click analyze.
 const TG_WORKER_URL = "https://noisy-grass-2be4.nurlinec.workers.dev/api/inventory";
 
 function normalizeTelegramText(raw) {
   return String(raw || "")
     .replace(/[–—]/g, "-")
-    .replace(/([А-Яа-яA-Za-z0-9_])-(\d+)/g, "$1 - $2")
+    .replace(/\r\n?/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
 function getAutoLentTextarea() {
-  // Prefer explicit ids if they exist
-  const byId =
-    document.querySelector("#autoLentText") ||
-    document.querySelector("#autolentText") ||
-    document.querySelector("#inventoryInput") ||
-    document.querySelector("#inputText");
-  if (byId && byId.tagName === "TEXTAREA") return byId;
-
-  // Try within AutoLent section containers
-  const section =
-    document.querySelector("#autolent") ||
-    document.querySelector("#autoLent") ||
-    document.querySelector("[data-section='autolent']") ||
-    document.querySelector(".autolent") ||
-    document.querySelector(".autoLent");
-
-  if (section) {
-    const ta = section.querySelector("textarea");
-    if (ta) return ta;
-  }
-
-  // Fallback: first textarea on page (as last resort)
-  return document.querySelector("textarea");
+  return (
+    document.querySelector('#autolentText') ||
+    document.querySelector('#autoLentText') ||
+    document.querySelector('#inventoryInput') ||
+    document.querySelector('#inputText') ||
+    document.querySelector('textarea')
+  );
 }
 
-function clickMagicButton() {
-  // Try known selectors
+function clickAnalyzeButton() {
   const btn =
-    document.querySelector("#magicBtn") ||
+    document.querySelector('#autolentParseBtn') ||
+    document.querySelector('#magicBtn') ||
     document.querySelector("button[data-action='analyze']") ||
-    Array.from(document.querySelectorAll("button")).find(b => (b.textContent || "").trim() === "✨ Магия");
+    Array.from(document.querySelectorAll('button')).find(b => {
+      const t = (b.textContent || '').trim();
+      return t === '🔍 Проанализировать текст' || t === '✨ Магия';
+    });
   if (btn) btn.click();
 }
 
 async function loadTelegramIntoAutoLent() {
-  const statusEl = document.getElementById("tgLoadStatus");
-  const btn = document.getElementById("loadFromTelegramBtn");
+  const statusEl = document.getElementById('tgLoadStatus');
+  const btn = document.getElementById('loadFromTelegramBtn');
 
   const setStatus = (msg) => { if (statusEl) statusEl.textContent = msg; };
 
   try {
     if (btn) btn.disabled = true;
-    setStatus("Загружаю текст из Telegram…");
+    setStatus('Загружаю текст из Telegram…');
 
-    const r = await fetch(TG_WORKER_URL, { cache: "no-store" });
-    const data = await r.json();
+    const r = await fetch(TG_WORKER_URL, {
+      cache: 'no-store',
+      headers: { 'Accept': 'text/plain' }
+    });
 
-    if (!data || !data.ok) {
-      const msg = data?.error?.message || data?.message || "Пустой/некорректный ответ воркера";
-      throw new Error(msg);
+    if (!r.ok) {
+      const t = await r.text().catch(() => '');
+      throw new Error((t && t.trim()) ? t.trim() : `HTTP ${r.status}`);
     }
 
-    // We intentionally re-use the existing UI analyzer by injecting the source text
-    // extracted by the Worker. The Worker response includes sampleMessages previews.
-    // This keeps the visual and all existing parsing logic intact.
-    const previews = Array.isArray(data?.source?.sampleMessages)
-      ? data.source.sampleMessages
-          .map(m => (m && m.preview) ? String(m.preview) : "")
-          .filter(Boolean)
-      : [];
-
-    if (!previews.length) {
-      throw new Error("Worker ответил OK, но не вернул текст источника (source.sampleMessages.preview)");
-    }
+    const text = normalizeTelegramText(await r.text());
+    if (!text) throw new Error('Пустой текст от воркера');
 
     const ta = getAutoLentTextarea();
-    if (!ta) throw new Error("Не найдено поле ввода АвтоЛени (textarea)");
+    if (!ta) throw new Error('Не найдено поле ввода АвтоЛени (textarea)');
 
-    const normalized = normalizeTelegramText(previews.join("\n\n"));
-    ta.value = normalized;
-    ta.dispatchEvent(new Event("input", { bubbles: true }));
+    ta.value = text;
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
 
-    setStatus("Текст загружен. Запускаю «Магия»…");
-    clickMagicButton();
-    setStatus("Готово.");
+    setStatus('Текст загружен. Запускаю анализ…');
+    clickAnalyzeButton();
+    setStatus('Готово.');
   } catch (e) {
-    const raw = (e && typeof e === "object")
+    const raw = (e && typeof e === 'object')
       ? (e.message || JSON.stringify(e))
       : String(e);
-    setStatus("Ошибка автозагрузки: " + raw);
+    setStatus('Ошибка автозагрузки: ' + raw);
   } finally {
     if (btn) btn.disabled = false;
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("loadFromTelegramBtn");
-  if (btn) btn.addEventListener("click", loadTelegramIntoAutoLent);
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('loadFromTelegramBtn');
+  if (btn) btn.addEventListener('click', loadTelegramIntoAutoLent);
 });
 
 </script>
