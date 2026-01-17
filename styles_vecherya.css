@@ -396,6 +396,115 @@
         .inventory-clear-btn:hover {
             background: rgba(239, 68, 68, 0.4);
         }
+
+        /* =====================
+           Inventory tools (memo + craft/break + mini calculator)
+           ===================== */
+
+        .inventory-tools {
+            margin-top: 18px;
+        }
+
+        .inventory-tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 860px) {
+            .inventory-tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .inventory-tools-card {
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .inventory-tools-title {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .inventory-tools-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        .inventory-tools-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 860px) {
+            .inventory-tools-split {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .inventory-tools-subtitle {
+            font-weight: 700;
+            color: var(--brand);
+            margin-bottom: 6px;
+        }
+
+        .inventory-tools-hint {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            opacity: 0.9;
+            line-height: 1.35;
+            margin-bottom: 10px;
+        }
+
+        .inventory-tools-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .inventory-tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .inventory-tools-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(73, 185, 255, 0.05);
+            border: 1px solid rgba(73, 185, 255, 0.08);
+        }
+
+        .inventory-tools-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .inventory-tools-item-left .name {
+            color: var(--text);
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .inventory-tools-item-right {
+            color: var(--brand);
+            font-weight: 700;
+            white-space: nowrap;
+        }
         
         .empty-inventory {
             text-align: center;

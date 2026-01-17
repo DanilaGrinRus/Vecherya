@@ -741,6 +741,381 @@
 
     // Хранилище инвентаря
     let inventory = {};
+
+    // ============== ИНВЕНТАРЬ: ПАМЯТКА + СБОРКА/РАЗБОРКА + МИНИ-КАЛЬКУЛЯТОР ==============
+    const INVENTORY_MEMO_TEXT = [
+        '1 🚨 = 3 💎 = 6 🟧 = 12 ⬜️ = 24 🟩 = 48 🟦 = 144 ☑️ (Серая, базовая)',
+        '1 💎 = 2 🟧 · 1 🟧 = 2 ⬜️ · 1 ⬜️ = 2 🟩 · 1 🟩 = 2 🟦 · 1 🟦 = 3 ☑️',
+        '1 ☑️ = 2 🔘 (Комиссия — обратно в ☑️ не собирается)'
+    ].join('\n');
+
+    let __rulesMapping = { recipes: [] };
+
+    async function loadRulesMapping() {
+        try {
+            const r = await fetch('data/rules_mapping.json', { cache: 'no-store' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const json = await r.json();
+            if (json && Array.isArray(json.recipes)) {
+                __rulesMapping = json;
+            }
+        } catch (e) {
+            // Тихий фоллбек: если mapping не загрузился, просто не показываем рецепты.
+            __rulesMapping = { recipes: [] };
+        }
+    }
+
+    function getEmojiCountsFromInventory(inv) {
+        const out = {};
+        for (const [name, count] of Object.entries(inv || {})) {
+            if (!count || count <= 0) continue;
+            const em = cardEmojis[name];
+            if (!em) continue;
+            out[em] = (out[em] || 0) + count;
+        }
+        return out;
+    }
+
+    function countMultiset(arr) {
+        const m = {};
+        for (const x of (arr || [])) m[x] = (m[x] || 0) + 1;
+        return m;
+    }
+
+    function computeMaxCraftCount(recipe, emojiCounts) {
+        if (!recipe || !Array.isArray(recipe.inputs) || !recipe.output) return 0;
+        const need = countMultiset(recipe.inputs);
+        let k = Infinity;
+        for (const [emoji, req] of Object.entries(need)) {
+            const have = emojiCounts[emoji] || 0;
+            k = Math.min(k, Math.floor(have / req));
+            if (k === 0) return 0;
+        }
+        return Number.isFinite(k) ? k : 0;
+    }
+
+    function emojiToNameSafe(emoji) {
+        const hit = Object.entries(cardEmojis).find(([, e]) => e === emoji);
+        return hit ? hit[0] : '';
+    }
+
+    function formatRecipeLine(recipe) {
+        const outName = emojiToNameSafe(recipe.output) || recipe.name || 'Результат';
+        const outEmoji = recipe.output;
+        const need = countMultiset(recipe.inputs);
+        const parts = Object.entries(need)
+            .map(([e, n]) => `${e}×${n}`)
+            .join(' + ');
+        return { outName, outEmoji, parts };
+    }
+
+    function renderInventoryMemo() {
+        const memoEl = document.getElementById('inventoryMemoText');
+        if (!memoEl) return;
+        memoEl.innerHTML = INVENTORY_MEMO_TEXT
+            .split('\n')
+            .map(l => `<div>${l}</div>`)
+            .join('');
+    }
+
+    function renderInventoryRecipeSelect() {
+        const sel = document.getElementById('inventoryRecipeSelect');
+        if (!sel) return;
+
+        // Сохраняем выбранное значение
+        const prev = sel.value || '';
+
+        const recipes = Array.isArray(__rulesMapping.recipes) ? __rulesMapping.recipes : [];
+        const options = recipes
+            .map(r => {
+                const line = formatRecipeLine(r);
+                return {
+                    key: r.name || (line.outName + '|' + line.outEmoji),
+                    label: `${line.outEmoji} ${line.outName}`
+                };
+            })
+            .sort((a, b) => a.label.localeCompare(b.label, 'ru'));
+
+        sel.innerHTML = '<option value="">Выберите карту/рецепт</option>';
+        for (const o of options) {
+            const opt = document.createElement('option');
+            opt.value = o.key;
+            opt.textContent = o.label;
+            sel.appendChild(opt);
+        }
+
+        if (prev) sel.value = prev;
+    }
+
+    function getRecipeByKey(key) {
+        const recipes = Array.isArray(__rulesMapping.recipes) ? __rulesMapping.recipes : [];
+        return recipes.find(r => (r.name || '') === key) || null;
+    }
+
+    function renderInventoryShortSummary() {
+        const el = document.getElementById('inventoryShortSummary');
+        if (!el) return;
+
+        const emojiCounts = getEmojiCountsFromInventory(inventory);
+        const totalCards = Object.values(inventory).reduce((a, b) => a + (Number(b) || 0), 0);
+
+        // Эквивалент в серых — только для базовой линейки и без комиссии
+        const greyEqPerCard = {
+            'Рубиновая': 144,
+            'Изумрудная': 48,
+            'Золотая': 24,
+            'Белая': 12,
+            'Зелёная': 6,
+            'Синяя': 3,
+            'Серая': 1
+        };
+        let totalGreyEq = 0;
+        for (const [name, count] of Object.entries(inventory)) {
+            if (!count || count <= 0) continue;
+            if (name === 'Комиссия') continue;
+            totalGreyEq += (greyEqPerCard[name] || 0) * count;
+        }
+
+        let rem = totalGreyEq;
+        const whites = Math.floor(rem / 12); rem -= whites * 12;
+        const greens = Math.floor(rem / 6);  rem -= greens * 6;
+        const blues  = Math.floor(rem / 3);  rem -= blues * 3;
+        const greys  = rem;
+
+        const breakdown = [
+            whites ? `⬜️×${whites}` : '',
+            greens ? `🟩×${greens}` : '',
+            blues ? `🟦×${blues}` : '',
+            greys ? `☑️×${greys}` : ''
+        ].filter(Boolean).join(' + ');
+
+        if (!totalCards) {
+            el.innerHTML = [
+                '<div>Инвентарь пуст — вы можете пользоваться калькулятором рецептов и памяткой без парсинга.</div>',
+                '<div style="margin-top:8px;">Добавьте карты сверху или кликните по справочнику.</div>'
+            ].join('');
+            return;
+        }
+
+        el.innerHTML = [
+            `<div><b>Всего карт:</b> ${totalCards}</div>`,
+            `<div><b>Эквивалент (без комиссии):</b> ${totalGreyEq} ☑️</div>`,
+            `<div><b>Разбор в старшие:</b> ${breakdown || '—'}</div>`
+        ].join('');
+    }
+
+    function renderInventoryCraftList() {
+        const listEl = document.getElementById('inventoryCraftList');
+        if (!listEl) return;
+
+        const recipes = Array.isArray(__rulesMapping.recipes) ? __rulesMapping.recipes : [];
+        if (!recipes.length) {
+            listEl.innerHTML = '<div style="color: var(--text-secondary);">Рецепты не загружены (rules_mapping.json).</div>';
+            return;
+        }
+
+        const emojiCounts = getEmojiCountsFromInventory(inventory);
+        const craftable = recipes
+            .map(r => ({ r, k: computeMaxCraftCount(r, emojiCounts) }))
+            .filter(x => x.k > 0)
+            .sort((a, b) => {
+                // Приоритет: более дорогие/старшие карты, затем количество
+                const nameA = emojiToNameSafe(a.r.output) || a.r.name || '';
+                const nameB = emojiToNameSafe(b.r.output) || b.r.name || '';
+                const costA = calculateCardCost(nameA) || 0;
+                const costB = calculateCardCost(nameB) || 0;
+                if (costB !== costA) return costB - costA;
+                return b.k - a.k;
+            });
+
+        if (!craftable.length) {
+            listEl.innerHTML = '<div style="color: var(--text-secondary);">Сейчас из вашего инвентаря ничего не собирается по известным рецептам.</div>';
+            return;
+        }
+
+        const top = craftable.slice(0, 10);
+        listEl.innerHTML = '';
+        for (const { r, k } of top) {
+            const line = formatRecipeLine(r);
+            const row = document.createElement('div');
+            row.className = 'inventory-tools-item';
+            row.innerHTML = `
+                <div class="inventory-tools-item-left">
+                    <span class="emoji" aria-hidden="true">${line.outEmoji}</span>
+                    <span class="name">${line.outName}</span>
+                </div>
+                <div class="inventory-tools-item-right">×${k}</div>
+            `;
+            listEl.appendChild(row);
+        }
+    }
+
+    function renderInventoryRecipeResult() {
+        const sel = document.getElementById('inventoryRecipeSelect');
+        const out = document.getElementById('inventoryRecipeResult');
+        if (!sel || !out) return;
+
+        const key = sel.value || '';
+        if (!key) {
+            out.innerHTML = 'Выберите рецепт.';
+            return;
+        }
+
+        const recipe = getRecipeByKey(key);
+        if (!recipe) {
+            out.innerHTML = 'Рецепт не найден.';
+            return;
+        }
+
+        const line = formatRecipeLine(recipe);
+        const emojiCounts = getEmojiCountsFromInventory(inventory);
+        const k = computeMaxCraftCount(recipe, emojiCounts);
+
+        out.innerHTML = [
+            `<div><b>Рецепт:</b> ${line.parts} → ${line.outEmoji}</div>`,
+            `<div><b>Можно собрать сейчас:</b> ${k ? ('×' + k) : '0'}</div>`,
+            `<div style="margin-top:8px;"><b>Примечание:</b> подсчёт не изменяет инвентарь; это только калькуляция.</div>`
+        ].join('');
+    }
+
+    function updateInventoryTools() {
+        renderInventoryMemo();
+        renderInventoryShortSummary();
+        renderInventoryCraftList();
+    }
+
+    function renderInventoryRecipeSelect() {
+        const sel = document.getElementById('inventoryRecipeSelect');
+        if (!sel) return;
+        const recipes = (__rulesMapping && Array.isArray(__rulesMapping.recipes)) ? __rulesMapping.recipes : [];
+
+        // Сохраняем текущее значение (если возможно)
+        const prev = sel.value;
+        sel.innerHTML = '<option value="">Выберите карту/рецепт</option>';
+
+        // Стабильная сортировка по имени
+        const sorted = recipes
+            .slice()
+            .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ru'));
+
+        for (const r of sorted) {
+            const label = (emojiToNameSafe(r.output) ? `${r.output} ${emojiToNameSafe(r.output)}` : (r.name || r.output));
+            const opt = document.createElement('option');
+            opt.value = r.output;
+            opt.textContent = label;
+            sel.appendChild(opt);
+        }
+
+        if (prev) sel.value = prev;
+    }
+
+    function updateInventoryToolsDynamic() {
+        const summaryEl = document.getElementById('inventoryShortSummary');
+        const craftListEl = document.getElementById('inventoryCraftList');
+        if (!summaryEl || !craftListEl) return;
+
+        // 1) Краткая сводка
+        const greyEqPerCard = {
+            'Рубиновая': 144,
+            'Изумрудная': 48,
+            'Золотая': 24,
+            'Белая': 12,
+            'Зелёная': 6,
+            'Синяя': 3,
+            'Серая': 1
+        };
+
+        let totalCards = 0;
+        let totalGreyEq = 0;
+        let types = 0;
+        for (const [name, count] of Object.entries(inventory || {})) {
+            if (!count || count <= 0) continue;
+            types += 1;
+            totalCards += count;
+            if (name !== 'Комиссия') totalGreyEq += (greyEqPerCard[name] || 0) * count;
+        }
+
+        const whites = Math.floor(totalGreyEq / 12);
+        let rem = totalGreyEq % 12;
+        const greens = Math.floor(rem / 6);
+        rem = rem % 6;
+        const blues = Math.floor(rem / 3);
+        rem = rem % 3;
+        const greys = rem;
+
+        const summaryLines = [];
+        summaryLines.push(`Всего карт: <b>${totalCards}</b> (типов: <b>${types}</b>)`);
+        summaryLines.push(`Эквивалент в серых: <b>${totalGreyEq}</b> ☑️ (без 🔘)`);
+        summaryLines.push(`Разбор по крупным: <b>${whites}</b> ⬜️ + <b>${greens}</b> 🟩 + <b>${blues}</b> 🟦 + <b>${greys}</b> ☑️`);
+
+        if (totalCards === 0) {
+            summaryLines.push('<span style="opacity:0.9">Добавьте карты — и ниже появятся доступные сборки по рецептам.</span>');
+        }
+        summaryEl.innerHTML = summaryLines.map(l => `<div style="margin: 4px 0;">${l}</div>`).join('');
+
+        // 2) Доступные сборки
+        const emojiCounts = getEmojiCountsFromInventory(inventory);
+        const recipes = (__rulesMapping && Array.isArray(__rulesMapping.recipes)) ? __rulesMapping.recipes : [];
+
+        const craftable = recipes
+            .map(r => {
+                const c = computeMaxCraftCount(r, emojiCounts);
+                return { recipe: r, count: c };
+            })
+            .filter(x => x.count > 0)
+            .sort((a, b) => {
+                // сначала по редкости/стоимости результата, потом по количеству
+                const aName = emojiToNameSafe(a.recipe.output);
+                const bName = emojiToNameSafe(b.recipe.output);
+                const aCost = calculateCardCost(aName);
+                const bCost = calculateCardCost(bName);
+                if (bCost !== aCost) return bCost - aCost;
+                return b.count - a.count;
+            })
+            .slice(0, 10);
+
+        if (!craftable.length) {
+            craftListEl.innerHTML = '<div style="color: var(--text-secondary);">Пока ничего не собирается из текущего набора.</div>';
+        } else {
+            craftListEl.innerHTML = craftable.map(({ recipe, count }) => {
+                const fmt = formatRecipeLine(recipe);
+                return `
+                    <div class="inventory-tools-item">
+                        <div class="inventory-tools-item-left">
+                            <span class="emoji" aria-hidden="true">${fmt.outEmoji}</span>
+                            <span class="name">${fmt.outName}</span>
+                        </div>
+                        <div class="inventory-tools-item-right">× ${count}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
+    function computeAndRenderSelectedRecipe() {
+        const sel = document.getElementById('inventoryRecipeSelect');
+        const out = document.getElementById('inventoryRecipeResult');
+        if (!sel || !out) return;
+        const val = sel.value;
+        if (!val) {
+            out.innerHTML = '<span style="color: var(--text-secondary);">Выберите рецепт.</span>';
+            return;
+        }
+        const recipes = (__rulesMapping && Array.isArray(__rulesMapping.recipes)) ? __rulesMapping.recipes : [];
+        const recipe = recipes.find(r => r.output === val);
+        if (!recipe) {
+            out.innerHTML = '<span style="color: var(--text-secondary);">Рецепт не найден.</span>';
+            return;
+        }
+        const fmt = formatRecipeLine(recipe);
+        const emojiCounts = getEmojiCountsFromInventory(inventory);
+        const maxCount = computeMaxCraftCount(recipe, emojiCounts);
+        out.innerHTML = `
+            <div style="margin-bottom: 6px;"><b>${fmt.outEmoji} ${fmt.outName}</b></div>
+            <div style="margin-bottom: 6px;">Рецепт: ${fmt.parts}</div>
+            <div>Из текущего инвентаря: <b>${maxCount}</b> шт.</div>
+        `;
+    }
     
     // ============== ФУНКЦИИ ОБЩИЕ ==============
     
@@ -804,9 +1179,6 @@
             if (count > 0) {
                 hasCards = true;
                 totalCards += count;
-            if (cardName !== 'Комиссия') {
-                totalGreyEq += (greyEqPerCard[cardName] || 0) * count;
-            }
                 
                 const emoji = cardEmojis[cardName] || '🃏';
                 
@@ -844,6 +1216,10 @@
             // Обновляем результаты
             updateResultsFromInventory();
         }
+
+        // Инвентарь: обновляем встроенные инструменты (памятка/сводка/рецепты)
+        renderInventoryShortSummary();
+        renderInventoryCraftList();
         
         // Добавляем обработчики для кнопок удаления
         document.querySelectorAll('.inventory-item-remove').forEach(button => {
@@ -1754,6 +2130,26 @@ html += '</div>';
         const inventoryCardCount = document.getElementById('inventoryCardCount');
         const inventoryAddBtn = document.getElementById('inventoryAddBtn');
         const inventoryClearBtn = document.getElementById('inventoryClearBtn');
+
+        // Инвентарь: инструменты (памятка/сборка/разборка/калькулятор рецепта)
+        renderInventoryMemo();
+        loadRulesMapping().then(() => {
+            renderInventoryRecipeSelect();
+            renderInventoryCraftList();
+        });
+        renderInventoryShortSummary();
+
+        const inventoryRecipeCalcBtn = document.getElementById('inventoryRecipeCalcBtn');
+        const inventoryRecipeSelect = document.getElementById('inventoryRecipeSelect');
+        if (inventoryRecipeCalcBtn) {
+            inventoryRecipeCalcBtn.addEventListener('click', renderInventoryRecipeResult);
+        }
+        if (inventoryRecipeSelect) {
+            inventoryRecipeSelect.addEventListener('change', () => {
+                // Мягкое UX: показываем расчёт сразу при смене
+                renderInventoryRecipeResult();
+            });
+        }
         
         inventoryAddBtn.addEventListener('click', function() {
             const cardName = inventoryCardSelect.value;

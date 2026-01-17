@@ -91,6 +91,45 @@
             <div class="inventory-total">Всего карт: <span id="inventoryTotalCount">0</span></div>
             <button class="inventory-clear-btn" id="inventoryClearBtn">Очистить инвентарь</button>
           </div>
+
+          <!-- Tools always available in Inventory mode (even without parser) -->
+          <div class="inventory-tools" id="inventoryTools">
+            <div class="inventory-tools-grid">
+              <div class="inventory-tools-card" id="inventoryMemoBox">
+                <div class="inventory-tools-title">🧾 Памятка</div>
+                <div class="inventory-tools-text" id="inventoryMemoText"></div>
+              </div>
+
+              <div class="inventory-tools-card" id="inventorySummaryBox">
+                <div class="inventory-tools-title">📌 Краткая сводка</div>
+                <div class="inventory-tools-text" id="inventoryShortSummary"></div>
+              </div>
+            </div>
+
+            <div class="inventory-tools-card" style="margin-top: 14px;">
+              <div class="inventory-tools-title">🧩 Сборка и разборка</div>
+
+              <div class="inventory-tools-split">
+                <div class="inventory-tools-sub">
+                  <div class="inventory-tools-subtitle">Сборка из текущего инвентаря</div>
+                  <div class="inventory-tools-hint">Показывает, что можно собрать прямо сейчас (максимально возможное количество по рецептам).</div>
+                  <div id="inventoryCraftList" class="inventory-tools-list"></div>
+                </div>
+
+                <div class="inventory-tools-sub">
+                  <div class="inventory-tools-subtitle">Калькулятор рецепта</div>
+                  <div class="inventory-tools-hint">Выберите карту и узнайте её рецепт, а также сколько раз она собирается из инвентаря.</div>
+                  <div class="inventory-tools-controls">
+                    <select id="inventoryRecipeSelect" class="inventory-select">
+                      <option value="">Выберите карту/рецепт</option>
+                    </select>
+                    <button class="inventory-btn" id="inventoryRecipeCalcBtn" type="button">Посчитать</button>
+                  </div>
+                  <div id="inventoryRecipeResult" class="inventory-tools-text" style="margin-top: 10px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
