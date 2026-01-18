@@ -1101,6 +1101,29 @@
             font-size: 1rem;
             backdrop-filter: blur(10px);
         }
+
+        .autolent-filters {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .autolent-filter-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 10px;
+            outline: none;
+            font-size: 0.98rem;
+        }
+
+        .autolent-filter-input:focus {
+            border-color: rgba(73, 185, 255, 0.55);
+            box-shadow: 0 0 0 3px rgba(73, 185, 255, 0.16);
+        }
         
         .autolent-results {
             margin-top: 25px;
@@ -1463,6 +1486,112 @@
     text-align: center;
 }
 
+/* ===================== База знаний (карты) ===================== */
+.kb-header{
+  padding:20px;
+  text-align:left;
+}
+.kb-title{
+  margin:0 0 8px 0;
+}
+.kb-subtitle{
+  margin:0 0 16px 0;
+  color:var(--text-secondary);
+}
+.kb-controls{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.kb-search{
+  flex:1;
+  min-width:260px;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(0,0,0,0.18);
+  color:var(--text);
+  outline:none;
+}
+.kb-search:focus{
+  border-color:rgba(73,185,255,0.5);
+  box-shadow:0 0 0 3px rgba(73,185,255,0.12);
+}
+.kb-count{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04);
+  color:var(--text-secondary);
+  font-size:0.9rem;
+  white-space:nowrap;
+}
+.kb-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:12px;
+  margin-bottom:16px;
+}
+.kb-item{
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04);
+  cursor:pointer;
+  transition:transform .12s ease, border-color .12s ease, background .12s ease;
+}
+.kb-item:hover{
+  transform:translateY(-1px);
+  border-color:rgba(73,185,255,0.35);
+  background:rgba(73,185,255,0.06);
+}
+.kb-item-top{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:6px;
+}
+.kb-item-emoji{
+  font-size:1.3rem;
+  width:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.kb-item-name{
+  font-weight:800;
+  color:var(--text);
+  line-height:1.15;
+}
+.kb-item-desc{
+  color:var(--text-secondary);
+  font-size:0.88rem;
+  line-height:1.35;
+}
+.kb-selectbox{
+  margin-top:10px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.03);
+}
+.kb-selecthint{
+  color:var(--text-secondary);
+  font-size:0.88rem;
+  margin-bottom:8px;
+}
+.kb-select{
+  width:100%;
+  max-width:520px;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(0,0,0,0.18);
+  color:var(--text);
+}
+
 .inventory-reference-group-title {
     color: var(--brand);
     font-weight: 700;
@@ -1558,4 +1687,43 @@
 .inventory-container.sandbox-active{
   outline: 1px solid rgba(0, 200, 255, 0.18);
   box-shadow: 0 0 0 1px rgba(0, 200, 255, 0.05) inset;
+}
+
+
+/* --- Card comments --- */
+.card-comment-box{
+  margin-top:16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.card-comment-input{
+  width:100%;
+  min-height:110px;
+  resize: vertical;
+  border-radius: 12px;
+  border: 1px solid rgba(73,185,255,0.35);
+  background: rgba(0,0,0,0.15);
+  color: var(--text-primary);
+  padding: 12px;
+  outline:none;
+}
+.card-comment-input:focus{
+  border-color: rgba(73,185,255,0.7);
+  box-shadow: 0 0 0 3px rgba(73,185,255,0.15);
+}
+.card-comment-hint{
+  margin-top:8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.card-db-comment{
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.12);
+  color: var(--text-primary);
+  white-space: pre-wrap;
 }

@@ -825,6 +825,206 @@
         }
     }
 
+    // ===================== Cards Registry (data-driven knowledge base) =====================
+    let __cardsRegistry = null;
+
+    function normalizeYesNo(v) {
+        if (v === undefined || v === null || v === '') return 'нет';
+        return String(v);
+    }
+
+    // Для полей, где важен реальный текст (например комментарии из базы)
+    function normalizeText(v) {
+        if (v === undefined || v === null) return '';
+        return String(v);
+    }
+
+    function mapRegistryTypeToUi(type) {
+        const t = String(type || '').trim();
+        if (t === 'activation' || t === 'violation' || t === 'danger' || t === 'super' || t === 'normal') return t;
+        // Поддержка редкостей, которые в старом UI считались "normal"
+        return 'normal';
+    }
+
+    function hydrateUiMapsFromRegistry(cards) {
+        if (!Array.isArray(cards)) return;
+
+        for (const c of cards) {
+            const name = c?.name || c?.id;
+            if (!name) continue;
+
+            // emojis + types
+            if (c.emoji) cardEmojis[name] = c.emoji;
+            if (c.type) cardTypes[name] = mapRegistryTypeToUi(c.type);
+
+            // knowledge base
+            cardDatabase[name] = {
+                effects: normalizeYesNo(c.effects),
+                application: normalizeYesNo(c.application),
+                obtain: normalizeYesNo(c.obtain),
+                features: normalizeYesNo(c.features),
+                removes: normalizeYesNo(c.removes),
+                takenBy: normalizeYesNo(c.takenBy || mapRegistryTypeToUi(c.type)),
+                sale: normalizeYesNo(c.sale),
+                transfer: normalizeYesNo(c.transfer),
+                conversion: normalizeYesNo(c.conversion),
+                protection: normalizeYesNo(c.protection),
+                cannotUse: normalizeYesNo(c.cannotUse),
+                formula: normalizeYesNo(c.formula),
+                description: normalizeYesNo(c.description),
+                // Комментарий со стороны базы знаний (отображается read-only)
+                comment: normalizeText(c.comment)
+            };
+        }
+    }
+
+    async function loadCardsRegistry() {
+        // Загружаем data/cards_registry.json (и фолбэк в корне) для UI "База знаний".
+        const baseHref = document.baseURI || window.location.href;
+        const urlData = new URL("data/cards_registry.json", baseHref).toString();
+        const urlRoot = new URL("cards_registry.json", baseHref).toString();
+        const urls = [urlData, urlRoot];
+
+        let lastErr = null;
+
+        for (const u of urls) {
+            try {
+                const r = await fetch(u, { cache: 'no-store' });
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const j = await r.json();
+                if (!j || !Array.isArray(j.cards)) throw new Error('Invalid cards_registry.json schema (cards[])');
+                __cardsRegistry = j;
+                hydrateUiMapsFromRegistry(j.cards);
+                return j;
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+
+        // Если запущено через file:// — fetch к JSON может быть заблокирован.
+        if (String(window.location.protocol) === 'file:') {
+            console.warn('cards_registry.json not loaded under file://. Use a local HTTP server (python -m http.server 8000).');
+        }
+
+        throw lastErr || new Error('Failed to load cards_registry.json');
+    }
+
+    function buildKbCardsList() {
+        if (__cardsRegistry && Array.isArray(__cardsRegistry.cards) && __cardsRegistry.cards.length) {
+            // сортировка: сначала по типу, потом по имени
+            const typeOrder = { normal: 1, activation: 2, violation: 3, danger: 4, super: 5 };
+            return [...__cardsRegistry.cards]
+                .map(c => ({
+                    name: c.name || c.id,
+                    emoji: c.emoji || cardEmojis[c.name || c.id] || '🃏',
+                    type: mapRegistryTypeToUi(c.type),
+                    description: c.description || (cardDatabase[c.name || c.id]?.description) || ''
+                }))
+                .filter(x => !!x.name)
+                .sort((a, b) => (typeOrder[a.type] - typeOrder[b.type]) || a.name.localeCompare(b.name, 'ru'));
+        }
+
+        // fallback: из текущей базы
+        const names = Object.keys(cardDatabase || {});
+        return names.map(n => ({
+            name: n,
+            emoji: cardEmojis[n] || '🃏',
+            type: mapRegistryTypeToUi(cardTypes[n] || 'normal'),
+            description: (cardDatabase[n] && cardDatabase[n].description) ? String(cardDatabase[n].description) : ''
+        })).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+    }
+
+    function initCardKnowledgeUI() {
+        const searchEl = document.getElementById('cardKbSearch');
+        const countEl = document.getElementById('cardKbCount');
+        const listEl = document.getElementById('cardKbList');
+        const selectEl = document.getElementById('cardInfoSelect');
+
+        if (!listEl || !countEl || !selectEl) return;
+
+        const all = buildKbCardsList();
+
+        // fill select grouped
+        selectEl.innerHTML = '<option value="">Выберите карту для просмотра информации</option>';
+        const groupLabels = {
+            normal: '🀄️ Обычные карты',
+            activation: '🎴 Карты Активаций',
+            violation: '🧧 Карты нарушений',
+            danger: '📱 Опасные карты',
+            super: '🪟 Супер карты'
+        };
+        const groups = new Map();
+        for (const c of all) {
+            const t = c.type || 'normal';
+            if (!groups.has(t)) {
+                const og = document.createElement('optgroup');
+                og.label = groupLabels[t] || t;
+                groups.set(t, og);
+                selectEl.appendChild(og);
+            }
+            const opt = document.createElement('option');
+            opt.value = c.name;
+            opt.textContent = `${c.emoji} ${c.name}`;
+            groups.get(t).appendChild(opt);
+        }
+
+        function shortDesc(d) {
+            const s = String(d || '').trim();
+            if (!s) return 'Описание отсутствует.';
+            return s.length > 140 ? (s.slice(0, 140).trim() + '…') : s;
+        }
+
+        function renderList() {
+            const q = String(searchEl?.value || '').trim().toLowerCase();
+            const filtered = !q ? all : all.filter(c => {
+                const n = String(c.name || '').toLowerCase();
+                const e = String(c.emoji || '').toLowerCase();
+                return n.includes(q) || e.includes(q);
+            });
+
+            listEl.innerHTML = '';
+            for (const c of filtered) {
+                const item = document.createElement('div');
+                item.className = 'kb-item';
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                item.dataset.cardName = c.name;
+                item.innerHTML = `
+                    <div class="kb-item-top">
+                      <div class="kb-item-emoji" aria-hidden="true">${c.emoji}</div>
+                      <div class="kb-item-name">${c.name}</div>
+                    </div>
+                    <div class="kb-item-desc">${shortDesc(c.description)}</div>
+                `;
+                const open = () => {
+                    selectEl.value = c.name;
+                    showCardInfo(c.name);
+                };
+                item.addEventListener('click', open);
+                item.addEventListener('keydown', (ev) => {
+                    if (ev.key === 'Enter' || ev.key === ' ') {
+                        ev.preventDefault();
+                        open();
+                    }
+                });
+                listEl.appendChild(item);
+            }
+
+            countEl.textContent = `Показано: ${filtered.length} из ${all.length}`;
+        }
+
+        // Search debounce
+        let t = null;
+        if (searchEl) {
+            searchEl.addEventListener('input', () => {
+                if (t) clearTimeout(t);
+                t = setTimeout(renderList, 150);
+            });
+        }
+
+        renderList();
+    }
+
     function getEmojiCountsFromInventory(inv) {
         const out = {};
         for (const [name, count] of Object.entries(inv || {})) {
@@ -1278,6 +1478,42 @@
 
     // ============== ФУНКЦИИ ОБЩИЕ ==============
     // Функция для показа уведомлений
+    
+    // --- Card comments (local-only notes) ---
+    const CARD_COMMENTS_STORAGE_KEY = 'vecherya_card_comments_v1';
+
+    function loadCardComments() {
+        try {
+            const raw = localStorage.getItem(CARD_COMMENTS_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function saveCardComments(map) {
+        try {
+            localStorage.setItem(CARD_COMMENTS_STORAGE_KEY, JSON.stringify(map || {}));
+        } catch (e) {
+            // ignore quota / privacy mode issues
+        }
+    }
+
+    function getCardComment(cardName) {
+        const map = loadCardComments();
+        return String(map?.[cardName] || '');
+    }
+
+    function setCardComment(cardName, value) {
+        const map = loadCardComments();
+        if (value && String(value).trim().length) {
+            map[cardName] = String(value);
+        } else {
+            delete map[cardName];
+        }
+        saveCardComments(map);
+    }
+
     function showNotification(message, type = 'info') {
         const container = document.getElementById('notificationContainer');
         
@@ -1695,6 +1931,34 @@ html += '</div>';
             </div>
         `;
         
+
+
+        // --- Comments: DB (read-only) + User notes (local) ---
+        const dbCommentRaw = (cardData.comment || '').trim();
+        const dbCommentSafe = dbCommentRaw
+            ? dbCommentRaw.replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            : '—';
+
+        const existingComment = getCardComment(cardName);
+        const existingCommentSafe = String(existingComment || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+        html += `
+            <div class="card-comment-box">
+                <div class="card-info-title">🗃️ Комментарий из базы знаний</div>
+                <div class="card-info-content">
+                    <div class="card-db-comment">${dbCommentSafe}</div>
+                    <div class="card-comment-hint">Это поле заполняется из cards_registry.json и редактируется только в базе.</div>
+                </div>
+            </div>
+
+            <div class="card-comment-box">
+                <div class="card-info-title">📝 Личные заметки</div>
+                <div class="card-info-content">
+                    <textarea id="cardCommentInput" class="card-comment-input" placeholder="Ваши заметки по карте (сохраняются локально в браузере)">${existingCommentSafe}</textarea>
+                    <div class="card-comment-hint">Заметки сохраняются только в этом браузере (localStorage).</div>
+                </div>
+            </div>
+        `;
         // Добавляем информацию о снимаемых картах, если есть
         if (cardData.removes && cardData.removes !== 'нет' && cardData.removes !== 'Ведущим') {
             html += renderEmojiTagList('✅', 'Снимает карты', cardData.removes, 'card-removes-box');
@@ -1727,6 +1991,15 @@ html += '</div>';
         
         // Обновляем контейнер
         cardInfoContainer.innerHTML = html;
+
+
+        // Wire comment persistence
+        const commentEl = document.getElementById('cardCommentInput');
+        if (commentEl) {
+            commentEl.addEventListener('input', (e) => {
+                setCardComment(cardName, e.target.value);
+            });
+        }
         cardInfoContainer.style.display = 'block';
         
         // Также обновляем основной контейнер результатов
@@ -1958,28 +2231,100 @@ html += '</div>';
         quickDownload.classList.add('visible');
         userSelector.classList.add('visible');
         
-        // Обновляем селектор пользователей
+        // Обновляем селектор пользователей (в алфавитном порядке)
         userSelect.innerHTML = '<option value="">-- Все пользователи --</option>';
         const sortedUsers = Object.keys(autolentResults.users)
-            .sort((a, b) => autolentResults.users[b].total - autolentResults.users[a].total);
+            .sort((a, b) => String(a).localeCompare(String(b), 'ru', { sensitivity: 'base' }));
         
         sortedUsers.forEach(username => {
             const option = document.createElement('option');
             option.value = username;
-            option.textContent = `${username} (${autolentResults.users[username].total} карт)`;
+            const unit = String((document.getElementById('autolentCostUnit')?.value || 'grey'));
+            const meta = getAutolentCostUnitMeta(unit);
+            const cost = computeAutolentUserCost(autolentResults.users[username], unit);
+            option.textContent = `${username} (${autolentResults.users[username].total} карт · ${formatAutolentCost(cost)}${meta.emoji})`;
             userSelect.appendChild(option);
         });
         
-        // Показываем всех пользователей
+        // Показываем всех пользователей (с учетом фильтров)
         showSelectedUser('');
         
         showNotification(`Проанализировано: ${autolentResults.totalCards} карт от ${autolentResults.totalUsers} пользователей`, 'success');
+    }
+
+    // Стоимость пользователя в "серых" (учитываем только валютные редкости)
+    function computeAutolentUserCostGrey(userData) {
+        const greyEqPerCard = {
+            'Рубиновая': 144,
+            'Изумрудная': 48,
+            'Золотая': 24,
+            'Белая': 12,
+            'Зелёная': 6,
+            'Синяя': 3,
+            'Серая': 1
+        };
+
+        if (!userData || !userData.cards) return 0;
+        let total = 0;
+        for (const [cardName, count] of Object.entries(userData.cards)) {
+            const k = greyEqPerCard[cardName];
+            if (!k) continue;
+            total += k * (Number(count) || 0);
+        }
+        return Math.round(total);
+    }
+
+    // Стоимость пользователя в выбранных единицах (на основе "серых" эквивалентов)
+    function computeAutolentUserCost(userData, unit) {
+        const unitFactor = {
+            grey: 1,
+            blue: 3,
+            green: 6,
+            white: 12,
+            gold: 24,
+            emerald: 48,
+            ruby: 144
+        };
+        const grey = computeAutolentUserCostGrey(userData);
+        const k = unitFactor[String(unit || 'grey')] || 1;
+        return grey / k;
+    }
+
+    function formatAutolentCost(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return '0';
+        // Для нецелых — до 2 знаков без лишних нулей
+        const s = (Math.round(n * 100) / 100).toFixed(2);
+        return s.replace(/\.00$/, '').replace(/(\.[0-9])0$/, '$1');
+    }
+
+    function getAutolentCostUnitMeta(unit) {
+        const u = String(unit || 'grey');
+        const meta = {
+            grey: { emoji: '☑️', label: 'серых' },
+            blue: { emoji: '🟦', label: 'синих' },
+            green: { emoji: '🟩', label: 'зелёных' },
+            white: { emoji: '⬜️', label: 'белых' },
+            gold: { emoji: '🥇', label: 'золотых' },
+            emerald: { emoji: '💎', label: 'изумрудных' },
+            ruby: { emoji: '🚨', label: 'рубиновых' }
+        };
+        return meta[u] || meta.grey;
     }
     
     // Показать карты выбранного пользователя
     function showSelectedUser(username) {
         const userResults = document.getElementById('autolentUserResults');
         const resultsTitle = document.getElementById('autolentResultsTitle');
+
+        const qUser = String((document.getElementById('autolentSearchUser')?.value || '')).trim().toLowerCase();
+        const qCardName = String((document.getElementById('autolentSearchCard')?.value || '')).trim().toLowerCase();
+        const qCardEmoji = String((document.getElementById('autolentSearchCardEmoji')?.value || '')).trim();
+        const costUnit = String((document.getElementById('autolentCostUnit')?.value || 'grey'));
+        const qCostRaw = document.getElementById('autolentSearchCost')?.value;
+        const qCost = qCostRaw === '' || qCostRaw === null || qCostRaw === undefined ? null : Number(qCostRaw);
+
+        const unitMeta = getAutolentCostUnitMeta(costUnit);
         
         userResults.innerHTML = '';
         
@@ -2015,6 +2360,9 @@ html += '</div>';
                         <span style="font-size: 0.9rem; color: var(--brand); background: rgba(73, 185, 255, 0.2); padding: 4px 12px; border-radius: 20px;">
                             Всего карт: ${userData.total}
                         </span>
+                        <span style="font-size: 0.9rem; color: var(--brand); background: rgba(255, 255, 255, 0.06); padding: 4px 12px; border-radius: 20px;">
+                            Стоимость: ${formatAutolentCost(computeAutolentUserCost(userData, costUnit))}${unitMeta.emoji}
+                        </span>
                     </div>
                     ${cardsHTML}
                 `;
@@ -2026,11 +2374,53 @@ html += '</div>';
             }
         } else {
             // Показать всех пользователей
+            // Важно: список под "Кто ты воен?" отсортирован по алфавиту и фильтруется полями ниже.
             resultsTitle.textContent = `👤 Карты по пользователям (${autolentResults.totalUsers})`;
-            
+
+            // Алфавитная сортировка (под "Кто ты воен?") + фильтры
             const sortedUsers = Object.entries(autolentResults.users)
-                .sort((a, b) => b[1].total - a[1].total);
+                .filter(([uname, udata]) => {
+                    if (qUser && !String(uname).toLowerCase().includes(qUser)) return false;
+
+                    if (qCost !== null && !Number.isNaN(qCost)) {
+                        const cost = computeAutolentUserCost(udata, costUnit);
+                        if (cost < qCost) return false;
+                    }
+
+                    if (qCardName || qCardEmoji) {
+                        const cards = Object.keys(udata.cards || {});
+                        let ok = false;
+                        for (const cn of cards) {
+                            const emoji = (cardEmojis[cn] || '').toLowerCase();
+                            const nameOk = qCardName ? String(cn).toLowerCase().includes(qCardName) : false;
+                            const emojiOk = qCardEmoji ? String(cardEmojis[cn] || '') === qCardEmoji : false;
+                            if (nameOk || emojiOk) {
+                                ok = true;
+                                break;
+                            }
+                        }
+                        if (!ok) return false;
+                    }
+
+                    return true;
+                })
+                .sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ru', { sensitivity: 'base' }));
             
+            // Обновляем заголовок с учетом активных фильтров
+            const hasAnyFilter = !!(qUser || qCardName || qCardEmoji || (qCost !== null && !Number.isNaN(qCost)));
+            if (hasAnyFilter) {
+                resultsTitle.textContent = `👤 Карты по пользователям: найдено ${sortedUsers.length} из ${autolentResults.totalUsers}`;
+            }
+
+            if (sortedUsers.length === 0) {
+                userResults.innerHTML = `
+                    <div style="padding: 16px; color: var(--text-secondary); text-align:center;">
+                        Ничего не найдено по выбранным фильтрам.
+                    </div>
+                `;
+                return;
+            }
+
             sortedUsers.forEach(([username, userData]) => {
                 const userCard = document.createElement('div');
                 userCard.className = 'autolent-user-card';
@@ -2073,6 +2463,9 @@ html += '</div>';
                         👤 ${username}
                         <span style="font-size: 0.9rem; color: var(--brand); background: rgba(73, 185, 255, 0.2); padding: 4px 12px; border-radius: 20px;">
                             ${userData.total} карт
+                        </span>
+                        <span style="font-size: 0.9rem; color: var(--brand); background: rgba(255, 255, 255, 0.06); padding: 4px 12px; border-radius: 20px;">
+                            ${formatAutolentCost(computeAutolentUserCost(userData, costUnit))}${unitMeta.emoji}
                         </span>
                     </div>
                     ${cardsHTML}
@@ -2361,6 +2754,12 @@ html += '</div>';
         // Инициализация Базы знаний
         const cardInfoSelect = document.getElementById('cardInfoSelect');
 
+        // Загружаем data-driven реестр карт и строим список из всех карт (с поиском)
+        // Важно: даже если реестр не загрузился, initCardKnowledgeUI всё равно отработает по fallback-базе.
+        loadCardsRegistry()
+            .then(() => initCardKnowledgeUI())
+            .catch(() => initCardKnowledgeUI());
+
         // Автопоказ информации при выборе карты
         cardInfoSelect.addEventListener('change', function() {
             const cardName = this.value;
@@ -2373,9 +2772,41 @@ html += '</div>';
         const autolentClearBtn = document.getElementById('autolentClearBtn');
         const autolentDownloadAllBtn = document.getElementById('autolentDownloadAllBtn');
         const autolentUserSelect = document.getElementById('autolentUserSelect');
-        const autolentFileInput = document.getElementById('autolentFileInput');
-        const autolentClearUploadInfo = document.getElementById('autolentClearUploadInfo');
-        const autolentUploadInfo = document.getElementById('autolentUploadInfo');
+        const autolentSearchUser = document.getElementById('autolentSearchUser');
+        const autolentSearchCard = document.getElementById('autolentSearchCard');
+        const autolentSearchCardEmoji = document.getElementById('autolentSearchCardEmoji');
+        const autolentCostUnit = document.getElementById('autolentCostUnit');
+        const autolentSearchCost = document.getElementById('autolentSearchCost');
+
+        // Заполняем селектор эмодзи карт (после загрузки реестра / фолбэка)
+        (function populateAutolentEmojiFilter() {
+            if (!autolentSearchCardEmoji) return;
+
+            // Уникальные пары (emoji, name) из cardEmojis
+            const items = Object.entries(cardEmojis || {})
+                .filter(([name, emoji]) => emoji && String(emoji).trim())
+                .map(([name, emoji]) => ({ name, emoji: String(emoji).trim() }));
+
+            // Сортируем по названию карты (чтобы быстро находить)
+            items.sort((a, b) => String(a.name).localeCompare(String(b.name), 'ru', { sensitivity: 'base' }));
+
+            // Очищаем и добавляем дефолт
+            autolentSearchCardEmoji.innerHTML = '<option value="">Эмодзи карты (любая)</option>';
+            for (const it of items) {
+                const opt = document.createElement('option');
+                opt.value = it.emoji;
+                opt.textContent = `${it.emoji} ${it.name}`;
+                autolentSearchCardEmoji.appendChild(opt);
+            }
+        })();
+
+        // Плейсхолдер для стоимости в зависимости от выбранных единиц
+        const syncAutolentCostPlaceholder = () => {
+            if (!autolentSearchCost) return;
+            const meta = getAutolentCostUnitMeta(autolentCostUnit?.value || 'grey');
+            autolentSearchCost.placeholder = `Стоимость инвентаря ≥ (в ${meta.label})…`;
+        };
+        syncAutolentCostPlaceholder();
         
         // Обработчик парсинга
         autolentParseBtn.addEventListener('click', function() {
@@ -2399,7 +2830,6 @@ html += '</div>';
             document.getElementById('autolentResults').classList.remove('visible');
             document.getElementById('autolentQuickDownload').classList.remove('visible');
             document.getElementById('autolentUserSelector').classList.remove('visible');
-            autolentUploadInfo.classList.remove('visible');
             showNotification('Поле очищено', 'info');
         });
         
@@ -2409,21 +2839,44 @@ html += '</div>';
         });
         
         // Обработчик выбора пользователя
-        autolentUserSelect.addEventListener('change', function() {
-            showSelectedUser(this.value);
-        });
-        
-        // Обработчик загрузки файла
-        autolentFileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                handleFileUpload(file);
-            }
-        });
-        
-        // Очистить информацию о загрузке
-        autolentClearUploadInfo.addEventListener('click', function() {
-            autolentUploadInfo.classList.remove('visible');
+        if (autolentUserSelect) {
+            autolentUserSelect.addEventListener('change', function() {
+                // Если выбран конкретный пользователь — показываем его,
+                // если пусто — показываем список с учетом фильтров.
+                showSelectedUser(this.value);
+            });
+        }
+
+        // Фильтры списка пользователей (работают только когда выбран "Все пользователи")
+        const refilter = () => {
+            if (autolentUserSelect && autolentUserSelect.value) return; // не мешаем просмотру одного пользователя
+            showSelectedUser('');
+        };
+        if (autolentSearchUser) autolentSearchUser.addEventListener('input', refilter);
+        if (autolentSearchCard) autolentSearchCard.addEventListener('input', refilter);
+        if (autolentSearchCardEmoji) autolentSearchCardEmoji.addEventListener('change', refilter);
+        if (autolentSearchCost) autolentSearchCost.addEventListener('input', refilter);
+        if (autolentCostUnit) autolentCostUnit.addEventListener('change', () => {
+            syncAutolentCostPlaceholder();
+            // Обновляем подписи в списке "Кто ты воен?" под выбранные единицы оценки
+            try {
+                if (autolentUserSelect && autolentResults && autolentResults.users) {
+                    autolentUserSelect.innerHTML = '<option value="">-- Все пользователи --</option>';
+                    const sorted = Object.keys(autolentResults.users)
+                        .sort((a, b) => String(a).localeCompare(String(b), 'ru', { sensitivity: 'base' }));
+                    const unit = String(autolentCostUnit.value || 'grey');
+                    const meta = getAutolentCostUnitMeta(unit);
+                    for (const uname of sorted) {
+                        const opt = document.createElement('option');
+                        opt.value = uname;
+                        const udata = autolentResults.users[uname];
+                        const cost = computeAutolentUserCost(udata, unit);
+                        opt.textContent = `${uname} (${udata.total} карт · ${formatAutolentCost(cost)}${meta.emoji})`;
+                        autolentUserSelect.appendChild(opt);
+                    }
+                }
+            } catch (_) {}
+            refilter();
         });
         
         // Просто показываем пустой placeholder

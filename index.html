@@ -169,17 +169,7 @@
           </div>
           
           <div class="autolent-input-container">
-            <div class="autolent-file-input-wrapper">
-              <label class="autolent-file-label">
-                📁 Выбрать TXT файл
-                <input type="file" id="autolentFileInput" class="autolent-file-input" accept=".txt,text/plain">
-              </label>
-            </div>
-            
-            <div class="autolent-upload-info" id="autolentUploadInfo">
-              <span class="autolent-upload-text" id="autolentUploadInfoText"></span>
-              <button class="autolent-close-upload" id="autolentClearUploadInfo">✕</button>
-            </div>
+            <!-- TXT file input removed: user pastes inventory text directly into textarea -->
             
             <textarea class="autolent-textarea" id="autolentText" placeholder="Вставьте сюда текст с постами, содержащими списки карточек..."></textarea>
             
@@ -205,6 +195,24 @@
               <select id="autolentUserSelect">
                 <option value="">-- Все пользователи --</option>
               </select>
+
+              <div class="autolent-filters" aria-label="Фильтры списка пользователей">
+                <input type="text" id="autolentSearchUser" class="autolent-filter-input" placeholder="Поиск по имени пользователя…">
+                <input type="text" id="autolentSearchCard" class="autolent-filter-input" placeholder="Карта: название…">
+                <select id="autolentSearchCardEmoji" class="autolent-filter-input" aria-label="Выбор эмодзи карты">
+                  <option value="">Эмодзи карты (любая)</option>
+                </select>
+                <select id="autolentCostUnit" class="autolent-filter-input" aria-label="Единицы оценки стоимости">
+                  <option value="grey">Оценить в ☑️ серых</option>
+                  <option value="blue">Оценить в 🟦 синих</option>
+                  <option value="green">Оценить в 🟩 зелёных</option>
+                  <option value="white">Оценить в ⬜️ белых</option>
+                  <option value="gold">Оценить в 🥇 золотых</option>
+                  <option value="emerald">Оценить в 💎 изумрудных</option>
+                  <option value="ruby">Оценить в 🚨 рубиновых</option>
+                </select>
+                <input type="number" id="autolentSearchCost" class="autolent-filter-input" placeholder="Стоимость инвентаря ≥" min="0" step="0.01">
+              </div>
             </div>
           </div>
           
@@ -221,64 +229,23 @@
 
       <!-- Card Info (База знаний) -->
       <div class="mode-content" id="contentCardInfo">
-        <div style="text-align: center; padding: 20px;">
-          <h3 style="margin-bottom: 20px;">📚 База знаний по картам</h3>
-          <p style="color: var(--text-secondary); margin-bottom: 30px;">Выберите карту для просмотра полной информации о её свойствах, применении и сборке</p>
-          
-          <select id="cardInfoSelect" style="max-width: 400px; margin: 0 auto 30px;">
-    <option value="">Выберите карту для просмотра информации</option>
-    <optgroup label="🀄️ Обычные карты">
-        <option value="Комиссия">🔘 Комиссия</option>
-        <option value="Серая">☑️ Серая карта</option>
-        <option value="Синяя">🟦 Синяя карта</option>
-        <option value="Зелёная">🟩 Зелёная карта</option>
-        <option value="Белая">⬜️ Белая карта</option>
-        <option value="Золотая">🟧 Золотая карта</option>
-        <option value="Изумрудная">💎 Изумрудная карта</option>
-        <option value="Рубиновая">🚨 Рубиновая карта</option>
-    </optgroup>
-    <optgroup label="🎴 Карты Активаций">
-        <option value="Магнит">Ⓜ️ Магнит</option>
-        <option value="Бита">🅱️ Бита</option>
-        <option value="Страшный Суд">♎️ Страшный Суд</option>
-        <option value="Конвертер">♻️ Конвертер</option> 
-        <option value="Джокер">🃏 Дуэт Джокер</option>
-        <option value="Пацифик">☮️ Пацифик</option>
-        <option value="Пергамент">📜 Пергамент</option>
-        <option value="Антиэкран">🚾 Антиэкран</option>
-        <option value="Чёрно-Белая">🔲 Чёрно-Белая карта</option>
-        <option value="Радужная">🏳️‍🌈 Радужная карта</option>
-        <option value="Карта Контента">🎦 Карта Контента</option>
-        <option value="Музыкальная карта">🎹 Музыкальная карта</option>
-        <option value="Кость">🎲 Кость</option> 
-        <option value="Рубиновая Кость">♦️ Рубиновая Кость</option> 
-    </optgroup>
-    <optgroup label="🧧 Карты нарушений">
-        <option value="Розовая">🟪 Розовая карта</option>
-        <option value="Красная">🟥 Красная карта</option>
-        <option value="Жёлтая">🟨 Жёлтая карта</option>
-        <option value="Чёрная">⬛️ Чёрная карта</option>
-        <option value="Коричневая">🟫 Коричневая карта</option>
-        <option value="Обнуление">🅾️ Карта обнуления</option>
-        <option value="Заморозка">💠 Заморозка</option> 
-    </optgroup>
-    <optgroup label="📱 Опасные карты">
-        <option value="Банкрот">⚫️ Банкрот</option> 
-        <option value="Экстерминатус">💣 Экстерминатус</option> 
-        <option value="Грабители">🥷 Грабители</option>
-    </optgroup>
-    <optgroup label="🪟 Супер карты">
-        <option value="Джекпот">🎰 Джекпот</option>
-        <option value="Сладкий подарок">🍫 Сладкий подарок</option>
-        <option value="Супер подарок">🎁 Супер подарок</option>
-        <option value="Хамелеон">🦎 Хамелеон</option>
-        <option value="Храм">🛐 Храм</option>
-        <option value="Банк">🏧 Банк</option>
-        <option value="Ведро Егора">🪣 Ведро Егора</option> 
-        <option value="Преисподняя">🌋 Преисподняя</option> 
-        <option value="Грабители">🥷 Грабители</option> 
-    </optgroup>
-</select>
+        <div class="kb-header">
+          <h3 class="kb-title">📚 База знаний по картам</h3>
+          <p class="kb-subtitle">Все карты из базы данных. Поиск работает по названию и эмодзи.</p>
+
+          <div class="kb-controls">
+            <input type="text" id="cardKbSearch" class="kb-search" placeholder="Поиск: например 'Банк', '🏧', 'Заморозка'...">
+            <div class="kb-count" id="cardKbCount">Загрузка…</div>
+          </div>
+
+          <div class="kb-list" id="cardKbList" aria-label="Список карт"></div>
+
+          <div class="kb-selectbox">
+            <div class="kb-selecthint">Или выберите карту из списка:</div>
+            <select id="cardInfoSelect" class="kb-select">
+              <option value="">Выберите карту для просмотра информации</option>
+            </select>
+          </div>
         </div>
         
         <div id="cardInfoContainer" class="card-info-container" style="display: none;">
