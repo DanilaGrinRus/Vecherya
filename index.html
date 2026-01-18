@@ -3,16 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <meta name="description" content="Калькулятор и автопарсер инвентаря карт для игры «Капитализм и Коммунизм» на стриме: подсчёт карт по редкостям, активные карты, поиск и автозаполнение.">
-<title>Калькулятор инвентаря карт — «Капитализм и Коммунизм» (Vecherya)</title>
+    <title>Калькулятор стрима "Тайная Вечеря"</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        :root{
+            --bg-dark:#0a0a1f;--bg-darker:#050510;--primary:#8b0000;--secondary:#006400;--accent:#daa520;
+            --accent-light:#ffd700;--text:#f8f8ff;--text-secondary:#c0c0c0;--card-bg:#1a1a2e;
+            --card-border:#2a2a3e;--success:#32cd32;--warning:#ff8c00;--ruby:#e0115f;--emerald:#50c878;
+            --dropdown-bg:#2a2a3e;--dropdown-border:#3a3a4e;--selected:rgba(50,205,50,0.2);--info:#4169e1;
+            --normal:#50c878;--activation:#9b59b6;--violation:#e74c3c;--super:#FFD700;--danger:#f39c12;
+            --yellow-card:#FFD700;--red-card:#FF0000;--commission:#9370DB;--freeze:#00bfff;--bucket:#DEB887;
+            --hell:#8B0000;--ext:#B22222
+        }
+        html{font-size:16px;-webkit-text-size-adjust:100%}
+        body{
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+            background:var(--bg-dark);color:var(--text);min-height:100vh;padding:12px;line-height:1.5;
+            overflow-x:hidden
+        }
+        .container{max-width:100%;margin:0 auto;padding:0;position:relative}
+        .main-header{
+            text-align:center;padding:16px;margin-bottom:20px;background:var(--card-bg);border:2px solid var(--accent);
+            border-radius:12px;display:flex;flex-direction:column;align-items:center;width:100%
+        }
+        h1{font-size:1.4rem;margin-bottom:8px;color:var(--accent);line-height:1.3}
+        .subtitle{font-size:0.9rem;color:var(--text-secondary);margin-bottom:12px}
+        .time-display{
+            background:var(--dropdown-bg);padding:8px 16px;border-radius:10px;margin:8px 0;font-weight:600;
+            display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--accent);
+            transition:all 0.3s ease;font-size:0.95rem
+        }
+        .time-display.night-mode{background:var(--primary);color:#fff;border-color:var(--red-card)}
+        .night-warning{font-size:0.8rem;color:var(--red-card);margin-top:4px;display:none}
+        .night-warning.show{display:block}
+        .reset-btn{
+            width:100%;max-width:300px;padding:12px 16px;background:var(--secondary);color:white;border:none;
+            border-radius:10px;font-size:0.95rem;font-weight:600;cursor:pointer;display:flex;align-items:center;
+            justify-content:center;gap:8px;transition:all 0.3s ease;margin-top:10px
+        }
+        .reset-btn:active{transform:scale(0.97)}
+        .calculator-section{
+            background:var(--card-bg);border:2px solid var(--card-border);border-radius:12px;padding:16px;
+            width:100%;margin-bottom:20px
+        }
+        .section-title{font-size:1.2rem;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+        .mode-selector{display:flex;gap:10px;margin-bottom:20px;border-radius:12px;overflow:hidden;background:var(--dropdown-bg);border:2px solid var(--dropdown-border)}
+        .mode-btn{
+            flex:1;padding:16px 12px;background:rgba(255,255,255,0.05);border:none;color:var(--text-secondary);
+            border-radius:0;cursor:pointer;text-align:center;font-size:1rem;font-weight:500;-webkit-appearance:none;
+            touch-action:manipulation;transition:all 0.2s ease;min-height:54px
+        }
+        .mode-btn:active{transform:scale(0.98)}
+        .mode-btn.active{background:var(--primary);color:white;font-weight:600}
+        .mode-content{display:none}
+        .mode-content.active{display:block}
+        .card-selector-container{background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.1)}
+        .search-box{margin-bottom:16px}
+        .search-input{
+            width:100%;padding:14px;background:var(--dropdown-bg);border:2px solid var(--dropdown-border);
+            border-radius:10px;color:var(--text);font-size:1rem;padding-left:45px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='%23daa520' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+            background-repeat:no-repeat;background-position:15px center;background-size:18px;transition:all 0.3s ease
+        }
+        .search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(218,165,32,0.2)}
+        .category-tabs{
+            display:flex;gap:8px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1);
+            overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap
+        }
+        .category-tabs::-webkit-scrollbar{display:none}
+        .category-tab{
+            padding:10px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+            border-radius:20px;color:var(--text-secondary);cursor:pointer;font-size:0.85rem;font-weight:500;
+            transition:all 0.2s ease;flex-shrink:0;display:flex;align-items:center;gap:6px
+        }
+        .category-tab:active{transform:scale(0.97)}
+        .category-tab.active{background:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 8px rgba(139,0,0,0.3)}
+        .cards-selector-grid{
+            display:flex;flex-direction:column;gap:12px;max-height:400px;overflow-y:auto;padding:12px;
+            background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.05);margin-bottom:16px
+        }
+        .category-section{margin-bottom:20px}
+        .category-title{
+            font-size:1rem;color:var(--accent);margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid;
+            display:flex;align-items:center;gap:8px
+        }
+        .category-title-normal{border-color:var(--normal);color:var(--normal)}
+        .category-title-activation{border-color:var(--activation);color:var(--activation)}
+        .category-title-violation{border-color:var(--violation);color:var(--violation)}
+        .category-title-super{border-color:var(--super);color:var(--super)}
+        .category-title-danger{border-color:var(--danger);color:var(--danger)}
+        .category-title-bucket{border-color:var(--bucket);color:var(--bucket)}
+        .category-title-hell{border-color:var(--hell);color:var(--hell)}
+        .category-cards-grid{display:flex;flex-direction:column;gap:10px}
+        .card-option{
+            padding:14px;background:linear-gradient(145deg,#2a2a3e,#1a1a2e);border:2px solid var(--card-border);
+            border-radius:10px;cursor:pointer;transition:all 0.3s ease;border-left:4px solid;display:flex;
+            gap:12px;align-items:flex-start;min-height:110px
+        }
+        .card-option:active{transform:scale(0.98)}
+        .card-option.selected{border-color:var(--success);box-shadow:0 0 15px rgba(50,205,50,0.2)}
+        .card-normal{border-left-color:var(--normal)}
+        .card-activation{border-left-color:var(--activation)}
+        .card-violation{border-left-color:var(--violation)}
+        .card-super{border-left-color:var(--super)}
+        .card-danger{border-left-color:var(--danger)}
+        .card-bucket{border-left-color:var(--bucket)}
+        .card-hell{border-left-color:var(--hell)}
+        .card-yellow{border-left-color:var(--yellow-card)}
+        .card-red{border-left-color:var(--red-card)}
+        .card-commission{border-left-color:var(--commission)}
+        .card-freeze{border-left-color:var(--freeze)}
+        .card-emoji{
+            font-size:2.2rem;width:50px;height:50px;display:flex;align-items:center;justify-content:center;
+            background:rgba(255,255,255,0.05);border-radius:8px;flex-shrink:0
+        }
+        .card-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+        .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px}
+        .card-name-wrapper{flex:1;min-width:0}
+        .card-name{font-size:0.95rem;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:4px}
+        .card-cost{
+            font-size:0.9rem;color:var(--accent);font-weight:600;background:rgba(218,165,32,0.1);padding:3px 8px;
+            border-radius:6px;white-space:nowrap;flex-shrink:0;text-align:center;min-width:50px
+        }
+        .card-yellow .card-cost,.card-red .card-cost{display:none}
+        .card-category{
+            font-size:0.7rem;padding:3px 8px;border-radius:8px;display:inline-block;font-weight:500;white-space:nowrap;
+            margin-bottom:6px
+        }
+        .category-normal{background:rgba(80,200,120,0.2);color:var(--normal)}
+        .category-activation{background:rgba(155,89,182,0.2);color:var(--activation)}
+        .category-violation{background:rgba(231,76,60,0.2);color:var(--violation)}
+        .category-super{background:rgba(255,215,0,0.2);color:var(--super)}
+        .category-danger{background:rgba(243,156,18,0.2);color:var(--danger)}
+        .category-bucket{background:rgba(222,184,135,0.2);color:var(--bucket)}
+        .category-hell{background:rgba(139,0,0,0.2);color:var(--hell)}
+        .category-yellow{background:rgba(255,215,0,0.2);color:var(--yellow-card)}
+        .category-red{background:rgba(255,0,0,0.2);color:var(--red-card)}
+        .category-commission{background:rgba(147,112,219,0.2);color:var(--commission)}
+        .category-freeze{background:rgba(0,191,255,0.2);color:var(--freeze)}
+        .card-description{
+            font-size:0.8rem;color:var(--text-secondary);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;
+            -webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis
+        }
+        .input-group{margin-bottom:16px}
+        .input-group label{
+            display:block;margin-bottom:8px;color:var(--text-secondary);font-weight:500;display:flex;
+            align-items:center;gap:8px;font-size:1rem
+        }
+        .input-group input[type="number"]{
+            width:100%;padding:14px;background:var(--dropdown-bg);border:2px solid var(--dropdown-border);
+            border-radius:10px;color:var(--text);font-size:1rem;-webkit-appearance:none;transition:all 0.3s ease
+        }
+        .calculate-btn{
+            width:100%;padding:16px;background:linear-gradient(135deg,var(--accent),var(--accent-light));
+            color:#000;border:none;border-radius:10px;font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;
+            align-items:center;justify-content:center;gap:10px;margin-top:20px;-webkit-appearance:none;
+            touch-action:manipulation;transition:all 0.3s ease
+        }
+        /* Кнопки инвентаря "Сборка / Разбор / Сводка" должны быть не жирными */
+        .inv-main-btn{font-weight:400}
+        .calculate-btn:active{transform:scale(0.97)}
+        .compact-inventory-container{
+            background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.05);
+            max-height:500px;overflow-y:auto
+        }
+        .inventory-category-compact{margin-bottom:0}
+        .inventory-category-header{
+            padding:12px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);
+            font-size:0.9rem;font-weight:600;color:var(--accent);cursor:pointer;display:flex;align-items:center;
+            justify-content:space-between;user-select:none
+        }
+        .inventory-category-header:hover{background:rgba(255,255,255,0.05)}
+        .category-collapse-icon{font-size:0.8rem;opacity:0.7;transition:transform 0.2s ease}
+        .inventory-category-header.collapsed .category-collapse-icon{transform:rotate(-90deg)}
+        .compact-cards-list{padding:0}
+        .inventory-row{
+            display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.03);
+            gap:12px;transition:background 0.2s ease;min-height:56px
+        }
+        .inventory-row:hover{background:rgba(255,255,255,0.02)}
+        .row-emoji{font-size:1.4rem;width:36px;text-align:center;flex-shrink:0}
+        .row-name{flex:1;font-size:0.85rem;color:var(--text);line-height:1.3;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .row-cost{
+            font-size:0.75rem;color:var(--accent);background:rgba(218,165,32,0.1);padding:3px 8px;border-radius:6px;
+            white-space:nowrap;flex-shrink:0;width:55px;text-align:center
+        }
+        .row-input-wrapper{display:flex;align-items:center;gap:6px;flex-shrink:0}
+        .compact-input{
+            width:60px;padding:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+            border-radius:6px;color:var(--text);text-align:center;font-size:0.9rem;-webkit-appearance:none;min-height:36px
+        }
+        .compact-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(218,165,32,0.1)}
+        .inventory-actions{display:flex;gap:10px;padding:16px;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.05)}
+        .action-btn{
+            flex:1;padding:10px;background:var(--dropdown-bg);border:1px solid var(--dropdown-border);border-radius:6px;
+            color:var(--text);font-size:0.85rem;cursor:pointer;transition:all 0.2s ease;text-align:center
+        }
+        .action-btn:hover{background:rgba(255,255,255,0.1)}
+        .action-btn:active{transform:scale(0.98)}
+        .action-btn.primary{background:var(--primary);color:white;border-color:var(--primary)}
+        .results-section{margin-top:24px;padding-top:20px;border-top:2px solid rgba(255,255,255,0.1)}
+        .results-title{font-size:1.1rem;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+        .results-container{background:rgba(255,255,255,0.05);border-radius:10px;padding:16px;min-height:150px;border:1px solid rgba(255,255,255,0.1)}
+        .result-item{
+            padding:16px;margin-bottom:12px;background:linear-gradient(145deg,#2a2a3e,#1a1a2e);border-radius:8px;
+            border-left:4px solid var(--success)
+        }
+        .result-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+        .result-emoji{font-size:2rem}
+        .result-text{color:var(--text);font-weight:600;font-size:1rem}
+        .result-value{color:var(--accent);font-weight:700;font-size:1.1rem}
+        .selected-card-display{
+            padding:16px;background:linear-gradient(135deg,rgba(50,205,50,0.1),rgba(50,205,50,0.05));
+            border-radius:10px;border:2px solid var(--success);margin-top:16px;font-size:0.9rem
+        }
+        .selected-card-header{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+        .selected-card-emoji{
+            font-size:2.5rem;width:55px;height:55px;display:flex;align-items:center;justify-content:center;
+            background:rgba(255,255,255,0.05);border-radius:10px;flex-shrink:0
+        }
+        .selected-card-info{flex:1;min-width:0}
+        .selected-card-info h4{font-size:1.1rem;margin-bottom:4px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .selected-card-category{font-size:0.8rem;padding:4px 10px;border-radius:8px;display:inline-block;margin-bottom:6px;font-weight:500}
+        .selected-card-cost{font-size:1rem;color:var(--accent);font-weight:600;margin-bottom:12px;line-height:1.3}
+        .selected-card-yellow .selected-card-cost,.selected-card-red .selected-card-cost{display:none}
+        .selected-card-details{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+        .detail-item{display:flex;flex-direction:column;gap:4px}
+        .detail-label{font-weight:600;color:var(--text-secondary);font-size:0.85rem}
+        .detail-value{color:var(--text);line-height:1.4;font-size:0.9rem;word-break:break-word}
+        .footer{margin-top:30px;padding-top:16px;border-top:2px solid rgba(218,165,32,0.3);text-align:center;color:var(--text-secondary);font-size:0.85rem}
+        .notification{
+            position:fixed;top:16px;left:16px;right:16px;padding:14px 20px;background:var(--primary);color:white;
+            border-radius:10px;z-index:1000;display:flex;align-items:center;gap:10px;animation:slideIn 0.3s ease;
+            box-shadow:0 5px 15px rgba(0,0,0,0.3);font-size:0.95rem
+        }
+        .cheatsheet-toggle{
+            position:fixed;right:20px;top:50%;transform:translateY(-50%);background:var(--accent);color:#000;
+            border:none;border-radius:50%;width:50px;height:50px;font-size:1.5rem;cursor:pointer;z-index:900;
+            display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:all 0.3s ease
+        }
+        .cheatsheet-toggle:hover{transform:translateY(-50%) scale(1.1)}
+        .cheatsheet-toggle.active{right:320px;background:var(--primary);color:white}
+        .cheatsheet-panel{
+            position:fixed;right:-300px;top:0;width:300px;height:100vh;background:var(--card-bg);border-left:2px solid var(--accent);
+            z-index:800;transition:right 0.3s ease;overflow-y:auto;padding:16px;box-shadow:-5px 0 20px rgba(0,0,0,0.5)
+        }
+        .cheatsheet-panel.active{right:0}
+        .cheatsheet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--accent)}
+        .cheatsheet-title{font-size:1.2rem;color:var(--accent);display:flex;align-items:center;gap:8px}
+        .close-cheatsheet{
+            background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;padding:0;
+            width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px
+        }
+        .close-cheatsheet:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+        .cheatsheet-category{margin-bottom:20px}
+        .cheatsheet-category-title{font-size:1rem;color:var(--accent);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid;display:flex;align-items:center;gap:8px}
+        .cheatsheet-items{display:flex;flex-direction:column;gap:8px}
+        .cheatsheet-item{
+            display:flex;align-items:center;gap:12px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;
+            border:1px solid rgba(255,255,255,0.05);transition:all 0.2s ease
+        }
+        .cheatsheet-item:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1);transform:translateX(-4px)}
+        .cheatsheet-emoji{font-size:1.4rem;width:40px;text-align:center;flex-shrink:0}
+        .cheatsheet-name{font-size:0.85rem;color:var(--text);line-height:1.3}
+        @keyframes slideIn{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+        .cards-selector-grid::-webkit-scrollbar,.compact-inventory-container::-webkit-scrollbar,.cheatsheet-panel::-webkit-scrollbar{width:4px}
+        .cards-selector-grid::-webkit-scrollbar-track,.compact-inventory-container::-webkit-scrollbar-track,.cheatsheet-panel::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:2px}
+        .cards-selector-grid::-webkit-scrollbar-thumb,.compact-inventory-container::-webkit-scrollbar-thumb,.cheatsheet-panel::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+
+        /* Стили для раздела АвтоЛень */
+        .parser-section{
+            background:var(--card-bg);border:2px solid var(--card-border);border-radius:12px;padding:16px;
+            width:100%;margin-bottom:20px;display:none
+        }
+        .parser-section.active{display:block}
+        .parser-container{display:flex;flex-direction:column;gap:16px}
+        .parser-input-container{display:flex;flex-direction:column;gap:12px}
+        .parser-textarea{
+            width:100%;min-height:150px;padding:14px;background:var(--dropdown-bg);border:2px solid var(--dropdown-border);
+            border-radius:10px;color:var(--text);font-size:0.95rem;resize:vertical;font-family:monospace;
+            transition:all 0.3s ease
+        }
+        .parser-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(218,165,32,0.2)}
+        .parser-buttons{display:flex;gap:10px}
+        .parser-btn{
+            flex:1;padding:12px;background:var(--dropdown-bg);border:1px solid var(--dropdown-border);border-radius:8px;
+            color:var(--text);font-size:0.9rem;cursor:pointer;transition:all 0.2s ease;text-align:center
+        }
+        .parser-btn:hover{background:rgba(255,255,255,0.1)}
+        .parser-btn:active{transform:scale(0.98)}
+        .parser-btn.primary{background:var(--primary);color:white;border-color:var(--primary)}
+        .parser-results{
+            background:rgba(255,255,255,0.05);border-radius:10px;padding:16px;max-height:400px;overflow-y:auto;
+            border:1px solid rgba(255,255,255,0.1);display:none
+        }
+        .parser-results.active{display:block}
+        .parser-results-title{font-size:1rem;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+        .parser-stats{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1)}
+        .stat-item{
+            flex:1;min-width:120px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;
+            text-align:center;border:1px solid rgba(255,255,255,0.05)
+        }
+        .stat-value{font-size:1.2rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+        .stat-label{font-size:0.8rem;color:var(--text-secondary)}
+        .parser-cards-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+        .parser-card-item{
+            display:flex;align-items:center;padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;
+            border-left:4px solid;gap:12px
+        }
+        .parser-card-item-normal{border-left-color:var(--normal)}
+        .parser-card-item-activation{border-left-color:var(--activation)}
+        .parser-card-item-violation{border-left-color:var(--violation)}
+        .parser-card-item-super{border-left-color:var(--super)}
+        .parser-card-item-danger{border-left-color:var(--danger)}
+        .parser-card-item-hell{border-left-color:var(--hell)}
+        .parser-card-emoji{font-size:1.4rem;width:40px;text-align:center;flex-shrink:0}
+        .parser-card-info{flex:1;min-width:0}
+        .parser-card-name{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:2px}
+        .parser-card-count{font-size:0.8rem;color:var(--accent)}
+        .parser-card-cost{font-size:0.75rem;color:var(--text-secondary)}
+        .parser-no-cards{
+            text-align:center;padding:30px;color:var(--text-secondary);font-size:0.9rem
+        }
+        .parser-users-section{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.1)}
+        .parser-users-title{font-size:0.95rem;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+        .parser-users-list{display:flex;flex-direction:column;gap:8px}
+        .parser-user-item{
+  display:grid;
+  grid-template-columns: 220px 1fr 170px;
+  gap:12px;
+  align-items:center;
+  padding:10px 12px;
+  background:rgba(255,255,255,0.02);
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.parser-user-info{display:flex;flex-direction:column;min-width:0}
+.parser-user-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.parser-user-stats{font-size:0.8rem;color:var(--text-secondary);line-height:1.2}
+.parser-user-cards{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:0.85rem;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  justify-self:stretch;
+}
+.parser-user-actions{justify-self:end}
+
+        .parser-user-item:hover{background:rgba(255,255,255,0.04)}
+        .parser-user-info{flex:1;min-width:0}
+        .parser-user-name{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:2px}
+        .parser-user-stats{font-size:0.8rem;color:var(--text-secondary)}
+        .parser-user-actions{display:flex;gap:8px}
+        .parser-user-btn{
+            padding:6px 12px;background:var(--dropdown-bg);border:1px solid var(--dropdown-border);border-radius:6px;
+            color:var(--text);font-size:0.8rem;cursor:pointer;transition:all 0.2s ease;white-space:nowrap
+        }
+        .parser-user-btn:hover{background:rgba(255,255,255,0.1)}
+        .parser-user-btn:active{transform:scale(0.98)}
+        .parser-user-btn.primary{background:var(--primary);color:white;border-color:var(--primary)}
+        .parser-no-users{
+            text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem
+        }
+
+        @media (max-width:320px){
+            h1{font-size:1.2rem}
+            .mode-btn{min-height:50px;font-size:0.95rem}
+            .card-emoji{font-size:1.8rem;width:45px;height:45px}
+            .row-emoji{font-size:1.2rem;width:30px}
+            .row-name{font-size:0.8rem}
+            .row-cost{font-size:0.7rem;width:45px;padding:2px 6px}
+            .compact-input{width:50px;padding:6px;font-size:0.85rem}
+            .card-name{font-size:0.9rem}
+            .card-category{font-size:0.65rem;padding:2px 6px}
+            .card-cost{font-size:0.8rem;min-width:45px;padding:2px 6px}
+            .card-description{font-size:0.75rem;-webkit-line-clamp:2}
+            .category-tab{padding:8px 12px;font-size:0.8rem}
+            .category-title{font-size:0.95rem}
+            .cheatsheet-toggle{width:40px;height:40px;font-size:1.2rem;right:12px}
+            .cheatsheet-panel{width:250px;right:-250px}
+            .cheatsheet-toggle.active{right:262px}
+            .parser-buttons{flex-direction:column}
+            .parser-user-actions{flex-direction:column}
+            .parser-user-btn{padding:4px 8px;font-size:0.75rem}
+        }
+        @media (min-width:768px){
+            body{padding:20px}
+            .container{max-width:1400px}
+            .main-header{padding:25px}
+            h1{font-size:2rem}
+            .subtitle{font-size:1rem}
+            .cards-selector-grid{max-height:500px}
+            .compact-inventory-container{max-height:600px}
+            .detail-item{flex-direction:row}
+            .detail-label{min-width:120px}
+            .parser-container{flex-direction:row}
+            .parser-input-container{flex:1}
+            .parser-results{flex:1;max-height:500px}
+        }
+        @media (max-width:768px){
+            .cheatsheet-toggle{top:20px;transform:none;right:20px}
+            .cheatsheet-toggle.active{right:20px;top:270px}
+            .cheatsheet-panel{width:100%;height:300px;right:0;top:-300px;border-left:none;border-bottom:2px solid var(--accent)}
+            .cheatsheet-panel.active{top:0}
+        }
+        input,select,textarea{font-size:16px!important}
+
+        /* Стили для навигации в памятке */
+        .cheatsheet-nav{
+            display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px
+        }
+        .cheatsheet-nav .parser-btn{
+            padding:10px;border-radius:10px;flex:1;min-width:120px
+        }
+        .cheatsheet-cost{
+            margin-left:auto;
+            font-size:0.78rem;
+            color:var(--accent);
+            background:rgba(218,165,32,0.1);
+            padding:3px 8px;
+            border-radius:8px;
+            border:1px solid rgba(218,165,32,0.25);
+            flex-shrink:0
+        }
     
-    <link rel="stylesheet" href="styles_vecherya.css?v=20260117">
+/* Inventory: 3 buttons in a row */
+.inventory-actions-3{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.inventory-actions-3 .calculate-btn{flex:1 1 260px;min-width:220px}
+@media (min-width:980px){
+  .inventory-actions-3 .calculate-btn{flex:1 1 calc(33.333% - 14px)}
+}
+
+/* Parser: show only users */
+        /* parserStats должен отображаться (в нём показываем количество уникальных пользователей) */
+        #parserCardsList{display:none !important}
+</style>
 </head>
 
 <body>
   <div class="container">
     <header class="main-header">
-      <h1>🃏 Капитализм и Коммунизм</h1>
+      <h1>🃏 Калькулятор стрима "Тайная Вечеря"</h1>
       <p class="subtitle">Расчёт стоимости карт и автоматический анализ инвентаря</p>
       <div class="time-display" id="moscowTime">
         <span>🕐</span>Московское время: <span id="timeDisplay">00:00:00</span>
@@ -20,207 +451,83 @@
       <div class="night-warning" id="nightWarning">⚠️ После 23:00 использование карт активации для продления эфира запрещено!</div>
     </header>
 
-<main>
     <section class="calculator-section">
       <h2 class="section-title">🧮 Калькулятор карточек</h2>
 
       <div class="mode-selector">
-        <button class="mode-btn active" id="modeInventoryBtn">Инвентарь</button>
+        <button class="mode-btn active" id="modeSingleBtn">Сборка</button>
+        <button class="mode-btn" id="modeInventoryBtn">Инвентарь</button>
         <button class="mode-btn" id="modeParserBtn">АвтоЛень</button>
-        <button class="mode-btn" id="modeCardInfoBtn">База знаний</button>
+      </div>
+
+      <!-- Single -->
+      <div class="mode-content active" id="contentSingle">
+        <div class="card-selector-container">
+          <div class="search-box">
+            <input class="search-input" id="cardSearch" type="text" placeholder="Поиск по картам" autocomplete="off">
+          </div>
+
+          <div class="category-tabs" id="categoryTabs">
+            <button class="category-tab active" data-category="all">Все</button>
+            <button class="category-tab" data-category="normal">🀄️ Обычные</button>
+            <button class="category-tab" data-category="activation">🎴 Активации</button>
+            <button class="category-tab" data-category="violation">🧧 Нарушения</button>
+            <button class="category-tab" data-category="super">⭐ Супер</button>
+            <button class="category-tab" data-category="danger">📱 Опасные</button>
+          </div>
+
+          <div class="cards-selector-grid" id="cardsSelectorGrid"></div>
+
+          <div class="input-group">
+            <label for="cardCount"><span>🔢</span> Количество:</label>
+            <input type="number" id="cardCount" value="1" min="1" max="100" inputmode="numeric">
+          </div>
+
+          <button class="calculate-btn" id="calculateSingleBtn"><span>🧩</span> Рассчитать</button>
+
+          <div class="selected-card-display" id="selectedCardDisplay" style="display:none"></div>
+        </div>
       </div>
 
       <!-- Inventory -->
-      <div class="mode-content active" id="contentInventory">
-        <div class="inventory-container">
-          <h3 class="inventory-title">Режим "Инвентарь"</h3>
-          <p class="inventory-subtitle">Добавляйте карты вручную для подсчёта общего количества</p>
-          
-          <div class="inventory-reference" id="inventoryReference">
-            <div class="inventory-reference-header">
-              <div class="inventory-reference-title">📋 Справочник карт</div>
-              <input type="text" class="inventory-search" id="inventorySearch" placeholder="Быстрый поиск карты (название или эмодзи)...">
-            </div>
-            <div class="inventory-reference-hint">Подсказка: клик по карте добавит 1 шт. в инвентарь.</div>
-            <div id="inventoryReferenceGroups"></div>
+      <div class="mode-content" id="contentInventory">
+        <div class="card-selector-container">
+          <div id="compactInventoryContainer"></div>
+
+          <div class="inventory-actions-3">
+            <button class="calculate-btn inv-main-btn" id="buildInventoryBtn"><span>🧱</span> Сборка</button>
+            <button class="calculate-btn inv-main-btn" id="breakdownInventoryBtn"><span>🧩</span> Разбор</button>
+            <button class="calculate-btn inv-main-btn" id="calculateInventoryBtn"><span>📊</span> Сводка</button>
           </div>
-          
-          <div class="inventory-controls">
-            <select class="inventory-select" id="inventoryCardSelect">
-              <option value="">Выберите карту</option>
-              <optgroup label="🀄️ Обычные карты">
-                <option value="Комиссия">🔘 Комиссия</option>
-                <option value="Серая">☑️ Серая</option>
-                <option value="Синяя">🟦 Синяя</option>
-                <option value="Зелёная">🟩 Зелёная</option>
-                <option value="Белая">⬜️ Белая</option>
-                <option value="Золотая">🟧 Золотая</option>
-                <option value="Изумрудная">💎 Изумрудная</option>
-                <option value="Рубиновая">🚨 Рубиновая</option>
-              </optgroup>
-              <optgroup label="🎴 Карты Активаций">
-                <option value="Магнит">Ⓜ️ Магнит</option>
-                <option value="Бита">🅱️ Бита</option>
-                <option value="Страшный Суд">♎️ Страшный Суд</option>
-                <option value="Конвертер">♻️🎴 Конвертер</option>
-                <option value="Джокер">🃏 Джокер</option>
-                <option value="Пацифик">☮️ Пацифик</option>
-                <option value="Пергамент">📜 Пергамент</option>
-                <option value="Антиэкран">🚾 Антиэкран</option>
-                <option value="Чёрно-Белая">🔲 Чёрно-Белая</option>
-                <option value="Радужная">🌈 Радужная</option>
-                <option value="Карта Контента">🎦 Карта Контента</option>
-                <option value="Музыкальная карта">🎹 Музыкальная карта</option>
-              </optgroup>
-            </select>
-            
-            <input type="number" class="inventory-input" id="inventoryCardCount" min="1" max="999" value="1" placeholder="Кол-во">
-            
-            <button class="inventory-btn" id="inventoryAddBtn">Добавить</button>
-          </div>
-          
-          <div class="inventory-list" id="inventoryList">
-            <div class="empty-inventory">
-              <div class="empty-inventory-emoji">📭</div>
-              <p>Инвентарь пуст</p>
-              <p style="font-size: 0.9rem; margin-top: 8px;">Добавьте карты с помощью формы выше</p>
-            </div>
-          </div>
-          
-          <div class="inventory-summary" id="inventorySummary" style="display: none;">
-            <div class="inventory-total">Всего карт: <span id="inventoryTotalCount">0</span></div>
-            <button class="inventory-clear-btn" id="inventoryClearBtn">Очистить инвентарь</button>
-          </div>
+
+          <button class="reset-btn" id="resetAllBtn"><span>🧹</span> Сбросить всё</button>
         </div>
       </div>
 
-      <!-- Autolent (Parser) -->
+      <!-- Parser -->
       <div class="mode-content" id="contentParser">
-        <div class="autolent-section">
-          <button type="button" id="loadFromTelegramBtn" class="btn btn-secondary" aria-label="Магия v2">
-            🪄 Магия v2
-          </button>
-          <div id="tgLoadStatus" class="tg-load-status"></div>
-          
-          <div class="autolent-header">
-            <h2 class="autolent-title">🎲 АвтоЛень - Парсер инвентаря PRO</h2>
-            <p class="autolent-subtitle">Вставьте посты со списком карточек и получите структурированный список карт по пользователям</p>
-          </div>
-          
-          <div class="autolent-input-container">
-            <div class="autolent-file-input-wrapper">
-              <label class="autolent-file-label">
-                📁 Выбрать TXT файл
-                <input type="file" id="autolentFileInput" class="autolent-file-input" accept=".txt,text/plain">
-              </label>
+        <div class="parser-container">
+          <div class="parser-input-container">
+            <div class="input-group">
+              <label><span>📝</span> Введите текст для анализа:</label>
+              <textarea class="parser-textarea" id="parserText" placeholder="Вставьте сюда текст с карточками"></textarea>
             </div>
-            
-            <div class="autolent-upload-info" id="autolentUploadInfo">
-              <span class="autolent-upload-text" id="autolentUploadInfoText"></span>
-              <button class="autolent-close-upload" id="autolentClearUploadInfo">✕</button>
-            </div>
-            
-            <textarea class="autolent-textarea" id="autolentText" placeholder="Вставьте сюда текст с постами, содержащими списки карточек..."></textarea>
-            
-            <div class="autolent-buttons">
-              <button class="autolent-btn primary" id="autolentParseBtn">
-                🪄 Сотворить чудо
-              </button>
-              <button class="autolent-btn danger" id="autolentClearBtn">
-                💩 Бля убери
-              </button>
-            </div>
-            
-            <div class="autolent-quick-download" id="autolentQuickDownload">
-              <div class="autolent-buttons">
-                <button class="autolent-btn success" id="autolentDownloadAllBtn">
-                  📥 Скачать ВСЕХ (TXT)
-                </button>
-              </div>
-            </div>
-            
-            <div class="autolent-user-selector" id="autolentUserSelector">
-              <label for="autolentUserSelect">🔍 Кто ты воен?</label>
-              <select id="autolentUserSelect">
-                <option value="">-- Все пользователи --</option>
-              </select>
+            <div class="parser-buttons">
+              <button class="parser-btn primary" id="parseTextBtn"><span>🔮</span> Магия</button>
+              <button class="parser-btn" id="clearParserBtn"><span>🧹</span> Очистить</button>
+              <button class="parser-btn" id="loadExampleBtn"><span>📋</span> Пример</button>
             </div>
           </div>
-          
-          <div class="autolent-results" id="autolentResults">
-            <h3 style="margin-bottom: 16px;">📊 Результаты анализа</h3>
-            
-            <div class="autolent-users-section">
-              <h4 style="color: var(--brand); margin-bottom: 12px;" id="autolentResultsTitle">👤 Карты по пользователям</h4>
-              <div id="autolentUserResults"></div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Card Info (База знаний) -->
-      <div class="mode-content" id="contentCardInfo">
-        <div style="text-align: center; padding: 20px;">
-          <h3 style="margin-bottom: 20px;">📚 База знаний по картам</h3>
-          <p style="color: var(--text-secondary); margin-bottom: 30px;">Выберите карту для просмотра полной информации о её свойствах, применении и сборке</p>
-          
-          <select id="cardInfoSelect" style="max-width: 400px; margin: 0 auto 30px;">
-            <option value="">Выберите карту для просмотра информации</option>
-            <optgroup label="🀄️ Обычные карты">
-              <option value="Комиссия">🔘 Комиссия</option>
-              <option value="Серая">☑️ Серая карта</option>
-              <option value="Синяя">🟦 Синяя карта</option>
-              <option value="Зелёная">🟩 Зелёная карта</option>
-              <option value="Белая">⬜️ Белая карта</option>
-              <option value="Золотая">🟧 Золотая карта</option>
-              <option value="Изумрудная">💎 Изумрудная карта</option>
-              <option value="Рубиновая">🚨 Рубиновая карта</option>
-            </optgroup>
-            <optgroup label="🎴 Карты Активаций">
-              <option value="Магнит">Ⓜ️ Магнит</option>
-              <option value="Бита">🅱️ Бита</option>
-              <option value="Страшный Суд">♎️ Страшный Суд</option>
-              <option value="Конвертер">♻️🎴 Конвертер</option>
-              <option value="Джокер">🃏 Дуэт Джокер</option>
-              <option value="Пацифик">☮️ Пацифик</option>
-              <option value="Пергамент">📜 Пергамент</option>
-              <option value="Антиэкран">🚾 Антиэкран</option>
-              <option value="Чёрно-Белая">🔲 Чёрно-Белая карта</option>
-              <option value="Радужная">🏳️‍🌈 Радужная карта</option>
-              <option value="Карта Контента">🎦 Карта Контента</option>
-              <option value="Музыкальная карта">🎹 Музыкальная карта</option>
-              <option value="Кость">🎲🎴 Кость</option>
-              <option value="Рубиновая Кость">♦️🎴 Рубиновая Кость</option>
-            </optgroup>
-            <optgroup label="🧧 Карты нарушений">
-              <option value="Розовая">🟪 Розовая карта</option>
-              <option value="Красная">🟥 Красная карта</option>
-              <option value="Жёлтая">🟨 Жёлтая карта</option>
-              <option value="Чёрная">⬛️ Чёрная карта</option>
-              <option value="Коричневая">🟫 Коричневая карта</option>
-              <option value="Обнуление">🅾️ Карта обнуления</option>
-              <option value="Заморозка">💠🧧 Заморозка</option>
-            </optgroup>
-            <optgroup label="📱 Опасные карты">
-              <option value="Банкрот">⚫️📱 Банкрот</option>
-              <option value="Экстерминатус">💣📱 Экстерминатус</option>
-            </optgroup>
-            <optgroup label="🪟 Супер карты">
-              <option value="Джекпот">🎰🪟 Джекпот</option>
-              <option value="Сладкий подарок">🍫 Сладкий подарок</option>
-              <option value="Супер подарок">🎁 Супер подарок</option>
-              <option value="Хамелеон">🦎 Хамелеон</option>
-              <option value="Храм">🛐 Храм</option>
-              <option value="Банк">🏧 Банк</option>
-              <option value="Ведро Егора">🪣🪟 Ведро Егора</option>
-              <option value="Преисподняя">🌋📱 Преисподняя</option>
-              <option value="Грабители">🥷📱 Грабители</option>
-            </optgroup>
-          </select>
-        </div>
-        
-        <div id="cardInfoContainer" class="card-info-container" style="display: none;">
-          <!-- Информация о карте будет загружаться здесь -->
+          <div class="parser-results" id="parserResults">
+            <h4 class="parser-results-title"><span>📊</span> Результаты анализа:</h4>
+            <div class="parser-stats" id="parserStats"></div>
+            <div class="parser-cards-list" id="parserCardsList"></div>
+            <div class="parser-users-section" id="parserUsersSection" style="display:none">
+              <h5 class="parser-users-title"><span>👥</span> Найденные пользователи:</h5>
+              <div class="parser-users-list" id="parserUsersList"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -228,41 +535,1469 @@
         <h3 class="results-title"><span>📊</span> Результаты:</h3>
         <div class="results-container" id="results">
           <div style="text-align:center;padding:30px;color:var(--text-secondary)">
-            <div style="font-size:3rem;margin-bottom:16px;opacity:0.5"><span aria-hidden="true">📊</span></div>
-            <p style="font-size:1rem;margin-bottom:8px">Выберите карту, чтобы увидеть информацию</p>
-            <p style="font-size:0.85rem;opacity:0.7">Или перейдите в другой раздел</p>
+            <div style="font-size:3rem;margin-bottom:16px;opacity:0.5">📊</div>
+            <p style="font-size:1rem;margin-bottom:8px">Выберите карту и нажмите "Рассчитать"</p>
+            <p style="font-size:0.85rem;opacity:0.7">Или перейдите в раздел "Инвентарь" или "АвтоЛень"</p>
           </div>
         </div>
       </div>
     </section>
 
-    
-</main>
-
-<footer class="footer">
+    <footer class="footer">
       <p style="margin-top:8px;font-size:0.8rem;opacity:0.8">2026 год от Рождества Христова</p>
     </footer>
   </div>
 
-  <!-- Контейнер для уведомлений -->
-  <div id="notificationContainer"></div>
+  <button class="cheatsheet-toggle" id="cheatsheetToggle">📋</button>
 
-  
-  <script src="engine/operators.js?v=20260117" defer></script>
-  <script src="engine/stateEngine.js?v=20260117" defer></script>
-  <script src="engine/containers.js?v=20260117" defer></script>
-  <script src="engine/resolver.js?v=20260117" defer></script>
-  <script src="engine/optimizer.js?v=20260117" defer></script>
-  <script src="engine/engine.js?v=20260117" defer></script>
-<script src="app_vecherya.js?v=20260117" defer></script>
+  <div class="cheatsheet-panel" id="cheatsheetPanel">
+    <div class="cheatsheet-header">
+      <h3 class="cheatsheet-title"><span>📋</span> Памятка карт</h3>
+      <button class="close-cheatsheet" id="closeCheatsheet">×</button>
+    </div>
 
-<div class="inventory-updated" id="inventoryLastUpdated">Инвентарь ещё не обновлялся</div>
+    <div class="cheatsheet-nav">
+      <button class="parser-btn" id="navSingleBtn">🧩 Сборка</button>
+      <button class="parser-btn" id="navInventoryBtn">📦 Инвентарь</button>
+      <button class="parser-btn" id="navParserBtn">🧠 АвтоЛень</button>
+    </div>
 
-  <script src="engine/operators.js" defer></script>
-  <script src="engine/stateEngine.js" defer></script>
-  <script src="engine/containers.js" defer></script>
-  <script src="engine/resolver.js" defer></script>
-  <script src="engine/optimizer.js" defer></script>
-  <script src="engine/engine.js" defer></script>
+    <div id="cheatsheetContent"></div>
+  </div>
+
+  <script>
+
+
+  // Safe DOM binding helpers (prevents script crash if an element is absent)
+  const $id = (id) => document.getElementById(id);
+  const bind = (id, evt, handler, opts) => {
+    const el = $id(id);
+    if (el) el.addEventListener(evt, handler, opts);
+  };
+
+        // Данные карт
+        const d = {
+            "🔘": { n: "Комиссия", c: null, cat: "normal", cn: "🀄️ Обычные карты", d: "Оплата передачи карт между спикерами", e: "Оплата передачи карт между спикерами", a: "Для передачи карт между спикерами", ac: "Разделение 1 ☑️. Получить. Собрать.", f: "Нельзя передать", r: "нет", t: "нет", s: "Нет", tr: "Нет", conv: "Нет", p: "🏧🛐", cu: "нет" },
+            "☑️": { n: "Серая карта", c: 1, cat: "normal", cn: "🀄️ Обычные карты", d: "Съём спикера или всех на 12 минут, либо монолог 12 минут", e: "Съём спикера или всех на 12 минут, либо монолог 12 минут", a: "1 раз за эфир от каждого. Действует на всех кроме 🏳️‍🌈", ac: "1 час продления. 🧿ТВ колесо. Первый на эфире. Получить. Собрать.", f: "Базовая карта. Передаётся с остатком времени", r: "🟪", t: "Ⓜ️♎️⚫️", s: "Да", tr: "Да", conv: "Да", p: "🏧🛐", cu: "в зависимости от правил эфира" },
+            "🟦": { n: "Синяя карта", c: 3, cat: "normal", cn: "🀄️ Обычные карты", d: "Снимает жёлтую карту (🟨)", e: "Снимает жёлтую карту (🟨)", a: "На жёлтую карту", ac: "Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Передаётся с остатком времени", r: "🟨", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "на карты выше по иерархии" },
+            "🟩": { n: "Зелёная карта", c: 6, cat: "normal", cn: "🀄️ Обычные карты", d: "Снимает красную карту (🟥)", e: "Снимает красную карту (🟥)", a: "На красную карту", ac: "Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Передаётся с остатком времени", r: "🟥", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "на карты выше по иерархии" },
+            "⬜️": { n: "Белая карта", c: 12, cat: "normal", cn: "🀄️ Обычные карты", d: "Снимает чёрную (⬛️). Либо продлевает эфир на 30 минут", e: "Снимает ⬛️. Либо продлевает эфир на 30 минут", a: "Каждый день. Продление 1 раз за эфир", ac: "Топ зрители. Топ Батлы. Топ Лиги. Получить. Собрать. 🧿ТВ колесо. 🛐🏧", f: "Конвертация. Превращается в 🟪🟥🟨🟫⬛️☮️", r: "🅱️⚫️💣", t: "Ⓜ️♎️", s: "Нет", tr: "Да", conv: "Да (⬜️➕🔘🟰🧿)", p: "🏧🛐", cu: "в зависимости от превращения 🃏☮️🔲🌈🚨💎🟧" },
+            "🟧": { n: "Золотая карта", c: 24, cat: "normal", cn: "🀄️ Обычные карты", d: "Модерка на сутки либо 1 час продления", e: "Модерка на сутки или продление эфира", a: "Активация каждый день. Безлимитное количество 🟪🟥🟨🟫", ac: "Топ спонсоры. Топ зрители. Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Работает с 🚨💎☮️🃏🔲 и 🏳️‍🌈", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Да", p: "🟧☮️🃏🏳️‍🌈🏧🛐", cu: "в зависимости от правил эфира" },
+            "💎": { n: "Изумрудная карта", c: 48, cat: "normal", cn: "🀄️ Обычные карты", d: "Модерка на сутки плюс 3 часа продления", e: "Модерка + продление эфира на 3 часа", a: "Активация раз в 2 дня. Безлимитное количество 🟪🚾🟥🟨🟫", ac: "Топ спонсоры. Топ зрители. Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Работает с 🚨🟧☮️🃏 и 🏳️‍🌈", r: "🔲", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Да", p: "🟧☮️🃏🏳️‍🌈🏧🛐", cu: "в зависимости от правил эфира" },
+            "🚨": { n: "Рубиновая карта", c: 144, cat: "activation", cn: "🎴 Карты активаций", d: "Соведущий на 3 дня. Продление на 10 ч в запасное время", e: "Соведущий на 3 дня. Продление на 10 часов", a: "Активация 1 раз в 5 дней", ac: "Топ спонсор. Топ Лиги. Топ зритель. Топ Батлы. 🧿ТВ колесо. Получить. Собрать.", f: "Работает с 🟧💎", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "в зависимости от правил эфира" },
+            "Ⓜ️": { n: "Магнит", c: null, cat: "activation", cn: "🎴 Карты активаций", d: "Крадёт чужие карты кроме колёс у любого спикера, активные или нет", e: "Крадёт карты у других спикеров", a: "Доступно 3 кражи у разных спикеров", ac: "Только в 🧿ТВ колесе. Получить.", f: "Забирает карту, может переносить активацию на себя или другого", r: "нет", t: "⚫️💣", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "на карты 🎰🍫🎁🦎⚫️💣♎️🏧🛐" },
+            "🅱️": { n: "Бита", c: 634, cat: "activation", cn: "🎴 Карты активаций", d: "Разбивает, снимает, деактивирует почти все карты", e: "Разбивает, снимает, деактивирует почти все карты: 🧿🔘☑️🟦🟩⬜️🟧💎🚨Ⓜ️♻️🃏☮️📜🚾🔲🎦🎹🟪🟥🟨⬛️🟫🅾️💠", a: "Разрешено 4 удара Битой по карте. Передаётся с остатком ударов. После удара часы с карты сгорают. Нельзя разбивать карту которую выдали сами", ac: "🧿ТВ колесо. Собрать. Получить. 🛐", f: "1 Удар - 9 часов. 2 Удар - 7 часов. 3 Удар - 5 часов. 4 Удар - 3 часа в запас", r: "⚫️💣", t: "Ⓜ️♎️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "🌈🎰🍫🎁🦎⚫️💣♎️🏧🛐" },
+            "♎️": { n: "Страшный Суд", c: null, cat: "activation", cn: "🎴 Карты активаций", d: "Крадёт все карточки и ТВ колёса у спикера, активные тоже", e: "Крадёт все карты и колёса у одного спикера", a: "На одного спикера", ac: "Только в 🧿ТВ колесе. Получить.", f: "Забирает даже активные карты", r: "нет", t: "⚫️💣", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
+            "♻️": { n: "Конвертер", c: null, cat: "activation", cn: "🎴 Карты активаций", d: "Конвертирует 10 ☑️ карт в 10 🧿ТВ колёс", e: "Превращает серые карты в ТВ колёса", a: "Конвертация карт", ac: "Только с 🧿ТВ колеса. Получить.", f: "Нельзя продать", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Да", p: "нет", cu: "нет" },
+            "🃏": { n: "Дуэт Джокер", c: 7, cat: "activation", cn: "🎴 Карты активаций", d: "Батл карта, позволяет нарушать правила по отношению к тем у кого активирована эта карта", e: "Позволяет нарушать правила против оппонента", a: "Действует 20 минут батла и 12 часов обход правил", ac: "Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Нельзя снять. Нельзя выключать микрофон", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "в зависимости от правил батла" },
+            "☮️": { n: "Пацифик", c: 9, cat: "activation", cn: "🎴 Карты активаций", d: "Возвращает доступ к чату. Работает 12 часов как иммунитет к 🟫 и 🅾️", e: "Возвращает доступ к чату, иммунитет к некоторым картам", a: "На 12 часов", ac: "Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Включает чат при активной 🅾️", r: "🟫🅾️", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "нет" },
+            "📜": { n: "Пергамент", c: 4, cat: "activation", cn: "🎴 Карты активаций", d: "Возвращает доступ к чату", e: "Возвращает доступ к чату", a: "1 раз", ac: "Топ зрители. 🧿ТВ колесо. Получить. Собрать.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🚾": { n: "Антиэкран", c: 2, cat: "activation", cn: "🎴 Карты активаций", d: "Запрещает проситься на экран во время эфира", e: "Запрещает проситься на экран", a: "1 раз", ac: "Топ зрители. 🧿ТВ колесо. Получить. Собрать.", f: "Снимается 🃏", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🔲": { n: "Чёрно-Белая карта", c: 199, cat: "activation", cn: "🎴 Карты активаций", d: "Соведущий на 1 неделю. Безлимитное количество карточек нарушений", e: "Соведущий на 1 неделю. Продление на 3 ч. 7 дней подряд.", a: "Активация 1 раз в 10 дней", ac: "Только спонсоры топ 10 за 3 месяца. 🧿ТВ колесо. Получить. Собрать. 🛐", f: "Работает с 🌈🟧🃏☮️🎦🎹. (Безлимитное количество🟪🚾🟥🟨🟫⬛️🅾️💠)", r: "🅱️⚫️💣", t: "Ⓜ️♎️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐🪣", cu: "🌈" },
+            "🏳️‍🌈": { n: "Радужная карта", c: 122, cat: "activation", cn: "🎴 Карты активаций", d: "Иммунитет ко всем картам нарушения не от ведущего на 1 неделю. + 5 часов в запас", e: "Иммунитет к картам нарушений", a: "Активация каждый день", ac: "Топ Батлы. 🧿ТВ колесо. Получить. Собрать.", f: "Может быть активна у нескольких спикеров одновременно", r: "🅾️", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "нет" },
+            "🎦": { n: "Карта Контента", c: 26, cat: "activation", cn: "🎴 Карты активаций", d: "Просмотр видеоматериала не более 1.30 ч по времени", e: "Просмотр видеоматериала", a: "1 раз за эфир", ac: "Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Нельзя снять", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🎹": { n: "Музыкальная карта", c: 13, cat: "activation", cn: "🎴 Карты активаций", d: "Прослушивание вашей музыки 30 мин", e: "Прослушивание музыки", a: "1 раз за эфир", ac: "Топ Батлы. Топ Лиги. 🧿ТВ колесо. Получить. Собрать.", f: "Нельзя снять", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🟪": { n: "Розовая карта", c: 2, cat: "violation", cn: "🧧 Карты нарушений", d: "Как предупреждение. Вас спускают вниз. Вы можете зайти повторно", e: "Предупреждение, спуск вниз", a: "Первое нарушение", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🟥": { n: "Красная карта", c: 0, cat: "violation", cn: "🧧 Карты нарушений", d: "Снятие спикера с эфира до конца эфира", e: "Снятие спикера с эфира до конца эфира", a: "Третье нарушение", ac: "Нарушение правил. Получить.", f: "нет", r: "🟩", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
+            "🟨": { n: "Жёлтая карта", c: 0, cat: "violation", cn: "🧧 Карты нарушений", d: "Вас спускают вниз на 30 минут. Вы можете зайти повторно", e: "Спуск вниз на 30 минут", a: "Второе нарушение", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
+            "⬛️": { n: "Чёрная карта", c: 15, cat: "violation", cn: "🧧 Карты нарушений", d: "Блок на 1 неделю", e: "Блокировка на 1 неделю", a: "За серьёзные нарушения", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Нет", conv: "Нет", p: "нет", cu: "нет" },
+            "🟫": { n: "Коричневая карта", c: 8, cat: "violation", cn: "🧧 Карты нарушений", d: "Отключение комментариев на весь период эфира", e: "Отключение комментариев", a: "Действует 1 эфир на 1 аккаунт", ac: "Нарушение правил. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🅾️": { n: "Карта обнуления", c: 56, cat: "violation", cn: "🧧 Карты нарушений", d: "Запрет в гостевой и доступ к чату на 4 недели", e: "Запрет в гостевой и чате на 4 недели", a: "За серьёзные нарушения", ac: "Нарушение правил эфира. Получить.", f: "Можно вернуть доступ к чату активацией ☮️", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "💠": { n: "Заморозка", c: 144, cat: "violation", cn: "🧧 Карты нарушений", e: "Ваша активная карта деактивируется. Спикеру запрещено использовать, активировать, передавать 🀄️🎴карты и 🧿ТВ колёса 4 недели.", a: "1 раз", g: "От 🔲. Нарушение правил. 🧿ТВ колесо. Из 🪣🌋", f: "Собирается из 🚨. При выпадении с 🧿ТВ колеса действует на всех и вам выдаётся 1 🧿ТВ колесо (можно крутить сразу или через 4 недели). В случае снятия эффекта колесо сгорает.", r: "🅱️🛐🌈", t: "Нет", s: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🌈🃏☮️🔲🌈🚨💎🟧🎦🎹" },
+            "💠🧧": { n: "Заморозка", c: 144, cat: "violation", cn: "🧧 Карты нарушений", e: "Ваша активная карта деактивируется. Спикеру запрещено использовать, активировать, передавать 🀄️🎴карты и 🧿ТВ колёса 4 недели.", a: "1 раз", g: "От 🔲. Нарушение правил. 🧿ТВ колесо. Из 🪣🌋", f: "Собирается из 🚨. При выпадении с 🧿ТВ колеса действует на всех и вам выдаётся 1 🧿ТВ колесо (можно крутить сразу или через 4 недели). В случае снятия эффекта колесо сгорает.", r: "🅱️🛐🌈", t: "Нет", s: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🌈🃏☮️🔲🌈🚨💎🟧🎦🎹" },
+            "🎲🎴": { n: "Кость", c: null, cat: "activation", cn: "🎴 Карты активаций", e: "Умножает одну обычную 🀄️карту или 🧿ТВ колесо из инвентаря при броске кубика.", a: "1 раз во время вращения 🧿ТВ колеса", g: "🧿ТВ колесо", f: "Даёт дополнительную игру. Значения: 1→0, 2→1, 3→2, 4→3, 5→4, 6→5 карт. Коэффициент: 1-х1🀄️/🧿", r: "Нет", t: "Нет", s: "Нет", tr: "Нет", conv: "Да 🎲↩️🀄️🧿", p: "Да", cu: "🎴🪟" },
+            "♦️🎴": { n: "Рубиновая Кость", c: null, cat: "activation", cn: "🎴 Карты активаций", e: "Умножает одну Рубиновую 🚨карту из инвентаря при броске 🎲кубика.", a: "1 раз во время вращения 🧿ТВ колеса", g: "🧿ТВ колесо", f: "Даёт дополнительную игру. Значения: 1→1, 2→2, 3→3, 4→4, 5→5, 6→6 карт. Коэффициент: 1→+1🚨", r: "Нет", t: "Нет", s: "Нет", tr: "Нет", conv: "Да ♦️↩️🚨", p: "Да", cu: "🪟🀄️🧿" },
+            "⚫️": { n: "Банкрот", c: null, cat: "danger", cn: "📱 Опасные карты", d: "Выпадает в 🧿ТВ колесе, забирает все ваши карты, кроме колёс. Если казна пуста, превращается в карту активации", e: "Забирает все карты, кроме колёс", a: "Из 🧿ТВ колеса", ac: "🧿ТВ колесо. Получить.", f: "На 🛐Храм и 🏧Банк не распространяется", r: "🧿🔘☑️🟦🟩⬜️🟧💎🚨Ⓜ️♻️🃏☮️📜🚾🔲🎦🎹🟪🟥🟨⬛️🟫🅾️💠", t: "нет", s: "Нет", tr: "Нет", conv: "Нет", p: "🏧🛐", cu: "нет" },
+            "💣": { n: "Экстерминатус", c: null, cat: "danger", cn: "📱 Опасные карты", d: "Эфир завершается. Запасное время исчезает. Вы получаете 🅾️ и 10 🧿ТВ колёс. Прошлый донатер получает 5 🧿ТВ колёс", e: "Эфир завершается. Запасное время исчезает. Вы получаете 🅾️ и 10 🧿ТВ колёс. Прошлый донатер получает 5 🧿ТВ колес.", a: "1 раз", ac: "🧿ТВ колесо. 🌋Преисподняя.", f: "Нельзя снять. Во время вращения 🧿ТВ колеса, при отсутствии запасного времени, превращается в карту 🎴активации без 🅾️. Ведущий оставляет карту у себя до активации по желанию.", r: "Ведущим", t: "Нет", s: "Нет", tr: "Да", conv: "Нет", p: "Да", cu: "Донатерам не входящим в топ 10 спонсоров." },
+            "🎰": { n: "Джекпот", c: null, cat: "super", cn: "⭐ Супер карты", d: "Особая карта для выигрыша больших призов", e: "Шанс на большой выигрыш", a: "Специальные события", ac: "Розыгрыши, события. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "нет" },
+            "🍫": { n: "Сладкий подарок", c: null, cat: "super", cn: "⭐ Супер карты", d: "Специальный подарок от системы", e: "Бонусные возможности", a: "Подарок", ac: "События, подарки. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "нет" },
+            "🎁": { n: "Супер подарок", c: null, cat: "super", cn: "⭐ Супер карты", d: "Особый подарок с ценными наградами", e: "Ценные награды", a: "Особые события", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Нет", p: "🏧🛐", cu: "нет" },
+            "🦎": { n: "Хамелеон", c: null, cat: "super", cn: "⭐ Супер карты", d: "Все ☑️ карты всех спикеров преобразуются в 🧿ТВ колёса", e: "Преобразование серых карт в колёса", a: "Массовая конвертация", ac: "Редкие события. Получить.", f: "нет", r: "нет", t: "Ⓜ️♎️⚫️🅱️", s: "Нет", tr: "Да", conv: "Да", p: "🏧🛐", cu: "нет" },
+            "🛐": { n: "Храм", c: null, cat: "super", cn: "⭐ Супер карты", d: "Защитная карта от определённых эффектов", e: "Защита от некоторых карт", a: "Для защиты", ac: "Достижения, покупка. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🏧": { n: "Банк", c: null, cat: "super", cn: "⭐ Супер карты", d: "Карта для финансовых операций с картами", e: "Финансовые операции с картами", a: "Обмен, покупка карт", ac: "Высокие достижения. Получить.", f: "нет", r: "нет", t: "нет", s: "Нет", tr: "Да", conv: "Нет", p: "нет", cu: "нет" },
+            "🧺": { n: "Ведро Егора", c: null, cat: "super", cn: "⭐ Супер карты", d: "Ведущий забирает 1 обычную🀄️карту у любого спикера и кладёт себе в ведро", e: "Забирает обычную карту у спикера", a: "Сразу же при выпадении", ac: "🧿ТВ колесо", f: "Безлимитное накопление, активация, складывание, передача, разделение, накладывание на спикеров, хранение 🎴🀄️ карт", r: "Нет", t: "Ⓜ️♎️", s: "Нет", tr: "Нет", conv: "Нет", p: "Да", cu: "🎴⭐🛐🏧" },
+            "🌋": { n: "Преисподняя", c: null, cat: "super", cn: "⭐ Супер карты", d: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", e: "Уничтожает, переносит в ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.", a: "Ведущим при выпадении с 🧿ТВ колеса или строительстве. Спикерами при строительстве. Покупке. Получении.", ac: "🧿ТВ колесо. Постройка. Покупка. Получение.", f: "Работает по принципу 🏧Банка и 🛐Храма. Может использовать как ведущий так и спикеры. Можно построить за 6 🚨. Построить можно 1 раз.", r: "Нет", t: "Нет", s: "Да. Раз в 2 месяца.", tr: "Да. Раз в 2 месяца.", conv: "Нет", p: "Да", cu: "🛐🏧" },
+            "🥷📱": { n: "Грабители", c: null, cat: "danger", cn: "📱 Опасные карты", d: "Грабит 🏧Банк с наибольшим количеством 🀄️🎴карт и крадёт половину (или больше). Ограбленный получает 5 🧿ТВ колёс.", e: "Грабит 🏧Банк в котором больше всего 🀄️🎴карт. Крадёт половину или больше половины карт. Ограбленный получает 5 🧿ТВ колёс", a: "1 раз. Активируется с 🧿ТВ колеса.", ac: "🧿ТВ колесо. Сборка. Получение.", f: "Можно снять залогом. Может использовать ведущий.", r: "3🚨 от одного спикера после вращения колеса. Выбивает из инвентаря при наличии у спикера или ведущего.", t: "Нет", s: "Нет", tr: "Да", conv: "Нет", p: "Да", cu: "🛐🪣🌋" }
+        };
+        const cardData = d;
+const r = {
+            "🟪": { f: "☑️ + ☑️", d: "Создание розовой карты", cg: 2, cd: "2 ☑️" },
+            "🟦": { f: "☑️ + ☑️ + ☑️", d: "Создание синей карты", cg: 3, cd: "3 ☑️" },
+            "🟩": { f: "🟦 + 🟦", d: "Создание зелёной карты", cg: 6, cd: "2 🟦 (6 ☑️)" },
+            "🃏": { f: "🟩 + ☑️", d: "Создание карты Джокер", cg: 7, cd: "1 🟩 + 1 ☑️" },
+            "☮️": { f: "🟩 + 🟦", d: "Создание карты Пацифик", cg: 9, cd: "1 🟩 + 1 🟦" },
+            "📜": { f: "🟦 + ☑️", d: "Создание карты Пергамент", cg: 4, cd: "1 🟦 + 1 ☑️" },
+            "🚾": { f: "☑️ + ☑️", d: "Создание карты Антиэкран", cg: 2, cd: "2 ☑️" },
+            "⬜️": { f: "🟩 + 🟩", d: "Создание белой карта", cg: 12, cd: "2 🟩" },
+            "🟧": { f: "⬜️ + ⬜️", d: "Создание золотой карты", cg: 24, cd: "2 ⬜️" },
+            "💎": { f: "🟧 + 🟧", d: "Создание изумрудной карты", cg: 48, cd: "2 🟧" },
+            "🎦": { f: "🟧 + ⬜️ + ☑️", d: "Создание карты контента", cg: 37, cd: "1 🟧 + 1 ⬜️ + 1 ☑️" },
+            "🎹": { f: "⬜️ + ☑️", d: "Создание музыкальной карты", cg: 13, cd: "1 ⬜️ + 1 ☑️" },
+            "🅾️": { f: "🟧 + ⬜️ + ☮️ + 🟩 + 🟦 + ☑️", d: "Создание карты обнуления", cg: 97, cd: "1 🟧 + 1 ⬜️ + 1 ☮️ + 1 🟩 + 1 🟦 + 1 ☑️" },
+            "🏳️‍🌈": { f: "💎 + 🟧 + 🟧 + 🟧 + ⬜️ + ☮️ + 🟩 + 🟦 + 📜 + ☑️", d: "Создание радужной карты", cg: 122, cd: "1 💎 + 3 🟧 + 1 ⬜️ + 1 ☮️ + 1 🟩 + 1 🟦 + 1 📜 + 1 ☑️" },
+            "🔲": { f: "🚨 + 💎 + 💎 + 💎 + 🟧 + ⬜️ + 🃏 + 🟩 + 🟦 + 🚾 + ☑️", d: "Создание чёрно-белой карты", cg: 199, cd: "1 🚨 + 3 💎 + 1 🟧 + 1 ⬜️ + 1 🃏 + 1 🟩 + 1 🟦 + 1 🚾 + 1 ☑️" },
+            "💠": { f: "🚨", d: "1 🚨" },
+            "💠🧧": { f: "🚨", d: "1 🚨" },
+            "🚨": { f: "💎 + 💎 + 💎", d: "Создание рубиновой карты", cg: 144, cd: "3 💎" },
+            "🅱️": { f: "🔲 + 🏳️‍🌈 + 🚨 + 💎 + 🟧 + ⬜️ + 🎦 + 🎹 + 🃏 + 🚾 + 📜 + ☮️ + 🟩 + 🟦 + ☑️", d: "Создание биты", cg: 634, cd: "1 🔲 + 1 🏳️‍🌈 + 1 🚨 + 1 💎 + 1 🟧 + 1 ⬜️ + 1 🎦 + 1 🎹 + 1 🃏 + 1 🚾 + 1 📜 + 1 ☮️ + 1 🟩 + 1 🟦 + 1 ☑️" },
+            "🌋": { f: "🚨 + 🚨 + 🚨 + 🚨 + 🚨 + 🚨", d: "Создание Преисподней", cg: 864, cd: "6 🚨" }
+        ,
+            "🥷📱": { f: "⚫️ + 💣", d: "Сборка карты «Грабители»" }
+        };
+
+        let s = null, i = {};
+        // Алиасы (для совместимости, чтобы новые функции работали с оригинальными переменными)
+        Object.defineProperty(window, 'selectedSymbol', {
+            get() { return s; },
+            set(v) { s = v; }
+        });
+        Object.defineProperty(window, 'inventory', {
+            get() { return i; },
+            set(v) { i = v || {}; }
+        });
+        const recipes = r;
+        // Алиас для парсера/старого кода
+        // cardData уже объявлен выше
+
+        let parsedUsers = [];
+
+        // Основные функции калькулятора
+        function convertToHigherCards(totalValue) {
+            if (!totalValue || totalValue <= 0) return "0 ☑️";
+            
+            let result = "";
+            let remaining = totalValue;
+            
+            // Сортируем карты по стоимости (от большей к меньшей)
+            const cardsWithCost = Object.keys(d)
+                .map(sym => ({ sym, cost: d[sym].c, name: d[sym].n }))
+                .filter(c => c.cost !== null && c.cost > 0)
+                .sort((a, b) => b.cost - a.cost);
+            
+            cardsWithCost.forEach(card => {
+                if (remaining >= card.cost) {
+                    const count = Math.floor(remaining / card.cost);
+                    if (count > 0) {
+                        if (result) result += ", ";
+                        result += `${count}×${card.sym}`;
+                        remaining -= count * card.cost;
+                    }
+                }
+            });
+            
+            if (remaining > 0) {
+                if (result) result += ", ";
+                result += `${remaining}×☑️`;
+            }
+            
+            return result || `${totalValue} ☑️`;
+        }
+
+        function clearParser() {
+            document.getElementById('parserText').value = '';
+            document.getElementById('parserResults').classList.remove('active');
+            showNotification('Текст очищен', 'info');
+        }
+
+        function loadExample() {
+            const exampleText = `Пример инвентаря:
+
+⚡️🎴🀄️Список карт у спикеров
+⚡️🧿ТВ колесо
+Ева - 8
+Ирчик - 2
+Шпрота - 2
+
+🟦Синяя карта
+Бальтазар - 19
+Кащей - 8
+Эмбер🇧🇾 - 9
+
+🟩Зелёная карта
+Тара - 1
+Бальтазар - 3
+Дашенька - 14
+
+Пример простого формата:
+Иван: 🟦🟦🟩☑️☑️☑️
+Мария: 🟧💎🚨
+Петя: ☑️☑️☑️☑️`;
+            
+            document.getElementById('parserText').value = exampleText;
+            showNotification('Пример загружен', 'info');
+        }
+
+        function createCardSelectorGrid() {
+            const c = document.getElementById('cardsSelectorGrid');
+            const activeTab = document.querySelector('.category-tab.active') || document.querySelector('.category-tab');
+            const a = activeTab ? activeTab.getAttribute('data-category') : 'all';
+            let h = '';
+
+            const cats = {
+                "normal": { t: "🀄️ Обычные карты", c: ["🔘", "☑️", "🟦", "🟩", "⬜️", "🟧", "💎"] },
+                "activation": { t: "🎴 Карты активаций", c: ["🚨", "Ⓜ️", "🅱️", "♎️", "♻️", "🃏", "☮️", "📜", "🚾", "🔲", "🏳️‍🌈", "🎦", "🎹"] },
+                "violation": { t: "🧧 Карты нарушений", c: ["🟪", "🟥", "🟨", "⬛️", "🟫", "🅾️", "💠"] },
+                "super": { t: "⭐ Супер карты", c: ["🎰", "🍫", "🎁", "🦎", "🛐", "🏧", "🧺", "🌋"] },
+                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣", "🥷📱"] }
+            };
+
+            if (a === 'all') {
+                Object.keys(cats).forEach(k => {
+                    h += `<div class="category-section"><div class="category-title category-title-${k}">${cats[k].t}</div><div class="category-cards-grid">`;
+                    cats[k].c.forEach(sym => {
+                        const card = d[sym];
+                        if (card) {
+                            const cd = card.c === null ? 'нет' : card.c === 0 ? '' : `${card.c} ☑️`;
+                            h += `<div class="card-option card-${card.cat}" data-symbol="${sym}">
+                                <div class="card-emoji">${sym}</div>
+                                <div class="card-content">
+                                    <div class="card-header"><div class="card-name-wrapper"><div class="card-name">${card.n}</div>
+                                    <span class="card-category category-${card.cat}">${card.cn.replace(' карты', '').replace(' карты', '')}</span></div>
+                                    ${cd && cd !== "" ? `<div class="card-cost">${cd}</div>` : ''}</div>
+                                    <div class="card-description">${card.d}</div></div></div>`;
+                        }
+                    });
+                    h += '</div></div>';
+                });
+            } else {
+                (cats[a]?.c || []).forEach(sym => {
+                    const card = d[sym];
+                    if (card) {
+                        const cd = card.c === null ? 'нет' : card.c === 0 ? '' : `${card.c} ☑️`;
+                        h += `<div class="card-option card-${card.cat}" data-symbol="${sym}">
+                            <div class="card-emoji">${sym}</div>
+                            <div class="card-content">
+                                <div class="card-header"><div class="card-name-wrapper"><div class="card-name">${card.n}</div>
+                                <span class="card-category category-${card.cat}">${card.cn.replace(' карты', '').replace(' карты', '')}</span></div>
+                                ${cd && cd !== "" ? `<div class="card-cost">${cd}</div>` : ''}</div>
+                                <div class="card-description">${card.d}</div></div></div>`;
+                    }
+                });
+            }
+
+            c.innerHTML = h;
+            c.querySelectorAll('.card-option').forEach(o => {
+                o.addEventListener('click', function() { selectCardForSingle(this); });
+            });
+        }
+
+        function selectCardForSingle(e) {
+            const sym = e.getAttribute('data-symbol');
+            const card = d[sym];
+            document.querySelectorAll('.card-option').forEach(o => o.classList.remove('selected'));
+            e.classList.add('selected');
+            s = sym;
+            const ds = document.getElementById('selectedCardDisplay');
+            const cd = card.c === null ? 'нет стоимости' : card.c === 0 ? '' : `${card.c} ☑️`;
+
+            const items = [
+                { l: "💰 Стоимость:", v: cd },
+                { l: "⚡ Эффекты:", v: card.e },
+                { l: "🎯 Применение:", v: card.a },
+                { l: "📥 Получение:", v: card.ac },
+                { l: "✨ Особенности:", v: card.f },
+                { l: "🔄 Снимается:", v: card.r },
+                { l: "🛡️ Забирается:", v: card.t },
+                { l: "💰 Продажа:", v: card.s },
+                { l: "🔄 Передача:", v: card.tr },
+                { l: "♻️ Конвертация:", v: card.conv },
+                { l: "🛡️ Защита карты:", v: card.p },
+                { l: "⛔ Нельзя использовать:", v: card.cu }
+            ];
+
+            let dh = '';
+            items.forEach(it => {
+                if (it.v && it.v.trim() !== '' && it.v !== "-") dh += `<div class="detail-item"><span class="detail-label">${it.l}</span><span class="detail-value">${it.v}</span></div>`;
+            });
+
+            ds.innerHTML = `
+                <div class="selected-card-header">
+                  <div class="selected-card-emoji">${sym}</div>
+                  <div class="selected-card-info">
+                    <h4>${card.n}</h4>
+                    <span class="selected-card-category category-${card.cat}">${card.cn}</span>
+                    ${cd ? `<div class="selected-card-cost selected-card-${card.cat}">${cd}</div>` : ''}
+                  </div>
+                </div>
+                <div class="selected-card-details">${dh}</div>
+              `;
+            ds.style.display = 'block';
+            setTimeout(() => { document.getElementById('cardCount').focus(); }, 100);
+        }
+
+        function createCompactInventoryGrid() {
+            const c = document.getElementById('compactInventoryContainer');
+            let h = '<div class="compact-inventory-container">';
+            const cats = {
+                "normal": { t: "🀄️ Обычные карты", c: ["🔘", "☑️", "🟦", "🟩", "⬜️", "🟧", "💎"] },
+                "activation": { t: "🎴 Карты активаций", c: ["🚨", "Ⓜ️", "🅱️", "♎️", "♻️", "🃏", "☮️", "📜", "🚾", "🔲", "🏳️‍🌈", "🎦", "🎹"] },
+                "violation": { t: "🧧 Карты нарушений", c: ["🟪", "🟥", "🟨", "⬛️", "🟫", "🅾️", "💠"] },
+                "super": { t: "⭐ Супер карты", c: ["🎰", "🍫", "🎁", "🦎", "🛐", "🏧", "🧺", "🌋"] },
+                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣", "🥷📱"] }
+            };
+
+            Object.keys(cats).forEach(k => {
+                h += `<div class="inventory-category-compact">
+                    <div class="inventory-category-header" data-category="${k}">
+                        <div><span class="category-collapse-icon">▼</span><span>${cats[k].t}</span></div>
+                    </div>
+                    <div class="compact-cards-list" id="category_${k}">`;
+
+                cats[k].c.forEach(sym => {
+                    const card = d[sym];
+                    if (!card) return;
+                    const cd = card.c === null ? 'нет' : card.c === 0 ? '' : `${card.c} ☑️`;
+                    h += `<div class="inventory-row">
+                        <div class="row-emoji">${sym}</div>
+                        <div class="row-name">${card.n}</div>
+                        ${cd && cd !== "" ? `<div class="row-cost">${cd}</div>` : '<div class="row-cost">-</div>'}
+                        <div class="row-input-wrapper">
+                            <input type="number" class="compact-input" id="inv_${sym}" value="${inventory[sym] || 0}" min="0" max="999" placeholder="0" inputmode="numeric">
+                        </div>
+                    </div>`;
+                });
+
+                h += '</div></div>';
+            });
+
+            h += '</div>';
+            c.innerHTML = h;
+
+            document.querySelectorAll('.inventory-category-header').forEach(hdr => {
+                hdr.addEventListener('click', function() {
+                    const k = this.getAttribute('data-category');
+                    const ct = document.getElementById(`category_${k}`);
+                    this.classList.toggle('collapsed');
+                    ct.style.display = this.classList.contains('collapsed') ? 'none' : 'block';
+                });
+            });
+
+            c.querySelectorAll('.compact-input').forEach(inp => {
+                inp.addEventListener('input', function() {
+                    const sym = this.id.replace('inv_', '');
+                    inventory[sym] = parseInt(this.value) || 0;
+                    saveInventory();
+                });
+            });
+        }
+
+        function calculateSingle() {
+            if (!selectedSymbol) { showNotification('Выберите карту', 'warning'); return; }
+            const cnt = parseInt(document.getElementById('cardCount').value) || 1;
+            const card = d[selectedSymbol];
+            if (!card) { showNotification('Карта не найдена', 'error'); return; }
+            if (cnt < 1 || cnt > 100) { showNotification('Количество должно быть от 1 до 100', 'warning'); return; }
+
+            const tc = card.c !== null ? card.c * cnt : 0;
+
+            let rh = '';
+            if (recipes[selectedSymbol]) {
+                const rc = recipes[selectedSymbol];
+                rh = `<div style="margin-top:12px;padding:12px;background:rgba(155,89,182,0.1);border-radius:8px;border-left:4px solid var(--activation);">
+                    <strong style="font-size:0.95rem;">🎴 Рецепт сборки:</strong>
+                    <div style="margin-top:8px;font-size:0.9rem;line-height:1.5;">
+                        <div><strong>${selectedSymbol} ${card.n}</strong></div>
+                        <div>Формула: ${rc.f}</div>
+                        <div>Стоимость: ${rc.cg} ☑️ (${rc.cd})</div>
+                        <div><small style="opacity:0.8;">${rc.d}</small></div>
+                    </div>
+                </div>`;
+            }
+
+            let ph = '';
+            if (card.c !== null && tc > 0) ph = calculatePossibleCards(tc);
+
+            const res = `<div class="result-item">
+                <div class="result-header">
+                    <span class="result-emoji">${selectedSymbol}</span>
+                    <div>
+                        <div class="result-text">${card.n} × ${cnt}</div>
+                        <div class="result-value">${card.c !== null && card.c > 0 ? tc + ' ☑️' : 'Нет стоимости'}</div>
+                    </div>
+                </div>
+                ${rh}
+                ${card.c !== null && tc > 0 ? `<div style="margin-top:12px;padding:12px;background:rgba(52,152,219,0.1);border-radius:8px;border-left:4px solid var(--super);">
+                    <strong style="font-size:0.95rem;">💡 Что можно собрать:</strong>
+                    <div style="margin-top:8px;font-size:0.9rem;line-height:1.5;">${ph}</div>
+                </div>` : ''}
+            </div>`;
+
+            document.getElementById('results').innerHTML = res;
+            showNotification('Расчёт выполнен', 'success');
+        }
+
+        function calculatePossibleCards(tc) {
+            const cards = Object.keys(d)
+                .map(sym => ({ sym, cost: d[sym].c, name: d[sym].n, hasCost: d[sym].c !== null && d[sym].c > 0 }))
+                .filter(c => c.hasCost)
+                .sort((a, b) => b.cost - a.cost);
+
+            let rc = tc;
+            let out = '';
+
+            cards.forEach(c => {
+                if (c.cost > 0 && rc >= c.cost) {
+                    const cnt = Math.floor(rc / c.cost);
+                    if (cnt > 0) {
+                        out += `• ${cnt} × ${c.sym} ${c.name}<br>`;
+                        rc -= cnt * c.cost;
+                    }
+                }
+            });
+
+            if (out === '' && tc > 0) out = `• ${tc} × ☑️ Серая карта<br>`;
+            else if (rc > 0) out += `• ${rc} × ☑️ Серая карта<br>`;
+
+            return out || 'Нет доступных карт для сборки<br>';
+        }
+
+
+        // Разбор карт на более мелкие по обратным рецептам (C -> ингредиенты)
+        function parseRecipeFormulaToCounts(formula) {
+            // ожидаем формат "A + B + C"
+            const parts = String(formula || '').split('+').map(p => p.trim()).filter(Boolean);
+            const out = {};
+            parts.forEach(p => { out[p] = (out[p] || 0) + 1; });
+            return out;
+        }
+
+        function disassembleInventory(inv) {
+            const work = { ...(inv || {}) };
+            // Собираем обратные рецепты: продукт -> {ингредиенты}
+            const reverse = {};
+            Object.keys(recipes).forEach(prod => {
+                const f = recipes[prod]?.f;
+                if (!f) return;
+                reverse[prod] = parseRecipeFormulaToCounts(f);
+            });
+
+            // Итеративно разбираем, чтобы пройти цепочки (например 💎 -> 🟧 -> ⬜️ -> 🟩 -> 🟦 -> ☑️)
+            const MAX_ITERS = 1000;
+            for (let iter = 0; iter < MAX_ITERS; iter++) {
+                let changed = false;
+                Object.keys(work).forEach(sym => {
+                    const cnt = work[sym] || 0;
+                    if (cnt <= 0) return;
+                    const ing = reverse[sym];
+                    if (!ing) return;
+
+                    work[sym] = work[sym] - cnt;
+                    Object.keys(ing).forEach(k => {
+                        work[k] = (work[k] || 0) + ing[k] * cnt;
+                    });
+                    changed = true;
+                });
+                if (!changed) break;
+            }
+            return work;
+        }
+
+        function normalizeSymbol(sym){
+            // Remove variation selectors and zero-width chars that often break emoji key matching
+            return String(sym || '')
+                .replace(/\uFE0F/g, '')
+                .replace(/[\u200B-\u200D]/g, '')
+                .trim();
+        }
+
+
+
+        
+        function buildTierBreakdownLines(inv) {
+            const getQty = (s) => Number(inv?.[s] || 0);
+            const cost = (s) => {
+                const key = String(s || '');
+                const nk = normalizeSymbol(key);
+                const v1 = d?.[key]?.c;
+                const v2 = (nk !== key) ? d?.[nk]?.c : undefined;
+                const v = (typeof v1 === 'number' && isFinite(v1)) ? v1
+                        : ((typeof v2 === 'number' && isFinite(v2)) ? v2 : 0);
+                return v;
+            };
+
+            // 1) Переводим весь инвентарь в базовую стоимость (☑️)
+            let totalGrey = 0;
+            Object.keys(inv || {}).forEach(sym => {
+                const q = getQty(sym);
+                if (q <= 0) return;
+                const c = cost(sym);
+                if (c <= 0) return;
+                totalGrey += q * c;
+            });
+
+            const blueCost = cost("🟦") || 3; // 1 🟦 = 3 ☑️ (по вашим правилам)
+            const totalBlues = Math.floor(totalGrey / blueCost);
+            const remGrey = totalGrey - totalBlues * blueCost; // 0..(blueCost-1)
+
+            // 2) Разбираем итог в 🟦 вниз по "лестнице" старших карт (в синие единицы)
+            // 1🚨 = 48🟦, 1💎 = 16🟦, 1🟧 = 8🟦, 1⬜️ = 4🟦, 1🟩 = 2🟦, 1🟦 = 1🟦
+            const denom = [
+                { sym: "🚨", blues: 48 },
+                { sym: "💎", blues: 16 },
+                { sym: "🟧", blues: 8 },
+                { sym: "⬜️", blues: 4 },
+                { sym: "🟩", blues: 2 },
+                { sym: "🟦", blues: 1 },
+            ];
+
+            let rem = totalBlues;
+            const parts = {};
+            denom.forEach(dn => {
+                const n = Math.floor(rem / dn.blues);
+                if (n > 0) parts[dn.sym] = n;
+                rem = rem - n * dn.blues;
+            });
+
+            const lines = [];
+
+            // Строка 1: общий эквивалент в ☑️ / 🟦 и сдача в 🔘
+            const comm = remGrey * 2; // 1 ☑️ = 2 🔘
+            const baseLine = remGrey > 0
+                ? `${totalGrey} ☑️ = ${totalBlues} 🟦 + ${remGrey} ☑️ (${comm} 🔘)`
+                : `${totalGrey} ☑️ = ${totalBlues} 🟦`;
+            lines.push(baseLine);
+
+            // Строка 2: разбор в старшие/младшие (сдача внутри 🟦 уже учтена)
+            const partStr = denom
+                .map(dn => parts[dn.sym] ? `${parts[dn.sym]} ${dn.sym}` : null)
+                .filter(Boolean)
+                .join(' + ');
+            lines.push(partStr.length ? `Разбор: ${partStr}` : `Разбор: 0`);
+
+            // Строка 3: справочный "курс" (как раньше)
+            lines.push(`По курсу: 🚨×1, 💎×3, 🟧×6, ⬜️×12, 🟩×24, 🟦×48 (1 🟦 = ${blueCost} ☑️, 1 ☑️ = 2 🔘)`);
+
+            return { lines, totalBlues, totalGrey, remGrey };
+        }
+
+        
+        
+        function formatValueEquivalences(totalGray){
+            const n = Math.max(0, Math.floor(Number(totalGray || 0)));
+            if (!n) return "";
+            // Без потерь: дроби не показываем. Остаток приводим к ☑️ (и дополнительно к 🔘 как 1☑️=2🔘).
+            const tiers = [
+                {sym:"☑️", cost:1},
+                {sym:"🟦", cost:3},
+                {sym:"🟩", cost:6},
+                {sym:"⬜️", cost:12},
+                {sym:"🟧", cost:24},
+                {sym:"💎", cost:48},
+                {sym:"🚨", cost:144}
+            ];
+
+            const fmtRemainder = (rem) => rem > 0 ? ` + ${rem} ☑️ (${rem*2} 🔘)` : ``;
+
+            return tiers.map(t => {
+                if (t.sym === "☑️") return `${n} ☑️`;
+                const q = Math.floor(n / t.cost);
+                const rem = n - q * t.cost;
+                return `${q} ${t.sym}${fmtRemainder(rem)}`;
+            }).join(' = ');
+        }
+
+function showInventoryBreakdown() {
+            const inv = { ...(inventory || {}) };
+            const any = Object.values(inv).some(v => Number(v) > 0);
+            if (!any) { showNotification('Инвентарь пуст', 'warning'); return; }
+
+            const { lines, totalBlues } = buildTierBreakdownLines(inv);
+
+            const list = `<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+                            <div class="calc-result-card">
+                                <div style="font-weight:700;margin-bottom:6px">🧩 Разбор</div>
+                                <div style="line-height:1.6">${lines.map(l=>`<div>${escapeHtml(l)}</div>`).join('')}</div>
+                            </div>
+                          </div>`;
+
+            const summary = `<div class="calc-result-card" style="border:1px solid rgba(50,205,50,0.35)">
+                                <div style="font-weight:800;margin-bottom:6px">Итог в синих</div>
+                                <div style="font-size:1.2rem;font-weight:800">${totalBlues} 🟦</div>
+                             </div>`;
+
+            document.getElementById('results').innerHTML = `<div style="display:flex;flex-direction:column;gap:12px">${summary}${list}</div>`;
+        }
+
+
+        
+function buildInventoryUpgrades(mode = 'max') {
+    // Режимы:
+    //  - max  : собрать всё возможное (жадно, от дорогого к дешёвому)
+    //  - best : не собирать всё, а предложить один лучший вариант (и его количество), показать "сдачу"
+
+    const inv = { ...(inventory || {}) };
+
+    // Вариативные "быстрые" сборки (считаем их допустимыми правилами игры).
+    // Эти рецепты нужны, чтобы из верхних карт можно было собрать топовые спецкарты.
+    const _virtualRecipes = [
+        { prod: "🅱️", need: { "🚨": 3 } },
+        { prod: "🔲", need: { "🚨": 3 } },
+        { prod: "🔲", need: { "🚨": 2 } },
+        { prod: "🏳️‍🌈", need: { "🚨": 1 } },
+        { prod: "🅱️", need: { "🚨": 2, "💎": 1 } }
+    ];
+
+    const get = (s) => Number(inv?.[s] || 0);
+    const add = (s, v) => { inv[s] = get(s) + v; };
+    const sub = (s, v) => { inv[s] = Math.max(0, get(s) - v); };
+
+    // Парсим рецепты в форму: {prod, cost, need:{}}
+    const parsedRecipes = [];
+
+    const pushRecipe = (prod, need) => {
+        const cost = (cardData?.[prod]?.c ?? recipes?.[prod]?.cg);
+        if (cost === null || cost === undefined) return;
+        if (!need || Object.keys(need).length === 0) return;
+        parsedRecipes.push({ prod, cost: Number(cost), need });
+    };
+
+    _virtualRecipes.forEach(vr => pushRecipe(vr.prod, vr.need));
+
+    Object.keys(recipes).forEach(prod => {
+        const rc = recipes[prod];
+        if (!rc || !rc.f) return;
+        const need = parseRecipeFormulaToCounts(rc.f);
+        pushRecipe(prod, need);
+    });
+
+    // Сортируем по дороговизне результата (сверху вниз)
+    parsedRecipes.sort((a, b) => (b.cost || 0) - (a.cost || 0));
+
+    const made = {};
+
+    const canCraft = (pr) => {
+        let can = Infinity;
+        for (const ing in pr.need) {
+            const have = get(ing);
+            const req = pr.need[ing];
+            can = Math.min(can, Math.floor(have / req));
+        }
+        if (!Number.isFinite(can) || can <= 0) return 0;
+        return can;
+    };
+
+    const applyCraft = (pr, times) => {
+        if (!times || times <= 0) return 0;
+        for (const ing in pr.need) sub(ing, pr.need[ing] * times);
+        add(pr.prod, times);
+        made[pr.prod] = (made[pr.prod] || 0) + times;
+        return times;
+    };
+
+    let picked = null;
+
+    if (mode === 'best') {
+        // "Лучший вариант": выбираем один рецепт, который даёт максимум ценности из доступного.
+        // Выбираем по: 1) максимальная суммарная ценность (can * cost)
+        //             2) максимальная ценность одной карты (cost)
+        //             3) максимальное количество (can)
+        for (const pr of parsedRecipes) {
+            const can = canCraft(pr);
+            if (can <= 0) continue;
+            const score = can * (pr.cost || 0);
+            if (!picked) picked = { pr, can, score };
+            else if (score > picked.score) picked = { pr, can, score };
+            else if (score === picked.score && (pr.cost || 0) > (picked.pr.cost || 0)) picked = { pr, can, score };
+            else if (score === picked.score && (pr.cost || 0) === (picked.pr.cost || 0) && can > picked.can) picked = { pr, can, score };
+        }
+
+        if (picked) {
+            applyCraft(picked.pr, picked.can);
+        }
+    } else {
+        // "Максимальная сборка": жадно собираем всё возможное, от дорогого к дешёвому
+        for (const pr of parsedRecipes) {
+            const can = canCraft(pr);
+            if (can <= 0) continue;
+            applyCraft(pr, can);
+        }
+    }
+
+    // Формируем вывод
+    const craftedLines = Object.keys(made)
+        .sort((a, b) => (cardData[b]?.c || 0) - (cardData[a]?.c || 0))
+        .map(sym => `${made[sym]} ${sym}`);
+
+    const remainder = Object.keys(inv)
+        .filter(sym => get(sym) > 0)
+        .sort((a, b) => (cardData[b]?.c || 0) - (cardData[a]?.c || 0))
+        .map(sym => `${get(sym)} ${sym}`)
+        .join('  ');
+
+    // Эквивалент — справочно, вниз по уровням до 🟦
+    const tierMult = { "🚨": 48, "💎": 16, "🟧": 8, "⬜️": 4, "🟩": 2, "🟦": 1 };
+    const tierOrder = ["🚨", "💎", "🟧", "⬜️", "🟩", "🟦"];
+
+    const chainLines = [];
+    for (const top of tierOrder) {
+        const cnt = get(top);
+        if (!cnt) continue;
+
+        const eq = [];
+        if (top === "🚨") { eq.push(`${cnt} 🚨`, `${cnt * 3} 💎`, `${cnt * 6} 🟧`, `${cnt * 12} ⬜️`, `${cnt * 24} 🟩`, `${cnt * 48} 🟦`); }
+        else if (top === "💎") { eq.push(`${cnt} 💎`, `${cnt * 2} 🟧`, `${cnt * 4} ⬜️`, `${cnt * 8} 🟩`, `${cnt * 16} 🟦`); }
+        else if (top === "🟧") { eq.push(`${cnt} 🟧`, `${cnt * 2} ⬜️`, `${cnt * 4} 🟩`, `${cnt * 8} 🟦`); }
+        else if (top === "⬜️") { eq.push(`${cnt} ⬜️`, `${cnt * 2} 🟩`, `${cnt * 4} 🟦`); }
+        else if (top === "🟩") { eq.push(`${cnt} 🟩`, `${cnt * 2} 🟦`); }
+        else if (top === "🟦") { eq.push(`${cnt} 🟦`); }
+
+        if (eq.length) chainLines.push(eq.join(' = '));
+    }
+
+    const pickedBlock = (mode === 'best')
+        ? (picked
+            ? `<div class="calc-result-card" style="border:1px solid rgba(255,215,0,0.35)">
+                    <div style="font-weight:800;margin-bottom:6px">💡 Лучший вариант</div>
+                    <div style="line-height:1.6">Собрать: <b>${picked.can} ${picked.pr.prod}</b></div>
+               </div>`
+            : `<div class="calc-result-card" style="border:1px solid rgba(255,215,0,0.25)">
+                    <div style="line-height:1.6">💡 Лучший вариант: из текущего инвентаря нет доступных сборок.</div>
+               </div>`)
+        : '';
+
+    const craftedBlock = craftedLines.length
+        ? `<div class="calc-result-card"><div style="font-weight:800;margin-bottom:6px">🧱 Собрано</div><div style="line-height:1.6">${craftedLines.join('<br>')}</div></div>`
+        : `<div class="calc-result-card"><div style="line-height:1.6">Нечего собирать по рецептам из текущего инвентаря.</div></div>`;
+
+    const remainderBlock = remainder
+        ? `<div class="calc-result-card" style="border:1px solid rgba(255,255,255,0.15)"><div style="font-weight:800;margin-bottom:6px">📦 Сдача</div><div style="line-height:1.6">${remainder}</div></div>`
+        : '';
+
+    const chainsBlock = chainLines.length
+        ? `<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+                ${chainLines.map(l => `<div class="calc-result-card"><div style="font-weight:800;margin-bottom:6px">🔁 Эквивалент</div><div style="line-height:1.6">${l}</div></div>`).join('')}
+           </div>`
+        : '';
+
+    document.getElementById('results').innerHTML = `
+        <div class="results-grid">
+            ${pickedBlock}
+            ${craftedBlock}
+            ${remainderBlock}
+        </div>
+        ${chainsBlock}
+    `;
+
+    showNotification(mode === 'best' ? 'Лучший вариант рассчитан' : 'Сборка выполнена', 'success');
+}
+
+
+function calculateInventory() {
+            const inv = { ...(inventory || {}) };
+
+            let total = 0, details = [], itemsCount = 0;
+
+            Object.keys(d).forEach(sym => {
+                const cnt = inv[sym] || 0;
+                if (cnt > 0) {
+                    itemsCount++;
+                    const card = d[sym];
+                    const value = card.c !== null ? cnt * card.c : 0;
+                    total += value;
+                    details.push({ sym, name: card.n, count: cnt, value, cat: card.cat, hasCost: card.c !== null });
+                }
+            });
+
+            if (itemsCount === 0) { showNotification('Инвентарь пуст', 'warning'); return; }
+
+            const grouped = {};
+            details.forEach(it => {
+                if (!grouped[it.cat]) grouped[it.cat] = [];
+                grouped[it.cat].push(it);
+            });
+
+            let dh = '';
+            Object.keys(grouped).forEach(cat => {
+                const cn = d[grouped[cat][0].sym].cn;
+                dh += `<div style="margin-top:12px;margin-bottom:6px;color:var(--accent);font-weight:600;">${cn}</div>`;
+                grouped[cat].forEach(it => {
+                    const vd = it.hasCost && it.value > 0 ? `${it.value} ☑️` : 'нет стоимости';
+                    dh += `<div style="display:flex;justify-content:space-between;margin-bottom:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.1);font-size:0.9rem;">
+                        <span>${it.count}× ${it.sym} ${it.name}</span>
+                        <span style="font-weight:600;color:var(--accent);">${vd}</span>
+                    </div>`;
+                });
+            });
+
+            let ph = '';
+            if (total > 0) ph = calculatePossibleCards(total);
+
+            // рецепты, которые можно собрать
+            let rh = '';
+            const availableRecipes = [];
+            Object.keys(recipes).forEach(sym => {
+                const rc = recipes[sym];
+                const card = d[sym];
+                if (card && total >= rc.cg) {
+                    availableRecipes.push({ sym, name: card.n, f: rc.f, d: rc.d, cg: rc.cg, cd: rc.cd, p: Math.floor(total / rc.cg) });
+                }
+            });
+
+            if (availableRecipes.length > 0) {
+                rh = `<div style="margin-top:16px;padding:12px;background:rgba(155,89,182,0.1);border-radius:8px;border-left:4px solid var(--activation);">
+                    <strong style="font-size:0.95rem;">🎴 Доступные рецепты:</strong>
+                    <div style="margin-top:8px;font-size:0.9rem;line-height:1.5;">`;
+                availableRecipes.forEach(rc => {
+                    rh += `<div style="margin-bottom:8px;">
+                        <strong>${rc.sym} ${rc.name}</strong> (до ${rc.p} шт.)<br>
+                        ${rc.f}<br>
+                        Стоимость: ${rc.cg} ☑️ (${rc.cd})<br>
+                        <small style="opacity:0.8;">${rc.d}</small>
+                    </div>`;
+                });
+                rh += `</div></div>`;
+            }
+
+            const res = `<div class="result-item">
+                <div class="result-header">
+                    <span class="result-emoji">📦</span>
+                    <div>
+                        <div class="result-text">Общая стоимость инвентаря</div>
+                        <div class="result-value">${total > 0 ? total + ' ☑️' : 'Карты без стоимости'}</div>
+                        ${total > 0 ? `<div class="result-text" style="margin-top:6px;color:var(--text-secondary);font-size:0.9rem;line-height:1.4;">${formatValueEquivalences(total)}</div>` : ""}
+                    </div>
+                </div>
+                <div style="margin-top:12px;">
+                    <div style="font-weight:600;margin-bottom:8px;color:var(--text);">Содержимое:</div>
+                    ${dh}
+                </div>
+                ${rh}
+                ${total > 0 ? `<div style="margin-top:16px;padding:12px;background:rgba(52,152,219,0.1);border-radius:8px;border-left:4px solid var(--super);">
+                    <strong style="font-size:0.95rem;">💡 Что можно собрать:</strong>
+                    <div style="margin-top:8px;font-size:0.9rem;line-height:1.5;">${ph}</div>
+                </div>` : ''}
+            </div>`;
+
+            document.getElementById('results').innerHTML = res;
+            showNotification('Инвентарь оценён', 'success');
+            saveInventory();
+        }
+
+        function saveInventory() {
+            try { localStorage.setItem('etherInventory', JSON.stringify(inventory)); }
+            catch (e) { console.error('Ошибка сохранения инвентаря:', e); }
+        }
+
+        function loadInventory() {
+            try {
+                const saved = localStorage.getItem('etherInventory');
+                if (saved) inventory = JSON.parse(saved);
+            } catch (e) { inventory = {}; }
+
+            // Migrate keys to canonical emoji (handles old saves without variation selectors)
+            try {
+                const migrated = {};
+                Object.keys(d || {}).forEach(k => { migrated[k] = 0; });
+                Object.keys(inventory || {}).forEach(k => {
+                    const v = Number(inventory[k] || 0);
+                    if (!v) return;
+                    const nk = normalizeSymbol(k);
+                    const ck = (d?.[k] ? k : (d?.[nk] ? nk : (__normToKey?.[nk] || k)));
+                    if (migrated[ck] == null) migrated[ck] = 0;
+                    migrated[ck] += v;
+                });
+                inventory = migrated;
+            } catch (e) {}
+        }
+
+        function resetAll() {
+            selectedSymbol = null;
+            document.querySelectorAll('.card-option.selected').forEach(o => o.classList.remove('selected'));
+            document.getElementById('selectedCardDisplay').style.display = 'none';
+
+            inventory = {};
+            Object.keys(d).forEach(sym => { inventory[sym] = 0; });
+
+            if (document.getElementById('compactInventoryContainer')) createCompactInventoryGrid();
+
+            document.getElementById('cardSearch').value = '';
+            document.getElementById('cardCount').value = 1;
+
+            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+            const allTab = document.querySelector('.category-tab[data-category="all"]');
+            if (allTab) allTab.classList.add('active');
+
+            filterCards();
+
+            document.getElementById('results').innerHTML = `
+                <div style="text-align:center;padding:30px;color:var(--text-secondary);">
+                    <div style="font-size:3rem;margin-bottom:16px;opacity:0.5;">📊</div>
+                    <p style="font-size:1rem;margin-bottom:8px;">Выберите карту и нажмите "Рассчитать"</p>
+                    <p style="font-size:0.85rem;opacity:0.7;">Или перейдите в раздел "Инвентарь" или "АвтоЛень"</p>
+                </div>`;
+
+            saveInventory();
+            showNotification('Все данные сброшены', 'info');
+        }
+
+        function filterCards() {
+            const searchEl = document.getElementById('cardSearch');
+            const st = (searchEl ? searchEl.value : '').toLowerCase();
+            const activeTab = document.querySelector('.category-tab.active') || document.querySelector('.category-tab');
+            const ac = activeTab ? activeTab.getAttribute('data-category') : 'all';
+
+            if (ac === 'all') {
+                document.querySelectorAll('.category-section').forEach(sec => {
+                    let hasVisible = false;
+                    sec.querySelectorAll('.card-option').forEach(o => {
+                        const sym = o.getAttribute('data-symbol');
+                        const card = d[sym];
+                        const sm = st === '' ||
+                            card.n.toLowerCase().includes(st) ||
+                            card.d.toLowerCase().includes(st) ||
+                            card.e.toLowerCase().includes(st) ||
+                            sym.includes(st);
+                        o.style.display = sm ? 'flex' : 'none';
+                        if (sm) hasVisible = true;
+                    });
+                    sec.style.display = hasVisible ? 'block' : 'none';
+                });
+            } else {
+                document.querySelectorAll('.card-option').forEach(o => {
+                    const sym = o.getAttribute('data-symbol');
+                    const card = d[sym];
+                    const cm = card.cat === ac;
+                    const sm = st === '' ||
+                        card.n.toLowerCase().includes(st) ||
+                        card.d.toLowerCase().includes(st) ||
+                        card.e.toLowerCase().includes(st) ||
+                        sym.includes(st);
+                    o.style.display = (cm && sm) ? 'flex' : 'none';
+                });
+            }
+        }
+
+        function setMode(m) {
+            const valid = { single: true, inventory: true, parser: true };
+            if (!valid[m]) m = 'single';
+
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+
+            const btnId = 'mode' + m.charAt(0).toUpperCase() + m.slice(1) + 'Btn';
+            const contentId = 'content' + m.charAt(0).toUpperCase() + m.slice(1);
+
+            const btn = document.getElementById(btnId);
+            const content = document.getElementById(contentId);
+            if (btn) btn.classList.add('active');
+            if (content) content.classList.add('active');
+
+            if (m === 'single') {
+                document.querySelectorAll('.card-option').forEach(o => o.classList.remove('selected'));
+                const scd = document.getElementById('selectedCardDisplay');
+                if (scd) scd.style.display = 'none';
+                s = null;
+                createCardSelectorGrid();
+            }
+
+            if (m === 'inventory') {
+                if (document.getElementById('compactInventoryContainer')) createCompactInventoryGrid();
+            }
+        }
+
+        function showNotification(m, t) {
+            // Success toasts disabled (requested)
+            if (t === 'success') return;
+            const on = document.querySelector('.notification');
+            if (on) on.remove();
+            const n = document.createElement('div');
+            n.className = 'notification';
+
+            let e = '💡';
+            if (t === 'success') { e = '✅'; n.style.background = 'var(--success)'; }
+            else if (t === 'warning') { e = '⚠️'; n.style.background = 'var(--warning)'; }
+            else if (t === 'error') { e = '❌'; n.style.background = 'var(--primary)'; }
+            else if (t === 'info') { e = 'ℹ️'; n.style.background = 'var(--accent)'; }
+
+            n.innerHTML = `${e} ${m}`;
+            document.body.appendChild(n);
+            setTimeout(() => { if (n.parentNode) n.remove(); }, 3000);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Cheatsheet (плавающая памятка)
+        function createCheatsheet() {
+            const c = document.getElementById('cheatsheetContent');
+            let h = '';
+
+            const cats = {
+                "normal": { t: "🀄️ Обычные карты", c: ["🔘", "☑️", "🟦", "🟩", "⬜️", "🟧", "💎"] },
+                "activation": { t: "🎴 Карты активаций", c: ["🚨", "Ⓜ️", "🅱️", "♎️", "♻️", "🃏", "☮️", "📜", "🚾", "🔲", "🏳️‍🌈", "🎦", "🎹"] },
+                "violation": { t: "🧧 Карты нарушений", c: ["🟪", "🟥", "🟨", "⬛️", "🟫", "🅾️", "💠"] },
+                "super": { t: "⭐ Супер карты", c: ["🎰", "🍫", "🎁", "🦎", "🛐", "🏧", "🧺", "🌋"] },
+                "danger": { t: "📱 Опасные карты", c: ["⚫️", "💣", "🥷📱"] }
+            };
+
+            Object.keys(cats).forEach(k => {
+                h += `<div class="cheatsheet-category">
+                    <div class="cheatsheet-category-title category-title-${k}">${cats[k].t}</div>
+                    <div class="cheatsheet-items">`;
+
+                cats[k].c.forEach(sym => {
+                    const card = d[sym];
+                    if (!card) return;
+                    const cost = card.c === null ? '—' : `${card.c}`;
+                    const suffix = card.c === null ? '' : ' ☑️';
+
+                    h += `<button type="button" class="cheatsheet-item" data-symbol="${sym}">
+                        <div class="cheatsheet-emoji">${sym}</div>
+                        <div class="cheatsheet-name">${escapeHtml(card.n)}</div>
+                        <div class="cheatsheet-cost">${escapeHtml(cost)}${escapeHtml(suffix)}</div>
+                    </button>`;
+                });
+
+                h += `</div></div>`;
+            });
+
+            c.innerHTML = h;
+
+            c.querySelectorAll('.cheatsheet-item').forEach(it => {
+                it.addEventListener('click', function() {
+                    const sym = this.getAttribute('data-symbol');
+                    if (!sym) return;
+
+                    // перейти в "Сборка"
+                    setMode('single');
+
+                    // включить "Все"
+                    document.querySelectorAll('.category-tab').forEach(tb => tb.classList.remove('active'));
+                    const allTab = document.querySelector('.category-tab[data-category="all"]');
+                    if (allTab) allTab.classList.add('active');
+
+                    createCardSelectorGrid();
+                    filterCards();
+
+                    const co = document.querySelector(`.card-option[data-symbol="${CSS.escape(sym)}"]`);
+                    if (co) {
+                        selectCardForSingle(co);
+                        co.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            });
+        }
+
+        function toggleCheatsheet() {
+            const p = document.getElementById('cheatsheetPanel');
+            const t = document.getElementById('cheatsheetToggle');
+            p.classList.toggle('active');
+            t.classList.toggle('active');
+        }
+
+        // Функции парсера
+        
+        // Функции парсера
+        function parseText() {
+  const textEl = document.getElementById('parserText');
+  const text = (textEl ? textEl.value : '').trim();
+  if (!text) {
+    if (typeof showNotification === 'function') showNotification('Введите текст для анализа', 'warning');
+    return;
+  }
+
+  const lines = text.split(/\r?\n/);
+
+  // Русские заголовки уровневых карт
+  const CARD_SECTION_MAP = [
+    { re: /\bРубиновая\b/i, sym: "🚨" },
+    { re: /\bИзумрудная\b/i, sym: "💎" },
+    { re: /\bЗолотая\b/i, sym: "🟧" },
+    { re: /\bБелая\b/i, sym: "⬜️" },
+    { re: /\bЗел[её]ная\b/i, sym: "🟩" },
+    { re: /\bСиняя\b/i, sym: "🟦" },
+    { re: /\bСерая\b/i, sym: "☑️" },
+  ];
+
+  // Эти символы/разделы НЕ считаем "картами" в парсере
+  const BANNED_SECTION_RE = /(ТВ\s*кол[её]со|tv\s*wheel)/i;
+  const BANNED_SYMBOLS = new Set(["🧿", "🚾", "0", "0️⃣", "Ⓜ️", "⚡️", "🀄️", "🎴"]);
+
+  // Нормализация имени для мерджа (Бел.Еврей == Бел Еврей == БелЕврей и т.п.)
+  function normalizeName(raw) {
+    let s = (raw || '')
+      .replace(/https?:\/\/\S+/giu, '')
+      .replace(/t\.me\/\S+/giu, '')
+      .replace(/\p{Regional_Indicator}{2}/gu, '') // флаги
+      .replace(/[\uFE0F\u200D]/g, '')
+      .replace(/[.,;:(){}\[\]<>—–]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+
+    const key = s.replace(/[^\p{L}\p{N}]+/gu, '');
+    return { display: (raw || '').trim(), key };
+  }
+
+  function isLinkLine(line) {
+    return /(https?:\/\/|t\.me\/|www\.)/i.test(line);
+  }
+
+  function isServiceLine(line) {
+    const t = (line || '').trim();
+    if (!t) return true;
+    if (isLinkLine(t)) return true;
+    // типичные служебные заголовки/маркировки
+    if (/^⚡️/u.test(t)) return true;
+    if (/^(Обычные|Карты|Список|Инвентарь|Итого)\b/i.test(t)) return true;
+    return false;
+  }
+
+  // Графема первого "эмодзи" (простая эвристика)
+  function firstEmojiSymbol(line) {
+    const t = (line || '').trim();
+    if (!t) return '';
+    // Берём первый кодпоинт/пару + возможный VS16/ZWJ хвост
+    // Это не идеальный grapheme-split, но для наших ключей достаточно.
+    const m = t.match(/^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)/u);
+    return m ? m[1] : '';
+  }
+
+  // Хранилища результата
+  const userCards = Object.create(null);   // key -> { sym -> qty }
+  const userDisplay = Object.create(null); // key -> displayName
+  const cardCounts = Object.create(null);  // sym -> total qty
+
+  function putUser(rawName, sym, qty) {
+    if (!sym || !qty) return;
+    if (BANNED_SYMBOLS.has(sym)) return;
+    if (!cardData || !cardData[sym]) return; // считаем только то, что реально известно базе
+    const { display, key } = normalizeName(rawName);
+    if (!key || key.length < 2) return;
+
+    if (!userCards[key]) userCards[key] = Object.create(null);
+    userCards[key][sym] = (userCards[key][sym] || 0) + qty;
+
+    if (!userDisplay[key]) userDisplay[key] = display;
+
+    cardCounts[sym] = (cardCounts[sym] || 0) + qty;
+  }
+
+  // Поддержка простого формата: "Имя: 🟦🟦🟩☑️..."
+  const SIMPLE_SYMBOLS = ["🚨","💎","🟧","⬜️","🟩","🟦","☑️","🃏","📜","🅱️","🔲","🥷📱","💠🧧","💠"];
+  const SIMPLE_PRESENT = SIMPLE_SYMBOLS.filter(s => cardData && cardData[s] && !BANNED_SYMBOLS.has(s));
+  // Для надёжного матчинга: длинные сначала (двойные эмодзи вроде 🥷📱, 💠🧧)
+  SIMPLE_PRESENT.sort((a,b) => (b.length - a.length));
+
+  function countSymbolsInString(s) {
+    const counts = Object.create(null);
+    let rest = s || '';
+    for (const sym of SIMPLE_PRESENT) {
+      if (!rest.includes(sym)) continue;
+      const re = new RegExp(sym.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gu');
+      const m = rest.match(re);
+      if (m && m.length) counts[sym] = (counts[sym] || 0) + m.length;
+    }
+    return counts;
+  }
+
+  let currentCardSymbol = null;
+  let inTvWheel = false;
+
+  for (const rawLine of lines) {
+    const line = (rawLine || '').trim();
+    if (!line) continue;
+    if (isLinkLine(line)) continue;
+
+    // 1) Простой формат: "Имя: 🟦🟦..."
+    const simple = line.match(/^(.+?)\s*:\s*(.+)$/u);
+    if (simple) {
+      const name = simple[1].trim();
+      const tail = simple[2].trim();
+      if (name && tail) {
+        const counts = countSymbolsInString(tail);
+        for (const sym of Object.keys(counts)) {
+          putUser(name, sym, counts[sym]);
+        }
+      }
+      continue;
+    }
+
+    // 2) Служебные строки — мимо (но они могут содержать заголовки уровня)
+    const foundLvl = CARD_SECTION_MAP.find(x => x.re.test(line));
+    if (foundLvl) {
+      currentCardSymbol = foundLvl.sym;
+      inTvWheel = false;
+      continue;
+    }
+
+    if (BANNED_SECTION_RE.test(line) || line.includes("🧿")) {
+      // Блок ТВ колеса не является "типом карты" для начисления
+      inTvWheel = true;
+      currentCardSymbol = null;
+      continue;
+    }
+
+    // 3) Заголовок секции по эмодзи (например 🃏Джокер, 📜Пергамент, 🟦Синяя карта)
+    if (!isServiceLine(line)) {
+      const sym = firstEmojiSymbol(line);
+      const headerLooksOk = sym
+        && !BANNED_SYMBOLS.has(sym)
+        && cardData && cardData[sym]
+        && !/[—–-]\s*\d/.test(line) // не "имя - 2"
+        && !/:\s*\S/.test(line);    // не "имя: ..."
+      if (headerLooksOk) {
+        currentCardSymbol = sym;
+        inTvWheel = false;
+        continue;
+      }
+    }
+
+    // 4) "Имя - количество" принимаем только если мы в секции карты и не в ТВ колесе
+    if (!currentCardSymbol || inTvWheel) continue;
+    if (isServiceLine(line)) continue;
+
+    const m = line.match(/^(.+?)\s*[—–-]\s*(\d+)\b/u);
+    if (!m) continue;
+
+    const name = m[1].trim();
+    const qty = parseInt(m[2], 10);
+    if (!Number.isFinite(qty) || qty <= 0) continue;
+
+    // фильтр "имя" не должно быть служебным словом
+    if (/^(обычные|карты|список|итого|банк|храм)\b/i.test(name)) continue;
+
+    putUser(name, currentCardSymbol, qty);
+  }
+
+  if (typeof showParserResults === 'function') {
+    showParserResults(cardCounts, userCards, userDisplay);
+  } else {
+    console.log({ cardCounts, userCards, userDisplay });
+  }
+}
+
+        function cleanUserName(name) {
+            let s = String(name || '').trim();
+
+            // Убираем Telegram-приписки вида "LIFTADOR, [13.01.2026 23:40]"
+            s = s.replace(/\s*,\s*\[\d{2}\.\d{2}\.\d{4}[\s\S]*?\]\s*$/u, '').trim();
+
+            // Убираем хвостовые двоеточия/тире
+            s = s.replace(/[:\-—]+$/u, '').trim();
+
+            // Убираем эмодзи-флаги (пары региональных индикаторов)
+            s = s.replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '');
+
+            // Убираем невидимые пробелы
+            s = s.replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ');
+
+            // Сжимаем пробелы
+            s = s.replace(/\s+/g, ' ').trim();
+
+            return s;
+        }
+
+        function normalizeUserKey(name) {
+            let s = cleanUserName(name).toLowerCase();
+
+            // Unicode normal form + удаление диакритики
+            s = s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+
+            // Оставляем только буквы/цифры (любой язык)
+            try {
+                s = s.replace(/[^\p{L}\p{N}]/gu, '');
+            } catch (e) {
+                s = s.replace(/[^a-z0-9а-яё]/gi, '');
+            }
+
+            return s;
+        }
+
+
+        function showParserResults(cardCounts, userCards, userDisplay) {
+            const resultsDiv = document.getElementById('parserResults');
+            const statsDiv = document.getElementById('parserStats');
+            const cardsListDiv = document.getElementById('parserCardsList');
+            const usersSection = document.getElementById('parserUsersSection');
+            const usersListDiv = document.getElementById('parserUsersList');
+
+            // Общая статистика
+            let totalCards = 0;
+            let totalValue = 0;
+            
+            for (const symbol in cardCounts) {
+                totalCards += cardCounts[symbol];
+                if (cardData[symbol] && cardData[symbol].c !== null) {
+                    totalValue += cardCounts[symbol] * cardData[symbol].c;
+                }
+            }
+
+            // Конвертируем стоимость в высшие карты
+            const convertedValue = convertToHigherCards(totalValue);
+            
+            // В блоке статистики оставляем только количество уникальных пользователей
+            statsDiv.innerHTML = `
+                <div class="stat-item" style="width:100%">
+                    <div class="stat-value">${Object.keys(userCards).length}</div>
+                    <div class="stat-label">Уникальных пользователей</div>
+                </div>
+            `;
+
+            // Список карт (скрываем)
+            cardsListDiv.innerHTML = '';
+            cardsListDiv.style.display = 'none';
+
+            // Список пользователей
+            if (Object.keys(userCards).length > 0) {
+                usersSection.style.display = 'block';
+                
+                // Сортируем пользователей по имени
+                const sortedUsers = Object.keys(userCards).sort();
+                
+                let usersHtml = '';
+                
+                sortedUsers.forEach(userName => {
+                    const userCardCounts = userCards[userName];
+                    let userTotalCards = 0;
+                    let userTotalValue = 0;
+                    
+                    for (const symbol in userCardCounts) {
+                        userTotalCards += userCardCounts[symbol];
+                        if (cardData[symbol] && cardData[symbol].c !== null) {
+                            userTotalValue += userCardCounts[symbol] * cardData[symbol].c;
+                        }
+                    }
+                    
+                    usersHtml += `
+                        <div class="parser-user-item">
+                            <div class="parser-user-info">
+                                <div class="parser-user-name">${escapeHtml(userName)}</div>
+                                <div class="parser-user-stats">${userTotalCards} карт, ${userTotalValue} ☑️</div>
+                            </div>
+                            <div class="parser-user-cards">${convertToHigherCards(userTotalValue)}</div>
+                            <div class="parser-user-actions">
+                                <button class="parser-user-btn primary" onclick="addUserToInventory('${escapeHtml(userName)}','${escapeHtml(JSON.stringify(userCardCounts))}')">📥 В инвентарь</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                usersListDiv.innerHTML = usersHtml;
+            } else {
+                usersSection.style.display = 'none';
+                usersListDiv.innerHTML = '<div class="parser-no-users">Пользователи не найдены</div>';
+            }
+
+            resultsDiv.classList.add('active');
+            showNotification(`Найдено ${Object.keys(userCards).length} пользователей`, 'success');
+        }
+
+        function addUserToInventory(userName, cardCountsStr) {
+            try {
+                // Парсим строку с картами
+                const cardCounts = JSON.parse(cardCountsStr);
+                
+                // Сбрасываем инвентарь перед добавлением
+                inventory = {};
+                
+                // Добавляем карты пользователя
+                for (const symbol in cardCounts) {
+                    inventory[symbol] = (inventory[symbol] || 0) + cardCounts[symbol];
+                }
+                
+                saveInventory();
+                
+                // Переходим в режим инвентаря
+                setMode('inventory');
+                
+                // Обновляем сетку инвентаря
+                if (document.getElementById('compactInventoryContainer')) {
+                    createCompactInventoryGrid();
+                }
+                
+                // Показываем результаты
+                calculateInventory();
+                
+                showNotification(`Инвентарь пользователя ${userName} загружен`, 'success');
+            } catch (error) {
+                console.error('Ошибка при добавлении в инвентарь:', error);
+                showNotification('Ошибка при добавлении в инвентарь', 'error');
+            }
+        }
+
+        function updateMoscowTime() {
+            const now = new Date();
+            const moscowTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+            const h = moscowTime.getHours().toString().padStart(2, '0');
+            const m = moscowTime.getMinutes().toString().padStart(2, '0');
+            const sec = moscowTime.getSeconds().toString().padStart(2, '0');
+            const timeStr = `${h}:${m}:${sec}`;
+            document.getElementById('timeDisplay').textContent = timeStr;
+
+            const timeDisplay = document.getElementById('moscowTime');
+            const warning = document.getElementById('nightWarning');
+
+            if (h >= 23 || h < 6) {
+                timeDisplay.classList.add('night-mode');
+                warning.classList.add('show');
+            } else {
+                timeDisplay.classList.remove('night-mode');
+                warning.classList.remove('show');
+            }
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Навигация в памятке
+            bind('navSingleBtn','click', () => { setMode('single'); toggleCheatsheet(); });
+            bind('navInventoryBtn','click', () => { setMode('inventory'); toggleCheatsheet(); });
+            bind('navParserBtn','click', () => { setMode('parser'); toggleCheatsheet(); });
+
+            createCardSelectorGrid();
+            loadInventory();
+            if (document.getElementById('compactInventoryContainer')) createCompactInventoryGrid();
+            createCheatsheet();
+
+            updateMoscowTime();
+            setInterval(updateMoscowTime, 1000);
+
+            // калькулятор
+            bind('calculateSingleBtn','click', calculateSingle);
+            bind('calculateInventoryBtn','click', calculateInventory);
+            bind('breakdownInventoryBtn','click', showInventoryBreakdown);
+            bind('buildInventoryBtn','click', () => {
+                buildInventoryUpgrades('best');
+            });
+bind('resetAllBtn','click', resetAll);
+            bind('modeSingleBtn','click', () => setMode('single'));
+            bind('modeInventoryBtn','click', () => setMode('inventory'));
+            bind('modeParserBtn','click', () => setMode('parser'));
+            bind('cardSearch','input', filterCards);
+
+            document.querySelectorAll('.category-tab').forEach(t => {
+                t.addEventListener('click', function() {
+                    document.querySelectorAll('.category-tab').forEach(tb => tb.classList.remove('active'));
+                    this.classList.add('active');
+                    createCardSelectorGrid();
+                    filterCards();
+                });
+            });
+
+            // АвтоЛень
+            bind('parseTextBtn','click', parseText);
+            bind('clearParserBtn','click', clearParser);
+            bind('loadExampleBtn','click', loadExample);
+
+            // Cheatsheet
+            bind('cheatsheetToggle','click', toggleCheatsheet);
+            bind('closeCheatsheet','click', toggleCheatsheet);
+
+            document.addEventListener('click', function(e) {
+                const p = document.getElementById('cheatsheetPanel');
+                const t = document.getElementById('cheatsheetToggle');
+                if (p.classList.contains('active') && !p.contains(e.target) && !t.contains(e.target)) toggleCheatsheet();
+            });
+
+            setMode('single');
+            filterCards();
+});
+    
+  </script>
 </body>
 </html>
