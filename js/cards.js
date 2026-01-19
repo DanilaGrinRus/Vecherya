@@ -270,15 +270,16 @@ function sortCards(cards) {
 
 // Функция для извлечения ID из имени файла
 function extractIdFromFilename(filename) {
+  if (!filename) return '';
+  
   // Удаляем расширения и суффиксы
   let id = filename
-    .replace(/_600\.webp$/, '')
-    .replace(/_600\.png$/, '')
-    .replace(/_600\.jpg$/, '')
-    .replace(/\.webp$/, '')
-    .replace(/\.png$/, '')
-    .replace(/\.jpg$/, '')
-    .replace(/\.jpeg$/, '');
+    .replace(/\.webp$/i, '')
+    .replace(/\.png$/i, '')
+    .replace(/\.jpg$/i, '')
+    .replace(/\.jpeg$/i, '')
+    .replace(/_600$/, '') // Удаляем _600 в конце
+    .replace(/_(\d+)$/, ''); // Удаляем числовые суффиксы типа _1, _2
   
   return id;
 }
@@ -287,24 +288,23 @@ function extractIdFromFilename(filename) {
 function createAutoMapping(imageFiles) {
   const mapping = {};
   
+  console.log('Создание mapping из', imageFiles.length, 'файлов');
+  
   for (const filename of imageFiles) {
     const id = extractIdFromFilename(filename);
-    if (id) {
+    if (id && id.trim() !== '') {
       mapping[id] = filename;
-      
-      // Также добавляем варианты без числовых суффиксов
-      const idWithoutNumbers = id.replace(/\d+$/, '');
-      if (idWithoutNumbers !== id && !mapping[idWithoutNumbers]) {
-        mapping[idWithoutNumbers] = filename;
-      }
     }
   }
   
+  console.log('Создан mapping с', Object.keys(mapping).length, 'записями');
   return mapping;
 }
 
 // Функция для получения пути к изображению
 function getImageForCard(cardId, mapping) {
+  if (!cardId) return null;
+  
   // Пробуем несколько вариантов
   const variants = [
     cardId,
@@ -391,10 +391,12 @@ function render(cardsRaw, mapping) {
 }
 
 async function init() {
+  console.log('🚀 Инициализация Cardpedia...');
+  
   let cards = [];
   let datasetMode = false;
 
-  // Список всех файлов изображений (можно обновить по необходимости)
+  // Список всех файлов изображений из вашего скриншота
   const IMAGE_FILES = [
     "angel_600.webp", "antikiran_600.webp", "bank_600.webp",
     "bank_sivyi_mentin_600.webp", "bankrot_600.webp", "bita_600.webp",
@@ -419,33 +421,61 @@ async function init() {
     "yellow_600.webp", "zabanen_600.webp", "zamorotka_600.webp"
   ];
 
+  console.log('📁 Всего файлов изображений:', IMAGE_FILES.length);
+  
   // Создаем автоматический mapping
   const mapping = createAutoMapping(IMAGE_FILES);
-  console.log('Автоматически созданный mapping:', mapping);
+  const imageCount = Object.keys(mapping).length;
+  
+  console.log('✅ Создан mapping с', imageCount, 'уникальными ID');
+  
+  // Обновляем счетчик в подсказке сразу после создания DOM
+  setTimeout(() => {
+    const imageCountEl = document.getElementById('image-count');
+    if (imageCountEl) {
+      imageCountEl.textContent = imageCount;
+      console.log('🔢 Счетчик изображений обновлен:', imageCount);
+    } else {
+      console.warn('⚠️ Элемент #image-count не найден');
+    }
+  }, 100);
 
-  // If opened via file://, fetch() to local files is blocked by browsers.
+  // Если открыто через file://, fetch() к локальным файлам блокируется браузерами.
   const isFile = window.location.protocol === "file:";
+  console.log('📍 Протокол:', window.location.protocol, 'isFile:', isFile);
 
   const candidates = [
     "dataset/v1.json",
     "./dataset/v1.json",
-    // GitHub Pages edge-case: some users accidentally host from a subfolder. Try relative to current URL.
     new URL("dataset/v1.json", window.location.href).toString(),
   ];
 
+  let datasetSource = "имена файлов изображений";
+  
   if (!isFile) {
+    console.log('🌐 Пробуем загрузить dataset...');
     for (const url of candidates) {
       try {
+        console.log('🔍 Пробуем URL:', url);
         const ds = await safeFetchJson(url);
         cards = normalizeDataset(ds);
-        if (cards.length) { datasetMode = true; break; }
-      } catch (_) {}
+        if (cards.length) { 
+          datasetMode = true; 
+          datasetSource = url;
+          console.log('✅ Dataset загружен, карт:', cards.length);
+          break; 
+        }
+      } catch (e) {
+        console.warn(`❌ Не удалось загрузить ${url}:`, e.message);
+      }
     }
+  } else {
+    console.log('📁 Локальный режим (file://), пропускаем загрузку dataset');
   }
 
   if (!datasetMode) {
     // Fallback: создаем карты из имен файлов изображений
-    console.log('Создаем карты из имен файлов изображений');
+    console.log('🔄 Создаем карты из имен файлов изображений');
     cards = Object.keys(mapping).map((id) => ({ 
       id, 
       name: titleCaseRu(id.replace(/[_-]+/g, " ")), 
@@ -457,9 +487,10 @@ async function init() {
       categoryOrder: null, 
       rarityOrder: null 
     }));
+    console.log('✅ Создано карт из файлов:', cards.length);
   } else {
     // Добавляем изображения к картам из dataset
-    console.log('Добавляем изображения к картам из dataset');
+    console.log('🎨 Добавляем изображения к картам из dataset');
     cards = cards.map(card => ({
       ...card,
       image: card.image || getImageForCard(card.id, mapping)
@@ -484,34 +515,56 @@ async function init() {
   render(cards, mapping);
 
   // Обновляем информацию в topbar
-  const imageCount = Object.keys(mapping).length;
   const cardCount = cards.length;
+  const cardsWithImages = cards.filter(c => getImageForCard(c.id, mapping)).length;
+  
+  let statusText = `Карт: ${cardCount} • С изображениями: ${cardsWithImages}`;
   
   if (isFile) {
-    $("meta").textContent = `Карт: ${cardCount} • Изображений: ${imageCount} • Локально (file://)`;
+    statusText += " • Режим: локальный (file://)";
   } else if (datasetMode) {
-    $("meta").textContent = `Карт: ${cardCount} • Изображений: ${imageCount} • Источник: dataset/v1.json`;
+    const shortSource = datasetSource.replace(window.location.origin, '');
+    statusText += ` • Источник: ${shortSource}`;
   } else {
-    $("meta").textContent = `Карт: ${cardCount} • Изображений: ${imageCount} • Источник: имена файлов`;
+    statusText += " • Источник: имена файлов";
   }
+  
+  $("meta").textContent = statusText;
+  
+  // Финальное обновление счетчика (на всякий случай)
+  setTimeout(() => {
+    const imageCountEl = document.getElementById('image-count');
+    if (imageCountEl && imageCountEl.textContent === '0') {
+      imageCountEl.textContent = imageCount;
+    }
+  }, 500);
+  
+  console.log('🎉 Инициализация завершена!');
 }
 
-init().catch((e) => {
-  console.error(e);
-  const meta = $("meta");
-  if (meta) meta.textContent = "Ошибка загрузки данных";
-  
-  // Показываем базовый контент даже при ошибке
-  const container = $("cards");
-  if (container) {
-    container.innerHTML = `
-      <div class="hint" style="grid-column: 1 / -1;">
-        <div class="hint__title">Ошибка загрузки</div>
-        <div class="hint__text">
-          Не удалось загрузить данные. Проверьте консоль браузера (F12) для подробностей.<br>
-          Ошибка: ${e.message}
+// Запускаем инициализацию при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('📄 DOM загружен, запускаем init...');
+  init().catch((e) => {
+    console.error('💥 Ошибка инициализации:', e);
+    const meta = $("meta");
+    if (meta) {
+      meta.textContent = `Ошибка: ${e.message}`;
+      meta.style.color = '#ff6b6b';
+    }
+    
+    // Показываем информационное сообщение
+    const container = $("cards");
+    if (container) {
+      container.innerHTML = `
+        <div class="hint" style="grid-column: 1 / -1;">
+          <div class="hint__title">🚨 Ошибка загрузки данных</div>
+          <div class="hint__text">
+            <p><strong>Что произошло:</strong> ${e.message}</p>
+            <p>Проверьте консоль браузера (F12 → Console) для подробной информации.</p>
+          </div>
         </div>
-      </div>
-    `;
-  }
+      `;
+    }
+  });
 });
