@@ -15,30 +15,50 @@
           <div class="sub">Справочник карт и калькулятор сборки/разборки. Оптимизировано под мобильные.</div>
         </div>
       </div>
+
       <div class="tabs" id="topTabs">
         <div class="tab active" data-view="cards">Карты</div>
         <div class="tab" data-view="calc">Калькулятор</div>
         <div class="tab" data-view="rules">Правила</div>
       </div>
+
       <div class="searchRow" id="searchRow">
         <div class="search">
           <span style="color:var(--muted); font-weight:900;">🔎</span>
           <input id="q" placeholder="Поиск по картам: название, эффекты, сборка…" autocomplete="off" />
         </div>
       </div>
+
       <div class="pills" id="catPills" style="margin-top:10px;"></div>
     </div>
   </header>
 
   <div class="wrap">
+    <!-- CARDS VIEW -->
     <div id="viewCards">
-      <div class="grid" id="cardsGrid"></div>
-      <div class="panel" id="empty" style="display:none;">
-        <h2>Ничего не найдено</h2>
-        <div class="muted">Попробуй другой запрос или очисти фильтр категорий.</div>
+      <div class="cardsLayout">
+        <div class="cardsCol">
+          <div class="grid" id="cardsGrid"></div>
+          <div class="panel" id="empty" style="display:none;">
+            <h2>Ничего не найдено</h2>
+            <div class="muted">Попробуй другой запрос или очисти фильтр категорий.</div>
+          </div>
+        </div>
+
+        <!-- Desktop details panel (hidden on mobile) -->
+        <aside class="detailsCol" id="detailsCol" aria-label="Детали карты">
+          <div class="detailsPanel" id="detailsPanel">
+            <div class="detailsEmpty">
+              <div class="detailsIcon">🀄️</div>
+              <h2>Выбери карту</h2>
+              <div class="muted">На компьютере детали будут здесь. На телефоне — откроются снизу.</div>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
 
+    <!-- CALC VIEW -->
     <div id="viewCalc" style="display:none;">
       <div class="panel">
         <h2>Инвентарь → оптимальная сборка (обычная цепочка)</h2>
@@ -96,6 +116,7 @@
       </div>
     </div>
 
+    <!-- RULES VIEW -->
     <div id="viewRules" style="display:none;">
       <div class="panel">
         <h2>Правила стрима</h2>
@@ -113,6 +134,7 @@
     </div>
   </nav>
 
+  <!-- Mobile sheet (reused overlay) -->
   <div class="overlay" id="overlay">
     <div class="sheet" role="dialog" aria-modal="true">
       <div class="sheetHead">

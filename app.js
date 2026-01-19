@@ -1,7 +1,11 @@
 const VIEWS = ['cards','calc','rules'];
-let state = { view:'cards', q:'', cat:'Все' };
+let state = { view:'cards', q:'', cat:'Все', selectedKey: null };
 
 const $ = (id) => document.getElementById(id);
+
+function isDesktop(){
+  return window.matchMedia && window.matchMedia('(min-width: 980px)').matches;
+}
 
 function setView(v){
   state.view = v;
@@ -16,7 +20,10 @@ function setView(v){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.view===v));
   document.querySelectorAll('.navBtn').forEach(t=>t.classList.toggle('active', t.dataset.view===v));
 
-  if(v==='cards') renderCards();
+  if(v==='cards') {
+    renderCards();
+    renderDetailsDesktop();
+  }
 }
 
 // --- Categories
@@ -28,65 +35,19 @@ function renderPills(){
     const el = document.createElement('div');
     el.className = 'pill' + (state.cat===cat ? ' active' : '');
     el.textContent = cat;
-    el.onclick = () => { state.cat = cat; renderPills(); renderCards(); };
+    el.onclick = () => {
+      state.cat = cat;
+      renderPills();
+      // reset selection when category changes (avoids confusion)
+      state.selectedKey = null;
+      renderCards();
+      renderDetailsDesktop(true);
+    };
     host.appendChild(el);
   });
 }
 
-// --- Cards
-function matches(c,q){
-  if(!q) return true;
-  const hay = [
-    c.name,
-    c.effects,
-    c.application,
-    c.obtain,
-    c.features,
-    c.removes,
-    c.sale,
-    c.transfer,
-    c.conversion,
-    c.protection,
-    c.cannotUse,
-    c.craftText
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
-  
-  return hay.includes(q);
-}
-
-function renderCards(){
-  const q = (state.q||'').trim().toLowerCase();
-  const grid = $('cardsGrid');
-  grid.innerHTML = '';
-
-  const filtered = CARDS
-    .filter(c => (state.cat==='Все' ? true : c.category===state.cat))
-    .filter(c => matches(c,q))
-    .sort((a,b)=> (a.category===b.category ? a.name.localeCompare(b.name,'ru') : a.category.localeCompare(b.category,'ru')));
-
-  $('empty').style.display = filtered.length ? 'none' : '';
-
-  for(const c of filtered){
-    const el = document.createElement('div');
-    el.className = 'card';
-    el.innerHTML = `
-      <div class="top">
-        <div>
-          <div class="emoji">${c.emoji||'🀄️'}</div>
-        </div>
-        <div class="catTag">${c.category}</div>
-      </div>
-      <div class="cname">${escapeHtml(c.name||'Без названия')}</div>
-      <div class="snippet">${escapeHtml((c.effects||c.application||c.features||'').replace(/^Эффекты:\s*/i,''))}</div>
-    `;
-    el.onclick = () => openModal(c);
-    grid.appendChild(el);
-  }
-}
-
+// --- Helpers
 function escapeHtml(s){
   return String(s)
     .replaceAll('&','&amp;')
@@ -96,45 +57,179 @@ function escapeHtml(s){
     .replaceAll("'",'&#039;');
 }
 
-// --- Modal
-function addSection(host, title, text){
-  if(!text) return;
-  const sec = document.createElement('div');
-  sec.className='section';
-  sec.innerHTML = `<h4>${escapeHtml(title)}</h4><div class="text">${escapeHtml(text)}</div>`;
-  host.appendChild(sec);
+function cardKey(c){
+  // stable-enough key without changing data.js
+  return `${c.category||''}::${c.name||''}`;
 }
 
-function openModal(c){
+function matches(c,q){
+  if(!q) return true;
+  const hay = [
+    c.name, c.effects, c.application, c.obtain, c.features,
+    c.removes, c.sale, c.transfer, c.conversion, c.protection,
+    c.cannotUse, c.craftText
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return hay.includes(q);
+}
+
+function sectionHTML(title, text){
+  if(!text) return '';
+  return `
+    <div class="section">
+      <h4>${escapeHtml(title)}</h4>
+      <div class="text">${escapeHtml(text)}</div>
+    </div>
+  `;
+}
+
+// --- Cards list + selection
+function getFilteredCards(){
+  const q = (state.q||'').trim().toLowerCase();
+  return CARDS
+    .filter(c => (state.cat==='Все' ? true : c.category===state.cat))
+    .filter(c => matches(c,q))
+    .sort((a,b)=> (a.category===b.category ? a.name.localeCompare(b.name,'ru') : a.category.localeCompare(b.category,'ru')));
+}
+
+function selectCard(c){
+  state.selectedKey = cardKey(c);
+
+  // Re-render list to highlight selection
+  renderCards();
+
+  // Desktop: render details on the right panel
+  if(isDesktop()){
+    renderDetailsDesktop();
+    return;
+  }
+
+  // Mobile: open bottom sheet
+  openSheet(c);
+}
+
+function renderCards(){
+  const grid = $('cardsGrid');
+  grid.innerHTML = '';
+
+  const filtered = getFilteredCards();
+  $('empty').style.display = filtered.length ? 'none' : '';
+
+  for(const c of filtered){
+    const key = cardKey(c);
+    const el = document.createElement('div');
+    el.className = 'card' + (state.selectedKey === key ? ' selected' : '');
+    el.innerHTML = `
+      <div class="top">
+        <div>
+          <div class="emoji">${c.emoji||'🀄️'}</div>
+        </div>
+        <div class="catTag">${escapeHtml(c.category || '')}</div>
+      </div>
+      <div class="cname">${escapeHtml(c.name||'Без названия')}</div>
+      <div class="snippet">${escapeHtml((c.effects||c.application||c.features||'').replace(/^Эффекты:\s*/i,''))}</div>
+    `;
+    el.onclick = () => selectCard(c);
+    grid.appendChild(el);
+  }
+}
+
+// --- Desktop details panel
+function renderDetailsDesktop(forceEmpty = false){
+  const col = $('detailsCol');
+  const panel = $('detailsPanel');
+
+  // show panel only on desktop
+  if(!isDesktop()){
+    col.style.display = 'none';
+    return;
+  }
+  col.style.display = 'block';
+
+  const filtered = getFilteredCards();
+
+  if(forceEmpty || !state.selectedKey){
+    panel.innerHTML = `
+      <div class="detailsEmpty">
+        <div class="detailsIcon">🀄️</div>
+        <h2>Выбери карту</h2>
+        <div class="muted">Кликни по карте слева — детали появятся здесь. На телефоне — откроются снизу.</div>
+      </div>
+    `;
+    return;
+  }
+
+  const c = filtered.find(x => cardKey(x) === state.selectedKey) || CARDS.find(x => cardKey(x) === state.selectedKey);
+  if(!c){
+    panel.innerHTML = `
+      <div class="detailsEmpty">
+        <div class="detailsIcon">🀄️</div>
+        <h2>Карта не найдена</h2>
+        <div class="muted">Попробуй выбрать карту заново.</div>
+      </div>
+    `;
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="dHead">
+      <div class="dTitle">
+        <div class="emoji">${escapeHtml(c.emoji || '🀄️')}</div>
+        <div>
+          <h3>${escapeHtml(c.name || 'Карта')}</h3>
+          <div class="dMeta">${escapeHtml(c.category || '')}</div>
+        </div>
+      </div>
+    </div>
+
+    ${sectionHTML('Эффекты', c.effects)}
+    ${sectionHTML('Применение', c.application)}
+    ${sectionHTML('Получение', c.obtain)}
+    ${sectionHTML('Особенности', c.features)}
+    ${sectionHTML('Снимается / забирается', c.removes)}
+    ${sectionHTML('Продажа', c.sale)}
+    ${sectionHTML('Передача', c.transfer)}
+    ${sectionHTML('Конвертация', c.conversion)}
+    ${sectionHTML('Защита', c.protection)}
+    ${sectionHTML('Нельзя использовать', c.cannotUse)}
+    ${sectionHTML('Сборка', c.craftText)}
+
+    <div class="dHint">Подсказка: на мобильном детали открываются снизу (sheet).</div>
+  `;
+}
+
+// --- Mobile sheet (reuse existing overlay)
+function openSheet(c){
   $('mEmoji').textContent = c.emoji || '🀄️';
   $('mName').textContent = c.name || 'Карта';
   $('mMeta').textContent = c.category || '';
 
   const body = $('mBody');
   body.innerHTML = '';
-
-  addSection(body,'Эффекты', c.effects);
-  addSection(body,'Применение', c.application);
-  addSection(body,'Получение', c.obtain);
-  addSection(body,'Особенности', c.features);
-  addSection(body,'Снимается / забирается', c.removes);
-  addSection(body,'Продажа', c.sale);
-  addSection(body,'Передача', c.transfer);
-  addSection(body,'Конвертация', c.conversion);
-  addSection(body,'Защита', c.protection);
-  addSection(body,'Нельзя использовать', c.cannotUse);
-  addSection(body,'Сборка', c.craftText);
+  body.innerHTML += sectionHTML('Эффекты', c.effects);
+  body.innerHTML += sectionHTML('Применение', c.application);
+  body.innerHTML += sectionHTML('Получение', c.obtain);
+  body.innerHTML += sectionHTML('Особенности', c.features);
+  body.innerHTML += sectionHTML('Снимается / забирается', c.removes);
+  body.innerHTML += sectionHTML('Продажа', c.sale);
+  body.innerHTML += sectionHTML('Передача', c.transfer);
+  body.innerHTML += sectionHTML('Конвертация', c.conversion);
+  body.innerHTML += sectionHTML('Защита', c.protection);
+  body.innerHTML += sectionHTML('Нельзя использовать', c.cannotUse);
+  body.innerHTML += sectionHTML('Сборка', c.craftText);
 
   $('overlay').classList.add('show');
   document.body.style.overflow = 'hidden';
 }
 
-function closeModal(){
+function closeSheet(){
   $('overlay').classList.remove('show');
   document.body.style.overflow = '';
 }
 
-// --- Calculator
+// --- Calculator (без изменений по логике)
 const ladder = [
   {from:'🔘', to:'☑️', rate:2},
   {from:'☑️', to:'🟦', rate:3},
@@ -209,7 +304,6 @@ function optimizeUp(inv){
 }
 
 function parseRecipe(text){
-  // Try to parse "( A➕B➕...🟰X )" into {out:'X', req:{A:n}}
   if(!text) return null;
   const m = text.match(/\(([^\)]*?)\)/);
   if(!m) return null;
@@ -218,9 +312,10 @@ function parseRecipe(text){
   if(eq.length<2) return null;
   const left = eq[0];
   const right = eq[1];
-  // pick first emoji on right
+
   const outEmoji = (right.match(/([☀-➿🀀-🫿]+)/u) || [])[1];
   if(!outEmoji) return null;
+
   const parts = left.split('➕').map(s=>s.trim()).filter(Boolean);
   const req = {};
   for(const p of parts){
@@ -256,7 +351,6 @@ function getAllRecipes(){
 
 const allRecipes = getAllRecipes();
 
-// weight (rough) to sort: higher = more valuable
 const weight = {
   '🪽':100,'🔲':95,'🌈':90,'🚨':80,'💎':70,'🟧':60,
   '⬜️':50,'🃏':45,'☮️':40,'🎦':35,'🎹':30,'🅱️':25,
@@ -264,7 +358,6 @@ const weight = {
 };
 
 function showRecipes(){
-  // merge ladder inv with other emojis from existing inputs (unknown treated as 0)
   const inv = getInv();
   const out = [];
   for(const r of allRecipes){
@@ -278,7 +371,6 @@ function showRecipes(){
 }
 
 function disassembleOne(sym){
-  // Reverse of ladder: take 1 of sym and return its base parts
   const rev = [
     {from:'🚨', to:'💎', rate:3},
     {from:'💎', to:'🟧', rate:2},
@@ -305,6 +397,7 @@ function renderDisSel(){
   });
 }
 
+// --- Rules
 function renderRules(){
   const host = $('rulesList');
   host.innerHTML='';
@@ -324,14 +417,23 @@ function renderRules(){
 
 // --- Event Listeners
 function initEventListeners(){
-  $('mClose').onclick = closeModal;
-  $('overlay').onclick = (e) => { if(e.target === $('overlay')) closeModal(); };
+  // sheet close
+  $('mClose').onclick = closeSheet;
+  $('overlay').onclick = (e) => { if(e.target === $('overlay')) closeSheet(); };
 
+  // tabs/nav
   document.querySelectorAll('.tab').forEach(t=>t.onclick = () => setView(t.dataset.view));
   document.querySelectorAll('.navBtn').forEach(t=>t.onclick = () => setView(t.dataset.view));
 
-  $('q').addEventListener('input', (e)=>{ state.q = e.target.value; renderCards(); });
+  // search
+  $('q').addEventListener('input', (e)=>{
+    state.q = e.target.value;
+    state.selectedKey = null;
+    renderCards();
+    renderDetailsDesktop(true);
+  });
 
+  // calc buttons
   $('btnOptimize').onclick = () => {
     const inv = getInv();
     const {out, steps} = optimizeUp(inv);
@@ -353,28 +455,42 @@ function initEventListeners(){
   $('btnDisassemble').onclick = () => {
     const sym = $('disSel').value;
     const r = disassembleOne(sym);
-    if(!r){ 
-      $('disOut').textContent = 'Для этой карты разборка не описана в базовой лестнице.'; 
-      return; 
+    if(!r){
+      $('disOut').textContent = 'Для этой карты разборка не описана в базовой лестнице.';
+      return;
     }
     $('disOut').textContent = `${r.from} x1 → ${r.to} x${r.qty}\n(Это обратная операция к сборке: ${r.to} x${r.qty} → ${r.from} x1)`;
   };
+
+  // respond to viewport changes: keep UI consistent
+  window.addEventListener('resize', () => {
+    if(state.view !== 'cards') return;
+
+    // If moved to desktop, close sheet and render details panel
+    if(isDesktop()){
+      closeSheet();
+      renderDetailsDesktop();
+    } else {
+      // If moved to mobile, hide desktop panel
+      renderDetailsDesktop();
+    }
+  });
 }
 
 // --- Initialization
 function init(){
   renderPills();
   renderCards();
+  renderDetailsDesktop(true);
+
   renderInvInputs();
   renderDisSel();
   renderRules();
   initEventListeners();
-  
-  // default inventory sample (empty)
+
   setInv(Object.fromEntries(ladderOrder.map(s=>[s,0])));
 }
 
-// Start when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
