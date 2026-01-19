@@ -29,7 +29,7 @@
     <section class="hint">
       <div class="hint__title">Подключение к dataset/v1.json</div>
       <div class="hint__text">
-        Этот экран сначала пытается загрузить <code>dataset/v1.json</code>. Если файл отсутствует — показывает карточки из <code>assets/cards/mapping.json</code>.
+        Этот экран сначала пытается загрузить <code>dataset/v1.json</code> (только при открытии через HTTP/HTTPS, например GitHub Pages). Если открыть файл напрямую через <code>file://</code>, браузер заблокирует загрузку JSON — в этом случае включится фолбэк на <code>assets/cards/mapping.json</code>.
       </div>
     </section>
   </main>

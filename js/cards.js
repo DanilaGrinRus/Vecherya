@@ -340,19 +340,41 @@ async function init() {
 
   const mapping = await safeFetchJson("assets/cards/mapping.json");
 
-  try {
-    const ds = await safeFetchJson("dataset/v1.json");
-    cards = normalizeDataset(ds);
+  // PATCH: игнорируем служебное поле JSON Schema
+  if (mapping && typeof mapping === "object") {
+    delete mapping.$schema;
+  }
 
+
+  // If opened via file://, fetch() to local files is blocked by browsers.
+  const isFile = window.location.protocol === "file:";
+
+  const candidates = [
+    "dataset/v1.json",
+    "./dataset/v1.json",
+    // GitHub Pages edge-case: some users accidentally host from a subfolder. Try relative to current URL.
+    new URL("dataset/v1.json", window.location.href).toString(),
+  ];
+
+  if (!isFile) {
+    for (const url of candidates) {
+      try {
+        const ds = await safeFetchJson(url);
+        cards = normalizeDataset(ds);
+        if (cards.length) { datasetMode = true; break; }
+      } catch (_) {}
+    }
+  }
+
+  if (!datasetMode) {
+    // Fallback: only mapping ids (site still works even without dataset)
+    cards = Object.keys(mapping).map((id) => ({ id, name: "", category: "", rarity: "", emoji: "", order: null, categoryOrder: null, rarityOrder: null }));
+  } else {
     // Append any image ids missing from dataset as placeholders
     const existing = new Set(cards.map((c) => c.id));
     for (const id of Object.keys(mapping)) {
       if (!existing.has(id)) cards.push({ id, name: "", category: "", rarity: "", emoji: "", order: null, categoryOrder: null, rarityOrder: null });
     }
-
-    datasetMode = cards.length > 0;
-  } catch (e) {
-    cards = Object.keys(mapping).map((id) => ({ id, name: "", category: "", rarity: "", emoji: "", order: null, categoryOrder: null, rarityOrder: null }));
   }
 
   // Categories dropdown (engine-like order)
@@ -372,12 +394,17 @@ async function init() {
 
   render(cards, mapping);
 
-  if (datasetMode) $("meta").textContent = $("meta").textContent + " • сортировка: движок";
-  else $("meta").textContent = $("meta").textContent + " • сортировка: mapping";
+  if (isFile) {
+    $("meta").textContent = $("meta").textContent + " • локально: file:// (dataset не загрузится)";
+  } else if (datasetMode) {
+    $("meta").textContent = $("meta").textContent + " • источник: dataset/v1.json";
+  } else {
+    $("meta").textContent = $("meta").textContent + " • источник: mapping.json (dataset не найден)";
+  }
 }
 
 init().catch((e) => {
   console.error(e);
   const meta = $("meta");
-  if (meta) meta.textContent = "Ошибка загрузки данных";
+  if (meta) meta.textContent = "Ошибка загрузки данных (проверь GitHub Pages Settings → Pages, и что dataset/v1.json лежит рядом с index.html)";
 });
