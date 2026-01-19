@@ -27,9 +27,9 @@
     <section id="cards" class="cards-grid" aria-live="polite"></section>
 
     <section class="hint">
-      <div class="hint__title">Подключение к dataset/v1.json</div>
+      <div class="hint__title">Автоматическое определение карт</div>
       <div class="hint__text">
-        Этот экран сначала пытается загрузить <code>dataset/v1.json</code> (только при открытии через HTTP/HTTPS, например GitHub Pages). Если открыть файл напрямую через <code>file://</code>, браузер заблокирует загрузку JSON — в этом случае включится фолбэк на <code>assets/cards/mapping.json</code>.
+        Система автоматически определяет карты из <code>dataset/v1.json</code> и изображения из папки <code>assets/cards/</code>. Если dataset недоступен, карты создаются из имён файлов изображений. Всего распознано <span id="image-count">0</span> файлов изображений.
       </div>
     </section>
   </main>
