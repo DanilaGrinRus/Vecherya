@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Cardpedia + Craft Lab — Капитализм и Коммунизм</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="head">
+      <div class="title">
+        <div>
+          <h1>Капитализм и Коммунизм — Cardpedia + Craft Lab</h1>
+          <div class="sub">Справочник карт и калькулятор сборки/разборки. Оптимизировано под мобильные.</div>
+        </div>
+      </div>
+      <div class="tabs" id="topTabs">
+        <div class="tab active" data-view="cards">Карты</div>
+        <div class="tab" data-view="calc">Калькулятор</div>
+        <div class="tab" data-view="rules">Правила</div>
+      </div>
+      <div class="searchRow" id="searchRow">
+        <div class="search">
+          <span style="color:var(--muted); font-weight:900;">🔎</span>
+          <input id="q" placeholder="Поиск по картам: название, эффекты, сборка…" autocomplete="off" />
+        </div>
+      </div>
+      <div class="pills" id="catPills" style="margin-top:10px;"></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div id="viewCards">
+      <div class="grid" id="cardsGrid"></div>
+      <div class="panel" id="empty" style="display:none;">
+        <h2>Ничего не найдено</h2>
+        <div class="muted">Попробуй другой запрос или очисти фильтр категорий.</div>
+      </div>
+    </div>
+
+    <div id="viewCalc" style="display:none;">
+      <div class="panel">
+        <h2>Инвентарь → оптимальная сборка (обычная цепочка)</h2>
+        <div class="muted">Алгоритм максимизирует дорогие карты по базовой лестнице: 🔘→☑️→🟦→🟩→⬜️→🟧→💎→🚨.</div>
+
+        <div class="inputs" id="invInputs"></div>
+
+        <div class="row" style="margin-top:10px;">
+          <div class="btn" id="btnOptimize">Собрать максимум</div>
+          <div class="btn secondary" id="btnReset">Сбросить</div>
+        </div>
+
+        <div class="kv">
+          <div class="box">
+            <h3>План сборки</h3>
+            <div class="mono" id="planOut">—</div>
+          </div>
+          <div class="box">
+            <h3>Итоговый инвентарь</h3>
+            <div class="mono" id="invOut">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Рецепты (что можно собрать дополнительно)</h2>
+        <div class="muted">На основе формул «Сборка: ... 🟰 ...» из базы. Показывает только те рецепты, где хватает ресурсов.</div>
+        <div class="row" style="margin-top:10px;">
+          <div class="btn secondary" id="btnRecipes">Показать доступные рецепты</div>
+        </div>
+        <div class="kv">
+          <div class="box">
+            <h3>Доступно сейчас</h3>
+            <div class="mono" id="recipesOut">—</div>
+          </div>
+        </div>
+        <div class="hint">Важно: рецепты с текстом «Нет» игнорируются. Сложные тексты/особые условия (лимиты, тайминги) калькулятор не моделирует — это справочник.</div>
+      </div>
+
+      <div class="panel">
+        <h2>Разборка</h2>
+        <div class="muted">Быстрая разборка по базовой лестнице (обратное преобразование). Для специальных карт смотри поле «Сборка» в карточке.</div>
+        <div class="row" style="margin-top:10px; align-items:center;">
+          <div class="pill" style="cursor:default;">Выбери карту:</div>
+          <select id="disSel" style="flex:1; min-width:220px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background: rgba(11,18,36,.75); color:var(--text); font-weight:800;">
+          </select>
+          <div class="btn" id="btnDisassemble">Разобрать 1 шт.</div>
+        </div>
+        <div class="kv">
+          <div class="box">
+            <h3>Результат разборки</h3>
+            <div class="mono" id="disOut">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="viewRules" style="display:none;">
+      <div class="panel">
+        <h2>Правила стрима</h2>
+        <div class="muted">Текст выгружен из исходных сообщений и показан как справочник.</div>
+        <div class="kv" id="rulesList"></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom">
+    <div class="bar">
+      <div class="navBtn active" data-view="cards">Карты</div>
+      <div class="navBtn" data-view="calc">Калькулятор</div>
+      <div class="navBtn" data-view="rules">Правила</div>
+    </div>
+  </nav>
+
+  <div class="overlay" id="overlay">
+    <div class="sheet" role="dialog" aria-modal="true">
+      <div class="sheetHead">
+        <div class="sheetTitle">
+          <div class="emoji" id="mEmoji">🀄️</div>
+          <div>
+            <h3 id="mName">Карта</h3>
+            <div class="meta" id="mMeta">—</div>
+          </div>
+        </div>
+        <div class="close" id="mClose">Закрыть</div>
+      </div>
+      <div class="sheetBody" id="mBody"></div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
