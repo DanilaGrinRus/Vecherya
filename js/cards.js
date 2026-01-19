@@ -299,24 +299,16 @@ function render(cardsRaw, mapping) {
     const el = document.createElement("article");
     el.className = "card-item";
 
-    const fileObj = mapping[c.id];
-    const srcSmall = fileObj;
-
     const loading = (typeof i === "number" && i < 12) ? "eager" : "lazy";
     const fetchpriority = (typeof i === "number" && i < 4) ? "high" : "auto";
 
-    const imgHtml = srcSmall
+    const imgHtml = file
       ? `<img class="card-item__img"
-              src="assets/cards/${srcSmall}"
-                            loading="${loading}"
+              src="assets/cards/${file}"
+              loading="${loading}"
               decoding="async"
               fetchpriority="${fetchpriority}"
               alt="${displayName}">`
-      : `<div class="card-item__img" aria-label="Нет изображения"></div>`;
-
-
-    const imgHtml = file
-      ? `<img class="card-item__img" src="assets/cards/${file}" alt="${displayName}">`
       : `<div class="card-item__img" aria-label="Нет изображения"></div>`;
 
     const emoji = c.emoji ? `<span class="badge" title="Эмодзи карты">${c.emoji}</span>` : "";
@@ -344,7 +336,6 @@ async function init() {
   if (mapping && typeof mapping === "object") {
     delete mapping.$schema;
   }
-
 
   // If opened via file://, fetch() to local files is blocked by browsers.
   const isFile = window.location.protocol === "file:";
