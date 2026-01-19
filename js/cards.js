@@ -3,7 +3,7 @@
  *
  * Data sources:
  *  1) dataset/v1.json (preferred)
- *  2) assets/cards/mapping.json (fallback)
+ *  2) Автоматически определяемые изображения из assets/cards/
  *
  * Goals:
  *  - Normalize dataset structures robustly (engine-like shapes).
@@ -44,7 +44,10 @@ function normalizeOneCard(c, extra = {}) {
   const categoryOrder = Number.isFinite(Number(c?.categoryOrder)) ? Number(c.categoryOrder) : (Number.isFinite(Number(extra.categoryOrder)) ? Number(extra.categoryOrder) : null);
   const rarityOrder = Number.isFinite(Number(c?.rarityOrder)) ? Number(c.rarityOrder) : (Number.isFinite(Number(extra.rarityOrder)) ? Number(extra.rarityOrder) : null);
 
-  return { id, name, category, rarity, emoji, order, categoryOrder, rarityOrder };
+  // Извлекаем имя изображения если есть в данных
+  const image = asString(pickFirst(c, ["image", "img", "picture", "icon", "asset"])).trim();
+
+  return { id, name, category, rarity, emoji, image, order, categoryOrder, rarityOrder };
 }
 
 /**
@@ -138,6 +141,7 @@ function dedupe(cards) {
       if (x.category) s += 3;
       if (x.rarity) s += 3;
       if (x.emoji) s += 1;
+      if (x.image) s += 2; // Добавляем баллы за наличие изображения
       if (x.categoryOrder !== null) s += 1;
       if (x.rarityOrder !== null) s += 1;
       if (x.order !== null) s += 1;
@@ -264,6 +268,63 @@ function sortCards(cards) {
   });
 }
 
+// Функция для извлечения ID из имени файла
+function extractIdFromFilename(filename) {
+  // Удаляем расширения и суффиксы
+  let id = filename
+    .replace(/_600\.webp$/, '')
+    .replace(/_600\.png$/, '')
+    .replace(/_600\.jpg$/, '')
+    .replace(/\.webp$/, '')
+    .replace(/\.png$/, '')
+    .replace(/\.jpg$/, '')
+    .replace(/\.jpeg$/, '');
+  
+  return id;
+}
+
+// Функция для создания автоматического mapping из списка файлов
+function createAutoMapping(imageFiles) {
+  const mapping = {};
+  
+  for (const filename of imageFiles) {
+    const id = extractIdFromFilename(filename);
+    if (id) {
+      mapping[id] = filename;
+      
+      // Также добавляем варианты без числовых суффиксов
+      const idWithoutNumbers = id.replace(/\d+$/, '');
+      if (idWithoutNumbers !== id && !mapping[idWithoutNumbers]) {
+        mapping[idWithoutNumbers] = filename;
+      }
+    }
+  }
+  
+  return mapping;
+}
+
+// Функция для получения пути к изображению
+function getImageForCard(cardId, mapping) {
+  // Пробуем несколько вариантов
+  const variants = [
+    cardId,
+    cardId.toLowerCase(),
+    cardId.replace(/[^a-z0-9]/gi, '_'),
+    cardId.replace(/[^a-z0-9]/gi, '_').toLowerCase(),
+    // Удаляем числовые суффиксы
+    cardId.replace(/\d+$/, ''),
+    cardId.replace(/\d+$/, '').toLowerCase(),
+  ];
+  
+  for (const variant of variants) {
+    if (mapping[variant]) {
+      return mapping[variant];
+    }
+  }
+  
+  return null;
+}
+
 function render(cardsRaw, mapping) {
   const cards = sortCards(cardsRaw);
 
@@ -276,8 +337,11 @@ function render(cardsRaw, mapping) {
     const id = (c.id || "").toLowerCase();
     const okQuery = !q || name.includes(q) || id.includes(q);
     const okCat = !cat || normalizeCategoryLabel(c.category) === cat;
-    const img = mapping[c.id];
-    const okImg = !onlyWithImages || !!img;
+    
+    // Проверяем наличие изображения
+    const hasImage = !!getImageForCard(c.id, mapping);
+    const okImg = !onlyWithImages || hasImage;
+    
     return okQuery && okCat && okImg;
   });
 
@@ -286,7 +350,7 @@ function render(cardsRaw, mapping) {
 
   for (let i = 0; i < filtered.length; i++) {
     const c = filtered[i];
-    const file = mapping[c.id];
+    const imageFile = getImageForCard(c.id, mapping);
     const displayName = c.name ? c.name : titleCaseRu(c.id.replace(/[_-]+/g, " "));
     const catLabel = normalizeCategoryLabel(c.category);
     const rarLabel = normalizeRarityLabel(c.rarity);
@@ -302,9 +366,9 @@ function render(cardsRaw, mapping) {
     const loading = (typeof i === "number" && i < 12) ? "eager" : "lazy";
     const fetchpriority = (typeof i === "number" && i < 4) ? "high" : "auto";
 
-    const imgHtml = file
+    const imgHtml = imageFile
       ? `<img class="card-item__img"
-              src="assets/cards/${file}"
+              src="assets/cards/${imageFile}"
               loading="${loading}"
               decoding="async"
               fetchpriority="${fetchpriority}"
@@ -330,12 +394,34 @@ async function init() {
   let cards = [];
   let datasetMode = false;
 
-  const mapping = await safeFetchJson("assets/cards/mapping.json");
+  // Список всех файлов изображений (можно обновить по необходимости)
+  const IMAGE_FILES = [
+    "angel_600.webp", "antikiran_600.webp", "bank_600.webp",
+    "bank_sivyi_mentin_600.webp", "bankrot_600.webp", "bita_600.webp",
+    "black_600.webp", "blue_600.webp", "capitalism_communism_600.webp",
+    "chameleon_600.webp", "chib_600.webp", "commission_600.webp",
+    "content_card_600.webp", "converter_600.webp", "emerald_600.webp",
+    "extrematus_600.webp", "gift_12min_600.webp", "gold_600.webp",
+    "golden_skates_600.webp", "graffiti_600.webp", "gray_600.webp",
+    "green_600.webp", "jackpot_cards_600.webp", "joker_600.webp",
+    "kost_1_600.webp", "kost_2_600.webp", "last_judgement_1_600.webp",
+    "last_judgement_2_600.webp", "littador_600.webp", "magnet_600.webp",
+    "matreshid_600.webp", "mayak_besthodnosti_600.webp", "minus_th_600.webp",
+    "minus_3th_600.webp", "musical_600.webp", "obnukenie_600.webp",
+    "obosran_600.webp", "pacific_600.webp", "pergamet_blue_600.webp",
+    "pergamet_gold_600.webp", "pink_600.webp", "preispodnya_600.webp",
+    "rainbow_600.webp", "red_600.webp", "ruby_park_600.webp",
+    "ruby_kost_1_600.webp", "ruby_kost_2_600.webp", "ruby_plus3_600.webp",
+    "safe_600.webp", "sweets_600.webp", "template_600.webp",
+    "topor_600.webp", "tv_wheel_3_600.webp", "tv_wheel_5_600.webp",
+    "tv_wheel_600.webp", "wedro_egora_600.webp", "wheel_eater_1_600.webp",
+    "wheel_eater_2_600.webp", "wheel_eater_round_600.webp", "white_600.webp",
+    "yellow_600.webp", "zabanen_600.webp", "zamorotka_600.webp"
+  ];
 
-  // PATCH: игнорируем служебное поле JSON Schema
-  if (mapping && typeof mapping === "object") {
-    delete mapping.$schema;
-  }
+  // Создаем автоматический mapping
+  const mapping = createAutoMapping(IMAGE_FILES);
+  console.log('Автоматически созданный mapping:', mapping);
 
   // If opened via file://, fetch() to local files is blocked by browsers.
   const isFile = window.location.protocol === "file:";
@@ -358,14 +444,26 @@ async function init() {
   }
 
   if (!datasetMode) {
-    // Fallback: only mapping ids (site still works even without dataset)
-    cards = Object.keys(mapping).map((id) => ({ id, name: "", category: "", rarity: "", emoji: "", order: null, categoryOrder: null, rarityOrder: null }));
+    // Fallback: создаем карты из имен файлов изображений
+    console.log('Создаем карты из имен файлов изображений');
+    cards = Object.keys(mapping).map((id) => ({ 
+      id, 
+      name: titleCaseRu(id.replace(/[_-]+/g, " ")), 
+      category: "", 
+      rarity: "", 
+      emoji: "", 
+      image: mapping[id],
+      order: null, 
+      categoryOrder: null, 
+      rarityOrder: null 
+    }));
   } else {
-    // Append any image ids missing from dataset as placeholders
-    const existing = new Set(cards.map((c) => c.id));
-    for (const id of Object.keys(mapping)) {
-      if (!existing.has(id)) cards.push({ id, name: "", category: "", rarity: "", emoji: "", order: null, categoryOrder: null, rarityOrder: null });
-    }
+    // Добавляем изображения к картам из dataset
+    console.log('Добавляем изображения к картам из dataset');
+    cards = cards.map(card => ({
+      ...card,
+      image: card.image || getImageForCard(card.id, mapping)
+    }));
   }
 
   // Categories dropdown (engine-like order)
@@ -385,17 +483,35 @@ async function init() {
 
   render(cards, mapping);
 
+  // Обновляем информацию в topbar
+  const imageCount = Object.keys(mapping).length;
+  const cardCount = cards.length;
+  
   if (isFile) {
-    $("meta").textContent = $("meta").textContent + " • локально: file:// (dataset не загрузится)";
+    $("meta").textContent = `Карт: ${cardCount} • Изображений: ${imageCount} • Локально (file://)`;
   } else if (datasetMode) {
-    $("meta").textContent = $("meta").textContent + " • источник: dataset/v1.json";
+    $("meta").textContent = `Карт: ${cardCount} • Изображений: ${imageCount} • Источник: dataset/v1.json`;
   } else {
-    $("meta").textContent = $("meta").textContent + " • источник: mapping.json (dataset не найден)";
+    $("meta").textContent = `Карт: ${cardCount} • Изображений: ${imageCount} • Источник: имена файлов`;
   }
 }
 
 init().catch((e) => {
   console.error(e);
   const meta = $("meta");
-  if (meta) meta.textContent = "Ошибка загрузки данных (проверь GitHub Pages Settings → Pages, и что dataset/v1.json лежит рядом с index.html)";
+  if (meta) meta.textContent = "Ошибка загрузки данных";
+  
+  // Показываем базовый контент даже при ошибке
+  const container = $("cards");
+  if (container) {
+    container.innerHTML = `
+      <div class="hint" style="grid-column: 1 / -1;">
+        <div class="hint__title">Ошибка загрузки</div>
+        <div class="hint__text">
+          Не удалось загрузить данные. Проверьте консоль браузера (F12) для подробностей.<br>
+          Ошибка: ${e.message}
+        </div>
+      </div>
+    `;
+  }
 });
