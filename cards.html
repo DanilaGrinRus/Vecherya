@@ -98,7 +98,7 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
 
   <div class="row" style="gap:10px">
     <label class="small">Поиск</label>
-    <input id="imgSearch" type="text" placeholder="Поиск по имени файла/карты…" style="flex:1;min-width:220px;padding:7px 10px;border-radius:10px;border:1px solid var(--line,#2a3b52);background:#0b1220;color:var(--fg,#e6edf3)">
+    <input id="imgSearch" type="text" placeholder="Поиск по названию карты…" style="flex:1;min-width:220px;padding:7px 10px;border-radius:10px;border:1px solid var(--line,#2a3b52);background:#0b1220;color:var(--fg,#e6edf3)">
     <button class="ghost" type="button" id="clearSel">Сброс выбора</button>
   </div>
 
@@ -403,7 +403,24 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
   function pretty(fn){ return stem(fn).replace(/[_-]+/g,' '); }
   function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
-  // Active nav (простая логика по файлу)
+  // Build src candidates: supports accidental nested upload (cards/cards/..)
+  function srcAt(fn, i){
+    const f = encodeURI(fn);
+    return i === 0 ? ('cards/' + f) : ('cards/cards/' + f);
+  }
+  window.__imgErr = function(img){
+    const fn = img.getAttribute('data-fn') || '';
+    const tried = parseInt(img.getAttribute('data-try') || '0', 10);
+    if(!fn) return;
+    if(tried >= 1) {
+      img.style.opacity = .25;
+      return;
+    }
+    img.setAttribute('data-try', String(tried + 1));
+    img.src = srcAt(fn, tried + 1);
+  };
+
+  // Active nav
   document.querySelectorAll('nav a').forEach(a=>{
     const href=(a.getAttribute('href')||'').toLowerCase();
     if(href==='cards.html') a.classList.add('active');
@@ -419,7 +436,7 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
   const selList = document.getElementById('selList');
   const countEl = document.getElementById('count');
 
-  // modal refs
+  // modal
   const modal = document.getElementById('cardModal');
   const mTitle = document.getElementById('mTitle');
   const mImg = document.getElementById('mImg');
@@ -436,8 +453,13 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
     const desc = DESC_BY_STEM[st] || 'Описание уточняется (нет в messages.html или не сопоставлено).';
 
     mTitle.textContent = name;
-    mImg.src = 'cards/' + encodeURI(fn);
+
+    mImg.setAttribute('data-fn', fn);
+    mImg.setAttribute('data-try', '0');
+    mImg.src = srcAt(fn, 0);
     mImg.alt = name;
+    mImg.onerror = function(){ window.__imgErr(mImg); };
+
     mDesc.textContent = desc;
     mPath.textContent = 'cards/' + fn;
 
@@ -471,7 +493,7 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
       return `
         <div class="cardTile ${s?'selected':''}" data-fn="${fn}" title="Клик — открыть. Shift+клик — выбрать.">
           <div class="check">выбрано</div>
-          <img loading="lazy" src="cards/${fn}" alt="${esc(pretty(fn))}">
+          <img data-fn="${fn}" data-try="0" loading="lazy" src="${srcAt(fn,0)}" onerror="__imgErr(this)" alt="${esc(pretty(fn))}">
           <div class="cap">${esc(pretty(fn))}</div>
         </div>
       `;
@@ -495,26 +517,22 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
     }).join('');
   }
 
-  // grid interactions
   grid.addEventListener('click', (e)=>{
     const tile = e.target.closest('.cardTile');
     if(!tile) return;
     const fn = tile.getAttribute('data-fn');
 
-    // Shift-click toggles selection, no modal
     if(e.shiftKey){
       if(sel.has(fn)) sel.delete(fn); else sel.add(fn);
       render();
       return;
     }
-
     openModal(fn);
   });
 
   q.addEventListener('input', render);
   clearBtn.addEventListener('click', ()=>{ sel.clear(); render(); });
 
-  // modal interactions
   modal.addEventListener('click', (e)=>{
     if(e.target && e.target.getAttribute && e.target.getAttribute('data-close')==='1') closeModal();
   });
@@ -523,11 +541,8 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
     if(sel.has(curFn)) sel.delete(curFn); else sel.add(curFn);
     mToggle.textContent = sel.has(curFn) ? 'Снять выбор' : 'Выбрать';
     renderSelected();
-    // also update tile styling without full re-render
     const tile = grid.querySelector(`.cardTile[data-fn="${CSS.escape(curFn)}"]`);
-    if(tile){
-      tile.classList.toggle('selected', sel.has(curFn));
-    }
+    if(tile) tile.classList.toggle('selected', sel.has(curFn));
   });
   mPrev.addEventListener('click', ()=> step(-1));
   mNext.addEventListener('click', ()=> step(1));
