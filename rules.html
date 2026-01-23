@@ -10,6 +10,8 @@ header,nav,main,footer{max-width:1100px;margin:0 auto;padding:12px}
 nav a{margin-right:12px;padding:6px 10px;border:1px solid #2a3b52;border-radius:8px}
 nav a.active{background:#1a2636}
 .card{border:1px solid #22324a;border-radius:12px;padding:12px;margin:12px 0;background:#0f1622}
+h1,h2,h3{margin:0 0 8px}
+ul{padding-left:18px}
 button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#122033;color:#e6edf3}
 </style>
 </head>
@@ -22,15 +24,28 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
   <a href="cards.html">База карт</a>
 </nav>
 <main>
-  <div class="card">
-    <h2>Разделы</h2>
-    <p>Выберите нужный раздел.</p>
-  </div>
+
+<div class="card">
+<h2>Краткая памятка игрока</h2>
+<ul>
+<li>В день можно собрать не более 3 карт активации</li>
+<li>Передача карт требует комиссии</li>
+<li>Лимит передачи: 7 карт и 7 🧿 в день (общий)</li>
+<li>Один игрок: не более 3 карт и 3 🧿</li>
+<li>🧿 ТВ колёса передаются без комиссии</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Лестница ценности</h2>
+<p>☑️ → 🟦 → 🟩 → ⬜️ → 🟧 → 💎 → 🚨</p>
+<p>Каждый шаг вверх требует указанного количества карт предыдущего уровня.</p>
+</div>
+
 </main>
 <footer>GitHub Pages</footer>
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
-  // mark active nav
   const fn=(location.pathname.split('/').pop()||'index.html');
   document.querySelectorAll('nav a').forEach(a=>{
     if(a.getAttribute('href')===fn) a.classList.add('active');

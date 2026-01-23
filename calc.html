@@ -10,6 +10,8 @@ header,nav,main,footer{max-width:1100px;margin:0 auto;padding:12px}
 nav a{margin-right:12px;padding:6px 10px;border:1px solid #2a3b52;border-radius:8px}
 nav a.active{background:#1a2636}
 .card{border:1px solid #22324a;border-radius:12px;padding:12px;margin:12px 0;background:#0f1622}
+h1,h2,h3{margin:0 0 8px}
+ul{padding-left:18px}
 button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#122033;color:#e6edf3}
 </style>
 </head>
@@ -22,15 +24,25 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
   <a href="cards.html">База карт</a>
 </nav>
 <main>
-  <div class="card">
-    <h2>Разделы</h2>
-    <p>Выберите нужный раздел.</p>
-  </div>
+
+<div class="card">
+<h2>Калькулятор</h2>
+<p>Песочница для расчётов сборки и разборки карт.</p>
+<ul>
+<li>3 ☑️ = 🟦</li>
+<li>2 🟦 = 🟩</li>
+<li>2 🟩 = ⬜️</li>
+<li>2 ⬜️ = 🟧</li>
+<li>2 🟧 = 💎</li>
+<li>3 💎 = 🚨</li>
+</ul>
+<p>Комиссия возвращается только через Банк.</p>
+</div>
+
 </main>
 <footer>GitHub Pages</footer>
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
-  // mark active nav
   const fn=(location.pathname.split('/').pop()||'index.html');
   document.querySelectorAll('nav a').forEach(a=>{
     if(a.getAttribute('href')===fn) a.classList.add('active');
