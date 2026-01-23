@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Капитализм и Коммунизм — сайт</title>
+  <title>Калькулятор — Капитализм и Коммунизм</title>
   <style>
     :root{
       --bg:#0b0f14; --panel:#101823; --panel2:#0f1620; --text:#e7eef8; --muted:#9ab0c7;
@@ -295,20 +295,27 @@
 
   <div class="grid">
 
-
-    <section class="card" id="home">
-      <h2><span>Главная</span><span class="row"><span class="pill">3 раздела</span></span></h2>
+<div class="tabpanel" data-tabpanel="calc">
+<div class="zone" id="zone-calc" hidden>
+<section class="card" id="calc">
+      <h2>
+        <span>🧮 Песочница</span>
+        <span class="row">
+          <select id="src" title="Профиль">
+            <option value="sandbox">Песочница</option>
+          </select>
+          <button class="btn secondary" id="load">Загрузить</button>
+          <button class="btn secondary" id="save">Сохранить</button>
+        </span>
+      </h2>
       <div class="body">
-        <div class="hint">Это сайт-справочник. Разделы открываются отдельными страницами.</div>
-        <div class="row" style="gap:12px; flex-wrap:wrap">
-          <a class="btn" href="calc.html">Перейти в Калькулятор</a>
-          <a class="btn secondary" href="rules.html">Открыть Правила</a>
-          <a class="btn secondary" href="cards.html">Открыть Базу карт</a>
-        </div>
-        <div class="log">Памятка 📌 доступна на каждой странице.</div>
-      </div>
-    </section>
-
+        <div class="row">
+          <div style="flex:1; min-width:260px">
+            <label>Быстрый ввод (опционально)</label>
+            <div class="row">
+              <input id="quick" type="text" placeholder="Напр.: ☑️7 🟦2 🟩1 ⬜️1 🔘3 🧿1 🚨1"/>
+              <button class="btn" id="quickApply">Применить</button>
+            </div>
             
 
 
