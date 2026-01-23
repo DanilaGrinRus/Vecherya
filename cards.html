@@ -15,76 +15,26 @@ ul{padding-left:18px}
 input{padding:6px;border-radius:6px;border:1px solid #2a3b52;background:#0b1220;color:#e6edf3}
 button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#122033;color:#e6edf3}
 
-.imgGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:10px;
-}
-.cardTile{
-  position:relative;
-  border:1px solid var(--line,#2a3b52);
-  border-radius:12px;
-  background:var(--card,#0f1622);
-  overflow:hidden;
-  cursor:pointer;
-  padding:8px;
-}
-.cardTile img{
-  width:100%;
-  height:160px;
-  object-fit:cover;
-  border-radius:10px;
-  display:block;
-}
-.cardTile .cap{
-  margin-top:6px;
-  font-size:13px;
-  opacity:.9;
-  word-break:break-word;
-}
-.cardTile.selected{
-  outline:2px solid rgba(95,179,255,.9);
-  border-color:rgba(95,179,255,.5);
-  background:rgba(95,179,255,.08);
-}
-.cardTile .check{
-  position:absolute;
-  top:8px; right:8px;
-  background:rgba(11,15,20,.85);
-  border:1px solid rgba(95,179,255,.6);
-  border-radius:999px;
-  padding:2px 8px;
-  font-size:12px;
-  display:none;
-}
+.imgGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.cardTile{position:relative;border:1px solid var(--line,#2a3b52);border-radius:12px;background:var(--card,#0f1622);overflow:hidden;cursor:pointer;padding:8px}
+.cardTile img{width:100%;height:160px;object-fit:cover;border-radius:10px;display:block}
+.cardTile .cap{margin-top:6px;font-size:13px;opacity:.9;word-break:break-word}
+.cardTile.selected{outline:2px solid rgba(95,179,255,.9);border-color:rgba(95,179,255,.5);background:rgba(95,179,255,.08)}
+.cardTile .check{position:absolute;top:8px;right:8px;background:rgba(11,15,20,.85);border:1px solid rgba(95,179,255,.6);border-radius:999px;padding:2px 8px;font-size:12px;display:none}
 .cardTile.selected .check{display:block}
 .selList .item{padding:6px 0;border-top:1px solid rgba(42,59,82,.55)}
 .selList .item:first-child{border-top:0}
-.selList b{font-weight:700}
-
 .modal{position:fixed;inset:0;display:none;z-index:200}
 .modal.on{display:block}
 .modalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
-.modalPanel{
-  position:relative;
-  max-width:820px;
-  margin:8vh auto;
-  background:var(--card,#0f1622);
-  border:1px solid rgba(42,59,82,.85);
-  border-radius:16px;
-  padding:12px;
-  box-shadow:0 20px 60px rgba(0,0,0,.55);
-}
-@media (max-width:560px){
-  .modalPanel{margin:5vh 10px}
-  #mImg{width:120px;height:160px}
-}
+.modalPanel{position:relative;max-width:820px;margin:8vh auto;background:var(--card,#0f1622);border:1px solid rgba(42,59,82,.85);border-radius:16px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+@media (max-width:560px){.modalPanel{margin:5vh 10px}#mImg{width:120px;height:160px}}
 </style>
 </head>
 <body>
 <header><h1>Капитализм и Коммунизм</h1></header>
 <nav>
-    <a href="calc.html">Калькулятор</a>
+    <a href="index.html#calc" >Калькулятор</a>
   <a href="rules.html">Правила</a>
   <a href="cards.html">База карт</a>
 </nav>
@@ -93,37 +43,39 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
 <div class="card">
   <h2>База данных карт</h2>
   <p class="small">
-    Выбор карт кликом по изображению из папки <b>cards/</b>. Описания подтягиваются из <b>messages.html</b> там, где удалось сопоставить.
+    Клик по карте — открыть описание. Shift+клик — выбрать/снять выбор без открытия.
   </p>
 
-  <div class="row" style="gap:10px">
+  <div class="row" style="gap:10px;align-items:center">
     <label class="small">Поиск</label>
-    <input id="imgSearch" type="text" placeholder="Поиск по названию карты…" style="flex:1;min-width:220px;padding:7px 10px;border-radius:10px;border:1px solid var(--line,#2a3b52);background:#0b1220;color:var(--fg,#e6edf3)">
-    <button class="ghost" type="button" id="clearSel">Сброс выбора</button>
+    <input id="q" type="text" placeholder="Поиск по названию карты…" style="flex:1;min-width:220px;padding:7px 10px;border-radius:10px;border:1px solid var(--line,#2a3b52);background:#0b1220;color:var(--fg,#e6edf3)">
+    <button class="ghost" type="button" id="reset">Сброс</button>
   </div>
 
-  <div class="row small" style="gap:10px">
+  <div class="row small" style="gap:10px;margin-top:8px">
     <span class="pill" id="count">0</span>
     <span>карт в выдаче</span>
   </div>
 
-  <div id="imgGrid" class="imgGrid"></div>
+  <div id="grid" class="imgGrid" style="margin-top:10px"></div>
 </div>
 
 <div class="card">
   <h2>Выбрано</h2>
-  <div id="selList" class="selList small">—</div>
+  <div id="sel" class="selList small">—</div>
 </div>
 
-<div id="cardModal" class="modal" aria-hidden="true">
+<!-- Модалка -->
+<div id="modal" class="modal" aria-hidden="true">
   <div class="modalBackdrop" data-close="1"></div>
   <div class="modalPanel" role="dialog" aria-modal="true" aria-label="Карточка">
     <div class="row" style="justify-content:space-between;align-items:flex-start">
       <div style="font-size:18px"><b id="mTitle">—</b></div>
       <button class="ghost" type="button" data-close="1">Закрыть</button>
     </div>
+
     <div class="row" style="gap:12px;align-items:flex-start;flex-wrap:nowrap">
-      <img id="mImg" src="" alt="" onerror="this.style.opacity=.25;" style="width:160px;height:200px;object-fit:cover;border-radius:12px;border:1px solid rgba(42,59,82,.8)">
+      <img id="mImg" src="" alt="" style="width:160px;height:200px;object-fit:cover;border-radius:12px;border:1px solid rgba(42,59,82,.8)">
       <div style="flex:1;min-width:0">
         <div id="mDesc" class="small" style="white-space:pre-wrap">—</div>
         <hr>
@@ -133,7 +85,6 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
           <button class="ghost" type="button" id="mNext">→</button>
         </div>
         <div class="small" style="opacity:.75;margin-top:4px" id="mPath">—</div>
-        <div class="small" style="opacity:.7;margin-top:4px">Подсказка: Shift+клик по карточке — выбрать/снять без открытия.</div>
       </div>
     </div>
   </div>
@@ -142,74 +93,73 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
 </main>
 <footer>GitHub Pages</footer>
 <script>
-(function(){
-  const CARD_FILES = [
-    "angel.jpg",
-    "antiekran.jpg",
-    "bank.jpg",
-    "bank_sivyi_merin.jpg",
-    "bankrot.jpg",
-    "bita.jpg",
-    "black.jpg",
-    "blue.jpg",
-    "capitalism_communism.jpg",
-    "chameleon.jpg",
-    "chb.jpg",
-    "commission.jpg",
-    "content_card.jpg",
-    "converter.jpg",
-    "emerald.jpg",
-    "exterminatus.jpg",
-    "gift_12min.jpg",
-    "gold.jpg",
-    "golden_scales.jpg",
-    "grabiteli.jpg",
-    "gray.jpg",
-    "green.jpg",
-    "jackpot_cards.jpg",
-    "joker.jpg",
-    "kost_1.jpg",
-    "kost_2.jpg",
-    "last_judgement_1.jpg",
-    "last_judgement_2.jpg",
-    "liftador.jpg",
-    "magnet.jpg",
-    "matreshki.jpg",
-    "mayak_bezishodnosti.jpg",
-    "minus_1h.jpg",
-    "minus_3h.jpg",
-    "musical.jpg",
-    "obnulenie.jpg",
-    "obosran.jpg",
-    "pacific.jpg",
-    "pergament_blue.jpg",
-    "pergament_gold.jpg",
-    "pink.jpg",
-    "preispodnya.jpg",
-    "rainbow.jpg",
-    "red.jpg",
-    "ruby_bank.jpg",
-    "ruby_kost_1.jpg",
-    "ruby_kost_2.jpg",
-    "ruby_plus3.jpg",
-    "safe.jpg",
-    "sweets.jpg",
-    "temple.jpg",
-    "topor.jpg",
-    "tv_wheel.jpg",
-    "tv_wheel_3.jpg",
-    "tv_wheel_5.jpg",
-    "vedro_egora.jpg",
-    "wheel_eater_1.jpg",
-    "wheel_eater_2.png",
-    "wheel_eater_round.png",
-    "white.jpg",
-    "yellow.jpg",
-    "zabanen.jpg",
-    "zamorozka.jpg"
+(function() {
+  const FILES = [
+    "angel_600.webp",
+    "antiekran_600.webp",
+    "bank_600.webp",
+    "bank_sivyi_merin_600.webp",
+    "bankrot_600.webp",
+    "bita_600.webp",
+    "black_600.webp",
+    "blue_600.webp",
+    "capitalism_communism_600.webp",
+    "chameleon_600.webp",
+    "chb_600.webp",
+    "commission_600.webp",
+    "content_card_600.webp",
+    "converter_600.webp",
+    "emerald_600.webp",
+    "exterminatus_600.webp",
+    "gift_12min_600.webp",
+    "gold_600.webp",
+    "golden_scales_600.webp",
+    "grabiteli_600.webp",
+    "gray_600.webp",
+    "green_600.webp",
+    "jackpot_cards_600.webp",
+    "joker_600.webp",
+    "kost_1_600.webp",
+    "kost_2_600.webp",
+    "last_judgement_1_600.webp",
+    "last_judgement_2_600.webp",
+    "liftador_600.webp",
+    "magnet_600.webp",
+    "matreshki_600.webp",
+    "mayak_bezishodnosti_600.webp",
+    "minus_1h_600.webp",
+    "minus_3h_600.webp",
+    "musical_600.webp",
+    "obnulenie_600.webp",
+    "obosran_600.webp",
+    "pacific_600.webp",
+    "pergament_blue_600.webp",
+    "pergament_gold_600.webp",
+    "pink_600.webp",
+    "preispodnya_600.webp",
+    "rainbow_600.webp",
+    "red_600.webp",
+    "ruby_bank_600.webp",
+    "ruby_kost_1_600.webp",
+    "ruby_kost_2_600.webp",
+    "ruby_plus3_600.webp",
+    "safe_600.webp",
+    "sweets_600.webp",
+    "temple_600.webp",
+    "topor_600.webp",
+    "tv_wheel_600.webp",
+    "tv_wheel_3_600.webp",
+    "tv_wheel_5_600.webp",
+    "vedro_egora_600.webp",
+    "wheel_eater_1_600.webp",
+    "wheel_eater_2_600.webp",
+    "wheel_eater_round_600.webp",
+    "white_600.webp",
+    "yellow_600.webp",
+    "zabanen_600.webp",
+    "zamorozka_600.webp"
   ];
-
-  const DESC_BY_STEM = {
+  const DESC = {
     "activation_wheel": `Эффекты:
 Даёт возможность выиграть любую карту, ♦️Кость или
 🧿
@@ -273,61 +223,6 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
 🃏🌈🪽☑️
 Сборка:
 (🟦➕☑️➕☑️🟰🚾)`,
-    "capitalist": `Эффекты:
-Вы забираете по 1 🀄️🎴🧿 карте у всех спикеров кто в гостевом (Вне лимита). Все карты должны быть разные. Спикеров должно быть 8 вместе с вами.
-Применение
-: При выпадении с 🧿ТВ колес. Активация.
-Получение
-: 🧿ТВ колесо. Сборка. Получение.
-Особенности:
-Если у спикера нет карт в инвентаре, вы должны передать ему 1 любую карту выше ☑️.
-❗️Если ваш инвентарь пуст, вы передаёте карту из ↩️🏧💒Банков.↩️🗄Сейфа.↩️🛐Храма.↩️🎰Джекпота. В такой последовательности⤴️. Процесс происходит пока карты не закончатся.
-❗️С наличием карт у спикеров процесс тот же.
-❗️Ⓜ️Магия переноса. Если карта собрана 🎴. Карту можно активировать на другом спикере когда он в гостевом.
-♠️
-Капиталист не может передавать карты 24 часа.
-Снимается:
-⚫️🌋
-Забирается
-: ♎️
-Продажа:
-Нет
-Передача:
-Да
-Конвертация:
-Нет
-Защита карты:
-Да
-Нельзя использовать:
-У ☮️🌈 и 🪽Ангела нельзя забрать карту.
-Сборка:
-(🧿🧿🧿➕☮️➕🃏)`,
-    "communist": `Эффекты:
-Вы должны раздать по 1 🀄️🎴🧿 карте всем спикерам кто в гостевом (Вне лимита). Все карты должны быть разные. Спикеров должно быть 8 вместе с вами.
-Применение
-: При выпадении с 🧿ТВ колес. Активация.
-Получение
-: 🧿ТВ колесо. Сборка. Получение.
-Особенности:
-❗️Если ваш инвентарь пуст, вы передаёте карту из ↩️🏧💒Банков.↩️🗄Сейфа.↩️🛐Храма.↩️🎰Джекпота(Остаётся запакован). В такой последовательности⤴️. Процесс происходит пока карты не закончатся.
-❗️Ⓜ️Магия переноса. Если карта собрана 🎴. Карту можно активировать на другом спикере когда он в гостевом.
-♥️Коммунист не может получать карты 24 часа.
-Снимается:
-⚫️🌋
-Забирается
-: ♎️
-Продажа:
-Нет
-Передача:
-Да
-Конвертация:
-Нет
-Защита карты:
-Да
-Нельзя использовать:
-🌈🃏Джокер и 🪽Ангел карты не раздаёт.
-Сборка:
-(🧿🧿🧿➕☮️➕🃏)`,
     "content_card": `Эффекты:
 Просмотр видеоматериала не более 1.30 ч по времени.
 Применение:
@@ -354,60 +249,6 @@ button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#1
 (🟧➕⬜️➕☑️
 🟰🎦
 )`,
-    "egor_bucket": `Эффекты:
-Ведущий забирает 1 обычную🀄️карту у любого спикера и кладёт себе в ведро.
-Применение:
-Сразу же при  выпадении.
-Получение
-:  🧿ТВ колесо. 🌋Преисподняя.
-Особенности:
-Безлимитное накопление, активация, складывание, передача, разделение, накладывание на спикеров, хранение 🎴🀄️ карт.
-Снимается:
-Нет
-Забирается
-: Ⓜ️♎️
-Продажа:
-Нет
-Передача:
-Нет
-Конвертация:
-Нет
-Защита карты:
-Да
-Нельзя использовать:
-🎴🪟
-Сборка:
-Нет
-Карточки, калькулятор карт, инвентарь -
-https://danilagrinrus.github.io/Vecherya/`,
-    "energy": `Эффекты:
-Ваша 🎴🀄️🧧🪟активная карта деактивируется. Спикеру разрешено передавать 5 карт и 5🧿ТВ колёс за эфир 1 неделю вне лимита. Крутить 5🧿ТВ колёс после передачи карт за эфир.
-Применение
-: 1 неделю или до выпадения или получения 💠
-Получение
-: 🧿ТВ колесо.
-Особенности:
-При выпадении следующих карт в 🧿ТВ колесе:
-🧿🔲 🌈💎🟧⬜️🎦🎹Ⓜ️♎️♻️🚨 🃏☮️🟦
-🟩☑️📜🚾🔘
-выигрыш умножается на х2.
-При выпадении в 🧿ТВ колесе 💠Заморозки. 🔋Энергетик деактивируется, дополнительное 🧿 не выдаётся, 💠 не выдаётся.
-Снимается:
-💠. 🔋Энергетик деактивируется. Заморозка не выдаётся.
-Забирается
-: Ⓜ️♎️
-Продажа:
-Нет
-Передача:
-Да
-Конвертация:
-Нет
-Защита карты:
-Нет
-Нельзя использовать:
-Если надета другая карта или активна.
-Сборка:
-Нет`,
     "gold": `Эффекты:
 Модерка на сутки. Раздача карт нарушений. Иммунитет к правилам.
 Применение:
@@ -473,54 +314,6 @@ https://danilagrinrus.github.io/Vecherya/`,
 (🟧➕⬜️➕🟩➕☑️🟰
 🃏
 )`,
-    "multiplier": `Эффекты:
-Умножает все ваши обычные 🀄️карты на х2.
-Применение
-: При выпадении с 🧿ТВ колеса.
-Получение
-: 🧿ТВ колесо.
-Особенности:
-Если в 🗄сейфе 🏧Банка или инвентаря есть карты 🎴 активации, они умножаются на х2.
-Снимается:
-Нет
-Забирается
-: Нет
-Продажа:
-Нет
-Передача:
-Нет
-Конвертация:
-Нет
-Защита карты:
-Да
-Нельзя использовать:
-Если активирован 🪽 или 🔋Энергетик инвентарь и 🗄сейф не умножается.
-Сборка:
-Нет`,
-    "olymp": `Эффекты:
-Генерирует 🎴Карты активаций и ⭕️Колёса активаций. Генерирует 🎆"Мифические карты" и раздаёт их.
-Применение:
-После слияния и постройки.
-Получение
-: Построить.
-Особенности:
-Создаёт особые 🎆 карты, которые нигде больше получить нельзя.
-Снимается:
-Нет
-Забирается
-: Нет
-Продажа:
-Да. 150 🚨 с лимитом 1️⃣2️⃣. Раз в год.
-Передача:
-Да. Раз в год.
-Конвертация:
-Нет
-Защита карты:
-Да
-Нельзя использовать:
-При отсутствии продления 15 часов в месяц.
-Сборка:
-Да. 🛐🛐🛐  ➕ 20🚨 карт ➕ 🪽🪽🪽 Ангела.  Только 1 раз.`,
     "pacific": `Эффекты:
 Ваша карта🎴 деактивируется. Снимает 🟫🟥. Даёт иммунитет к 🟫🟥 и 🅾️обнулению на 24 часа. Крутит 🧿ТВ колесо с защитой.
 Применение:
@@ -549,7 +342,39 @@ https://danilagrinrus.github.io/Vecherya/`,
 Если у вас 🅾️ вместе с 💠Заморозкой.
 Сборка:
 (⬜️➕🟩➕🟦➕📜🟰☮️)`,
-    "pergament": `Эффекты:
+    "pergament_blue": `Эффекты:
+Снимает 🟫 карту и даёт иммунитет на 24 часа к 🟫.
+Применение:
+Многократно
+Получение
+: Топ зрители. Получить. Сборка. 🧿ТВ колесо.
+🛐
+💒
+Особенности:
+Защищает от 🟫 с 🧿ТВ колеса. Магия почкования для спикеров. Если вы с активным пергаментом крутите 🧿ТВ колесо, то при выпадении
+📜
+, все кто в гостевом тоже получают
+📜
+.
+Снимается:
+🅾️🅱️⚫️🌋
+Забирается
+: Ⓜ️♎️
+Продажа:
+Нет
+Передача:
+Да
+Конвертация:
+Нет
+Защита карты:
+Нет
+Нельзя использовать:
+Если у вас 🅾️Обнуление.
+Сборка:
+(🟩➕🟦➕☑️🟰
+📜
+)`,
+    "pergament_gold": `Эффекты:
 Снимает 🟫 карту и даёт иммунитет на 24 часа к 🟫.
 Применение:
 Многократно
@@ -640,49 +465,33 @@ https://danilagrinrus.github.io/Vecherya/`,
 🛐🌋🪣
 Сборка:
 Установка Да. 3🚨`,
-    "sickle_hammer": `Эффекты:
-Строит спикерам или вам здания за пол цены. Покупает, продаёт в том числе.
-Применение
-: При активации. Строятся 🏧🛐🌋.
+    "vedro_egora": `Эффекты:
+Ведущий забирает 1 обычную🀄️карту у любого спикера и кладёт себе в ведро.
+Применение:
+Сразу же при  выпадении.
 Получение
-: 🧿ТВ колесо.
+:  🧿ТВ колесо. 🌋Преисподняя.
 Особенности:
-Нельзя строить здания тем, кому постройка запрещена.
-❗️Карта способна к слиянию. При слиянии двух карт
-🆎
-➕
-🆎
-, здание строится без дополнительных вложений. Слияние разрешено через месяц после получения карты с 🧿ТВ колесо.
+Безлимитное накопление, активация, складывание, передача, разделение, накладывание на спикеров, хранение 🎴🀄️ карт.
 Снимается:
-⚫️🌋
+Нет
 Забирается
-: ♎️
+: Ⓜ️♎️
 Продажа:
 Нет
 Передача:
 Нет
 Конвертация:
-Да. В здание.
-🆎
-➕
-🆎
-↩️🏧🛐🌋.
+Нет
 Защита карты:
 Да
 Нельзя использовать:
-Если вам или спикеру запрещено строительство. Только после окончания лимита на стройку.
+🎴🪟
 Сборка:
-Нет`,
-    "storm_zeus": `Эффекты:
-Второй Эффект
-активации.
-Все члены чата 🚹мужской Лиги получает по 1 🟧 карте и 1 ⭕️ Карте активации.
-Третий Эффект
-активации. Если тот кто крутит 🧿ТВ колесо имеет в инвентаре  ⚡️Грозу Зевса.  И ему выпадает  🟧 карта. ⚡️Гроза Зевса активируется автоматически и у всех кто находится в гостевом , все 🟧 карты умножаются на х3
-Четвёртый Эффект
-активации все топ 10 поддержки Батлов за прошлый месяц получают по 1  🟧 карте.
-После 1 из четырёх активация карты. Карта сгорает.`,
-    "white_magic": `Эффекты:
+Нет
+Карточки, калькулятор карт, инвентарь -
+https://danilagrinrus.github.io/Vecherya/`,
+    "white": `Эффекты:
 Умножает на х2 все ⬜️ карты в инвентаре у всех, у кого они в наличии. При умножении 🪣 генерирует 1 🟧 карту.
 Применение
 : Активируется при выпадении с 🧿ТВ колеса
@@ -708,53 +517,17 @@ https://danilagrinrus.github.io/Vecherya/`,
 Нет`
   };
 
-  function stem(fn){ return String(fn).toLowerCase().replace(/\.[a-z0-9]+$/i,''); }
-  function pretty(fn){ return stem(fn).replace(/[_-]+/g,' '); }
-  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}
-  function imgFile(key){
-    // key can be "angel" or "angel_600.webp" or "angel.webp"
-    const k = String(key || "");
-    if(/\.(png|jpe?g|webp)$/i.test(k)) return k;         // already a filename
-    return k + "_600.webp";                              // our repo convention
-  }
-  function imgSrc(key){ return "cards/" + encodeURI(imgFile(key)); }
-[c])); }
-
-  // Build src candidates: supports accidental nested upload (cards/cards/..)
-  function srcAt(fn, i){
-    const f = encodeURI(fn);
-    return i === 0 ? ('cards/' + f) : ('cards/cards/' + f);
-  }
-  window.__imgErr = function(img){
-    const fn = img.getAttribute('data-fn') || '';
-    const tried = parseInt(img.getAttribute('data-try') || '0', 10);
-    if(!fn) return;
-    if(tried >= 1) {
-      img.style.opacity = .25;
-      return;
-    }
-    img.setAttribute('data-try', String(tried + 1));
-    img.src = srcAt(fn, tried + 1);
-  };
-
-  // Active nav
-  document.querySelectorAll('nav a').forEach(a=>{
-    const href=(a.getAttribute('href')||'').toLowerCase();
-    if(href==='cards.html') a.classList.add('active');
-  });
-
   const sel = new Set();
-  let lastList = CARD_FILES.slice();
-  let curFn = null;
+  let list = FILES.slice();
+  let cur = null;
 
-  const grid = document.getElementById('imgGrid');
-  const q = document.getElementById('imgSearch');
-  const clearBtn = document.getElementById('clearSel');
-  const selList = document.getElementById('selList');
-  const countEl = document.getElementById('count');
+  const grid = document.getElementById('grid');
+  const q = document.getElementById('q');
+  const reset = document.getElementById('reset');
+  const count = document.getElementById('count');
+  const selBox = document.getElementById('sel');
 
-  // modal
-  const modal = document.getElementById('cardModal');
+  const modal = document.getElementById('modal');
   const mTitle = document.getElementById('mTitle');
   const mImg = document.getElementById('mImg');
   const mDesc = document.getElementById('mDesc');
@@ -763,54 +536,30 @@ https://danilagrinrus.github.io/Vecherya/`,
   const mPrev = document.getElementById('mPrev');
   const mNext = document.getElementById('mNext');
 
-  function openModal(fn){
-    curFn = fn;
-    const st = stem(fn);
-    const name = pretty(fn);
-    const desc = DESC_BY_STEM[st] || 'Описание уточняется (нет в messages.html или не сопоставлено).';
-
-    mTitle.textContent = name;
-
-    mImg.setAttribute('data-fn', fn);
-    mImg.setAttribute('data-try', '0');
-    mImg.src = srcAt(fn, 0);
-    mImg.alt = name;
-    mImg.onerror = function(){ window.__imgErr(mImg); };
-
-    mDesc.textContent = desc;
-    mPath.textContent = 'cards/' + imgFile(fn);
-
-    mToggle.textContent = sel.has(fn) ? 'Снять выбор' : 'Выбрать';
-
-    modal.classList.add('on');
-    modal.setAttribute('aria-hidden','false');
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  }
+  function stem(fn) {
+    return String(fn).replace(/_600\.webp$/i,'').replace(/\.[a-z0-9]+$/i,'').toLowerCase();
+  }
+  function pretty(fn) {
+    return stem(fn).replace(/[_-]+/g,' ');
+  }
+  function imgSrc(fn) {
+    return "cards/" + encodeURI(fn);
   }
 
-  function closeModal(){
-    modal.classList.remove('on');
-    modal.setAttribute('aria-hidden','true');
-  }
+  function render() {
+    const term = (q.value || '').trim().toLowerCase();
+    list = FILES.filter(fn => !term || stem(fn).includes(term) || pretty(fn).includes(term) || fn.toLowerCase().includes(term));
+    count.textContent = String(list.length);
 
-  function step(delta){
-    if(!curFn) return;
-    const i = lastList.indexOf(curFn);
-    if(i<0) return;
-    const j = (i + delta + lastList.length) % lastList.length;
-    openModal(lastList[j]);
-  }
-
-  function render(){
-    const term = (q.value||'').trim().toLowerCase();
-    const files = CARD_FILES.filter(fn => !term || fn.toLowerCase().includes(term) || pretty(fn).toLowerCase().includes(term));
-    lastList = files;
-    countEl.textContent = String(files.length);
-
-    grid.innerHTML = files.map(fn => {
+    grid.innerHTML = list.map(fn => {
       const s = sel.has(fn);
       return `
         <div class="cardTile ${s?'selected':''}" data-fn="${fn}" title="Клик — открыть. Shift+клик — выбрать.">
           <div class="check">выбрано</div>
-          <img data-fn="${fn}" data-try="0" loading="lazy" src="${srcAt(fn,0)}" onerror="__imgErr(this)" alt="${esc(pretty(fn))}">
+          <img loading="lazy" src="${imgSrc(fn)}" alt="${esc(pretty(fn))}">
           <div class="cap">${esc(pretty(fn))}</div>
         </div>
       `;
@@ -819,28 +568,45 @@ https://danilagrinrus.github.io/Vecherya/`,
     renderSelected();
   }
 
-  function renderSelected(){
-    if(!sel.size){ selList.innerHTML='—'; return; }
-    selList.innerHTML = [...sel].map(fn => {
-      const st = stem(fn);
-      const desc = DESC_BY_STEM[st] || 'Описание уточняется (нет в messages.html или не сопоставлено).';
-      return `
-        <div class="item">
-          <b>${esc(pretty(fn))}</b>
-          <div style="opacity:.85;margin-top:2px;white-space:pre-wrap">${esc(desc)}</div>
-          <div style="opacity:.7;margin-top:2px">cards/${esc(imgFile(fn))}</div>
-        </div>
-      `;
+  function renderSelected() {
+    if (!sel.size) { selBox.innerHTML = '—'; return; }
+    selBox.innerHTML = Array.from(sel).map(fn => {
+      const d = DESC[stem(fn)] || 'Описание уточняется (нет в messages.html или не сопоставлено).';
+      return `<div class="item"><b>${esc(pretty(fn))}</b><div style="opacity:.85;margin-top:2px;white-space:pre-wrap">${esc(d)}</div><div style="opacity:.7;margin-top:2px">cards/${esc(fn)}</div></div>`;
     }).join('');
   }
 
-  grid.addEventListener('click', (e)=>{
-    const tile = e.target.closest('.cardTile');
-    if(!tile) return;
-    const fn = tile.getAttribute('data-fn');
+  function openModal(fn) {
+    cur = fn;
+    mTitle.textContent = pretty(fn);
+    mImg.src = imgSrc(fn);
+    mImg.alt = pretty(fn);
+    mDesc.textContent = DESC[stem(fn)] || 'Описание уточняется (нет в messages.html или не сопоставлено).';
+    mPath.textContent = 'cards/' + fn;
+    mToggle.textContent = sel.has(fn) ? 'Снять выбор' : 'Выбрать';
+    modal.classList.add('on');
+    modal.setAttribute('aria-hidden','false');
+  }
 
-    if(e.shiftKey){
-      if(sel.has(fn)) sel.delete(fn); else sel.add(fn);
+  function closeModal() {
+    modal.classList.remove('on');
+    modal.setAttribute('aria-hidden','true');
+  }
+
+  function step(delta) {
+    if (!cur) return;
+    const i = list.indexOf(cur);
+    if (i < 0) return;
+    const j = (i + delta + list.length) % list.length;
+    openModal(list[j]);
+  }
+
+  grid.addEventListener('click', (e) => {
+    const tile = e.target.closest('.cardTile');
+    if (!tile) return;
+    const fn = tile.getAttribute('data-fn');
+    if (e.shiftKey) {
+      if (sel.has(fn)) sel.delete(fn); else sel.add(fn);
       render();
       return;
     }
@@ -848,27 +614,33 @@ https://danilagrinrus.github.io/Vecherya/`,
   });
 
   q.addEventListener('input', render);
-  clearBtn.addEventListener('click', ()=>{ sel.clear(); render(); });
+  reset.addEventListener('click', () => { q.value=''; sel.clear(); render(); });
 
-  modal.addEventListener('click', (e)=>{
-    if(e.target && e.target.getAttribute && e.target.getAttribute('data-close')==='1') closeModal();
+  modal.addEventListener('click', (e) => {
+    if (e.target && e.target.getAttribute && e.target.getAttribute('data-close') === '1') closeModal();
   });
-  mToggle.addEventListener('click', ()=>{
-    if(!curFn) return;
-    if(sel.has(curFn)) sel.delete(curFn); else sel.add(curFn);
-    mToggle.textContent = sel.has(curFn) ? 'Снять выбор' : 'Выбрать';
+  mToggle.addEventListener('click', () => {
+    if (!cur) return;
+    if (sel.has(cur)) sel.delete(cur); else sel.add(cur);
+    mToggle.textContent = sel.has(cur) ? 'Снять выбор' : 'Выбрать';
+    // update tile class if visible
+    const tiles = grid.querySelectorAll('.cardTile');
+    for (const t of tiles) {
+      if (t.getAttribute('data-fn') === cur) {
+        t.classList.toggle('selected', sel.has(cur));
+        break;
+      }
+    }
     renderSelected();
-    const tile = grid.querySelector(`.cardTile[data-fn="${CSS.escape(curFn)}"]`);
-    if(tile) tile.classList.toggle('selected', sel.has(curFn));
   });
-  mPrev.addEventListener('click', ()=> step(-1));
-  mNext.addEventListener('click', ()=> step(1));
+  mPrev.addEventListener('click', () => step(-1));
+  mNext.addEventListener('click', () => step(1));
 
-  document.addEventListener('keydown', (e)=>{
-    if(!modal.classList.contains('on')) return;
-    if(e.key==='Escape') closeModal();
-    if(e.key==='ArrowLeft') step(-1);
-    if(e.key==='ArrowRight') step(1);
+  document.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('on')) return;
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
   });
 
   render();
