@@ -118,7 +118,8 @@
     }
     .fab:hover{ background: rgba(95,179,255,.22);})(); }
 
-    .modal{ position: fixed; inset:0; z-index:60; display:none; }
+    .modal{ position: fixed; inset:0; z-index:60; display:none; pointer-events:none; }
+    .modal.open{ display:block; pointer-events:auto; }
     .modal.open{ display:block; }
     .modal__backdrop{ position:absolute; inset:0; background: rgba(0,0,0,.55);})(); }
     .modal__panel{
@@ -252,7 +253,11 @@
     }
     @keyframes fade{ from{opacity:.6} to{opacity:1} }
 
-  </style>
+  
+    .modal{ pointer-events:none; }
+    .modal.open{ pointer-events:auto; }
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -740,7 +745,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const fn = (location.pathname.split('/').pop() || 'index.html');})();
       document.querySelectorAll('.topnav a').forEach(a=>{
         const href = a.getAttribute('href')||'';
-        if (href === fn) a.classList.add('active');})();
+        if (href === fn) a.classList.add('active'); a.addEventListener('click', forceCloseMemo);})();
       });})();
     }catch(_){ }
 
@@ -1182,7 +1187,15 @@ function renderAll(){
     });})();
   }
 
-  function initApp(){
+  function forceCloseMemo(){
+      const m = document.getElementById("memoModal");
+      if (!m) return;
+      m.classList.remove("open");
+      m.setAttribute("aria-hidden","true");
+    }
+
+    function initApp(){
+    forceCloseMemo();
 
     renderAll();})();
 
@@ -1198,7 +1211,8 @@ function renderAll(){
   
   }
   // Start
-  try{ initApp();})(); } catch(e){ showFatal(e);})(); }
+  try{ forceCloseMemo();
+      initApp();})(); } catch(e){ showFatal(e);})(); }
 
 });})();
 </script>
