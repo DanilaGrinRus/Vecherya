@@ -14,40 +14,91 @@ h1,h2,h3{margin:0 0 8px}
 ul{padding-left:18px}
 input{padding:6px;border-radius:6px;border:1px solid #2a3b52;background:#0b1220;color:#e6edf3}
 button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#122033;color:#e6edf3}
+
+.imgGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:10px;
+}
+.cardTile{
+  position:relative;
+  border:1px solid var(--line,#2a3b52);
+  border-radius:12px;
+  background:var(--card,#0f1622);
+  overflow:hidden;
+  cursor:pointer;
+  padding:8px;
+}
+.cardTile img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  border-radius:10px;
+  display:block;
+}
+.cardTile .cap{
+  margin-top:6px;
+  font-size:13px;
+  opacity:.9;
+  word-break:break-word;
+}
+.cardTile.selected{
+  outline:2px solid rgba(95,179,255,.9);
+  border-color:rgba(95,179,255,.5);
+  background:rgba(95,179,255,.08);
+}
+.cardTile .check{
+  position:absolute;
+  top:8px; right:8px;
+  background:rgba(11,15,20,.85);
+  border:1px solid rgba(95,179,255,.6);
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:12px;
+  display:none;
+}
+.cardTile.selected .check{display:block}
+.selList .item{padding:6px 0;border-top:1px solid rgba(42,59,82,.55)}
+.selList .item:first-child{border-top:0}
+.selList b{font-weight:700}
 </style>
 </head>
 <body>
 <header><h1>Капитализм и Коммунизм</h1></header>
 <nav>
-    <a href="index.html#calc">Калькулятор</a>
+    <a href="calc.html">Калькулятор</a>
   <a href="rules.html">Правила</a>
   <a href="cards.html">База карт</a>
 </nav>
 <main>
 
 <div class="card">
-<h2>База данных карт</h2>
-<p>Здесь будет расширенная база данных по картам:</p>
-<ul>
-<li>описания эффектов</li>
-<li>условия активации</li>
-<li>примеры использования</li>
-<li>фильтрация и поиск</li>
-</ul>
-<p><em>Раздел в разработке.</em></p>
+  <h2>База данных карт</h2>
+  <p class="small">
+    Выбор карт кликом по изображению из папки <b>cards/</b>. Описания подтягиваются из <b>messages.html</b> там, где удалось сопоставить.
+  </p>
+
+  <div class="row" style="gap:10px">
+    <label class="small">Поиск</label>
+    <input id="imgSearch" type="text" placeholder="Поиск по имени файла/карты…" style="flex:1;min-width:220px;padding:7px 10px;border-radius:10px;border:1px solid var(--line,#2a3b52);background:#0b1220;color:var(--fg,#e6edf3)">
+    <button class="ghost" type="button" id="clearSel">Сброс выбора</button>
+  </div>
+
+  <div class="row small" style="gap:10px">
+    <span class="pill" id="count">0</span>
+    <span>карт в выдаче</span>
+  </div>
+
+  <div id="imgGrid" class="imgGrid"></div>
+</div>
+
+<div class="card">
+  <h2>Выбрано</h2>
+  <div id="selList" class="selList small">—</div>
 </div>
 
 </main>
 <footer>GitHub Pages</footer>
-<script>
-document.addEventListener('DOMContentLoaded',()=>{
-  const fn=(location.pathname.split('/').pop()||'index.html');
-  document.querySelectorAll('nav a').forEach(a=>{
-    if(a.getAttribute('href')===fn) a.classList.add('active');
-  });
-});
-</script>
-
 <script>
 (function(){
   const CARD_FILES = [
@@ -115,47 +166,262 @@ document.addEventListener('DOMContentLoaded',()=>{
     "zabanen.jpg",
     "zamorozka.jpg"
   ];
-  const CARD_DESC = {};
 
-  const sel=new Set();
-  const grid=document.getElementById('imgGrid');
-  const selList=document.getElementById('selList');
-  const q=document.getElementById('imgSearch');
-  const clearBtn=document.getElementById('clearSel');
+  const DESC_BY_STEM = {
+  "antiekran": `Эффекты:
+Запрещает спикеру проситься на экран во время эфира и крутить 🧿ТВ колесо.
+Применение:
+Каждый раз при активации.
+Получение
+:  Топ зрители. Получить. Собрать. 🧿ТВ колесо.
+🛐
+💒 Нарушение правил. От  ⬜️
+💎
+🚨
+🔲
+Особенности:
+одновременно карта нарушения и карта Активации.
+🎴↩️🧧
+Снимается:
+🃏🅱️⚫️🛐🪽
+Забирается
+: Ⓜ️♎️
+Продажа:
+Нет
+Передача:
+Да
+Конвертация:
+Да
+🎴↩️🧧
+Защита карты:
+Нет
+Нельзя использовать:
+🟧💎
+🚨
+🔲
+🃏🌈🪽☑️
+Сборка:
+(🟦➕☑️➕☑️🟰🚾)`,
+  "gold": `Эффекты:
+Модерка на сутки. Раздача карт нарушений. Иммунитет к правилам.
+Применение:
+Каждый день. Вместо модерки продление 1 раз за эфир на 1 час.
+Получение
+:  Топ спонсоры. Топ зрители. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо.
+🛐
+🏧💒
+Особенности:
+Работает как модер с 💎🔲🚨
+(Раздача Безлимитного количества данных карт🟪🟥🟨🟫нарушения🧧)
+Снимается:
+🅱️⚫️💣🌋
+Забирается
+: ♎️Ⓜ️
+Продажа:
+Нет
+Передача:
+Да
+Конвертация:
+Нет
+Защита карты:
+Нет
+Нельзя использовать:
+Если у вас активированы эти карты 🃏☮️🌈🪽🚨
+🔲
+💎.
+Сборка:
+(
+⬜️➕⬜️🟰🟧
+)`,
+  "joker": `Эффекты:
+Ваша карта деактивируется. Батл карта, позволяет нарушать правила по отношению к тем у кого активирована эта карта. Используется для батлов спикеров. Кручение 🧿ТВ колеса с защитой. Допуску к экрану и Микрофону.
+Применение:
+Действует 20 минут батла и 24 часа обход правил к
+🃏
+и нарушений 🧿ТВ колес.
+Получение
+: Топ Батлы. Топ Лиги. Топ Зритель. Топ Месяц. Получить. Собрать. 🧿ТВ колесо.
+🛐
+💒
+Особенности:
+Нельзя выключать микрофон. Запретить экран🚾. Активируется не более двух за эфир при наличии такой же карты у оппонента. В 🧿ТВ колесе защищает от 🟪🟫🟨🟥⬛️👹🪓♥️. При выпадении обычных 🎲Костей, играет 2 кубика.
+Снимается:
+🅱️⚫️🌋
+Забирается
+: Ⓜ️♎️
+Продажа:
+Нет
+Передача:
+Да.
+Конвертация:
+Нет
+Защита карты:
+Да
+Нельзя использовать:
+при отсутствии оппонента. Если надета другая карта.
+Сборка:
+(🟧➕⬜️➕🟩➕☑️🟰
+🃏
+)`,
+  "pacific": `Эффекты:
+Ваша карта🎴 деактивируется. Снимает 🟫🟥. Даёт иммунитет к 🟫🟥 и 🅾️обнулению на 24 часа. Крутит 🧿ТВ колесо с защитой.
+Применение:
+Действует 24 часа.
+Получение
+:  Топ Батлы. Топ Лиги. Топ зритель. Топ месяца. Получить. Собрать.  🧿ТВ колесо.
+🛐
+💒
+Особенности:
+возвращает доступ к чату и гостевому при 🅾️Обнулении.
+В 🧿ТВ колесе защищает от 🟥🟫🅾️♠️.
+При выпадении 🚾📜☮️ вы получаете х2 к этим картам.
+Снимается:
+🅱️⚫️🌋
+Забирается
+: Ⓜ️♎️
+Продажа:
+Нет
+Передача:
+Да.
+Конвертация:
+Нет
+Защита карты:
+Нет
+Нельзя использовать:
+Если у вас 🅾️ вместе с 💠Заморозкой.
+Сборка:
+(⬜️➕🟩➕🟦➕📜🟰☮️)`,
+  "pergament_blue": `Эффекты:
+Снимает 🟫 карту и даёт иммунитет на 24 часа к 🟫.
+Применение:
+Многократно
+Получение
+: Топ зрители. Получить. Сборка. 🧿ТВ колесо.
+🛐
+💒
+Особенности:
+Защищает от 🟫 с 🧿ТВ колеса. Магия почкования для спикеров. Если вы с активным пергаментом крутите 🧿ТВ колесо, то при выпадении
+📜
+, все кто в гостевом тоже получают
+📜
+.
+Снимается:
+🅾️🅱️⚫️🌋
+Забирается
+: Ⓜ️♎️
+Продажа:
+Нет
+Передача:
+Да
+Конвертация:
+Нет
+Защита карты:
+Нет
+Нельзя использовать:
+Если у вас 🅾️Обнуление.
+Сборка:
+(🟩➕🟦➕☑️🟰
+📜
+)`,
+  "pergament_gold": `Эффекты:
+Снимает 🟫 карту и даёт иммунитет на 24 часа к 🟫.
+Применение:
+Многократно
+Получение
+: Топ зрители. Получить. Сборка. 🧿ТВ колесо.
+🛐
+💒
+Особенности:
+Защищает от 🟫 с 🧿ТВ колеса. Магия почкования для спикеров. Если вы с активным пергаментом крутите 🧿ТВ колесо, то при выпадении
+📜
+, все кто в гостевом тоже получают
+📜
+.
+Снимается:
+🅾️🅱️⚫️🌋
+Забирается
+: Ⓜ️♎️
+Продажа:
+Нет
+Передача:
+Да
+Конвертация:
+Нет
+Защита карты:
+Нет
+Нельзя использовать:
+Если у вас 🅾️Обнуление.
+Сборка:
+(🟩➕🟦➕☑️🟰
+📜
+)`
+};
 
-  function clean(fn){return fn.replace(/\.[a-z0-9]+$/i,'');}
-  function pretty(fn){return clean(fn).replace(/[_-]+/g,' ');}
-  function key(fn){return clean(fn).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+\d+$/,'').trim();}
+  function stem(fn){ return String(fn).toLowerCase().replace(/\.[a-z0-9]+$/i,''); }
+  function pretty(fn){ return stem(fn).replace(/[_-]+/g,' '); }
+  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+  // Active nav (простая логика по файлу)
+  document.querySelectorAll('nav a').forEach(a=>{
+    const href=(a.getAttribute('href')||'').toLowerCase();
+    if(href==='cards.html') a.classList.add('active');
+  });
+
+  const sel = new Set();
+  const grid = document.getElementById('imgGrid');
+  const q = document.getElementById('imgSearch');
+  const clearBtn = document.getElementById('clearSel');
+  const selList = document.getElementById('selList');
+  const countEl = document.getElementById('count');
 
   function render(){
-    const term=(q.value||'').toLowerCase();
-    const files=CARD_FILES.filter(fn=>!term||fn.toLowerCase().includes(term)||pretty(fn).toLowerCase().includes(term));
-    grid.innerHTML=files.map(fn=>{
-      const s=sel.has(fn);
+    const term = (q.value||'').trim().toLowerCase();
+    const files = CARD_FILES.filter(fn => !term || fn.toLowerCase().includes(term) || pretty(fn).toLowerCase().includes(term));
+
+    countEl.textContent = String(files.length);
+
+    grid.innerHTML = files.map(fn => {
+      const s = sel.has(fn);
       return `
-      <div class="cardTile ${s?'selected':''}" data-fn="${fn}">
-        <div class="check">выбрано</div>
-        <img src="cards/${fn}" alt="${pretty(fn)}">
-        <div class="cap">${pretty(fn)}</div>
-      </div>`;
+        <div class="cardTile ${s?'selected':''}" data-fn="${fn}">
+          <div class="check">выбрано</div>
+          <img loading="lazy" src="cards/${fn}" alt="${pretty(fn)}">
+          <div class="cap">${esc(pretty(fn))}</div>
+        </div>
+      `;
     }).join('');
-    renderSel();
+
+    renderSelected();
   }
 
-  function renderSel(){
-    if(!sel.size){selList.innerHTML='—';return;}
-    selList.innerHTML=[...sel].map(fn=>{
-      const d=CARD_DESC[key(fn)]||'Описание уточняется';
-      return `<div class="item"><b>${pretty(fn)}</b><div>${d}</div></div>`;
+  function renderSelected(){
+    if(!sel.size){ selList.innerHTML='—'; return; }
+    selList.innerHTML = [...sel].map(fn => {
+      const st = stem(fn);
+      const desc = DESC_BY_STEM[st] || 'Описание уточняется (нет в messages.html или не сопоставлено).';
+      return `
+        <div class="item">
+          <b>${esc(pretty(fn))}</b>
+          <div style="opacity:.85;margin-top:2px;white-space:pre-wrap">${esc(desc)}</div>
+          <div style="opacity:.7;margin-top:2px">cards/${esc(fn)}</div>
+        </div>
+      `;
     }).join('');
   }
 
-  grid.addEventListener('click',e=>{const t=e.target.closest('.cardTile');if(!t)return;const fn=t.dataset.fn;sel.has(fn)?sel.delete(fn):sel.add(fn);render();});
-  q.addEventListener('input',render);
-  clearBtn.addEventListener('click',()=>{sel.clear();render();});
+  grid.addEventListener('click', (e)=>{
+    const tile = e.target.closest('.cardTile');
+    if(!tile) return;
+    const fn = tile.getAttribute('data-fn');
+    if(sel.has(fn)) sel.delete(fn); else sel.add(fn);
+    render();
+  });
+
+  q.addEventListener('input', render);
+  clearBtn.addEventListener('click', ()=>{ sel.clear(); render(); });
+
   render();
 })();
 </script>
-
 </body>
 </html>
