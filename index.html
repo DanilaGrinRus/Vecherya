@@ -246,14 +246,14 @@
 
 
   <nav class="topnav" aria-label="Разделы">
-    <button class="btn secondary" type="button" data-jump="#calc">Калькулятор</button>
-    <button class="btn secondary" type="button" data-jump="#rules">Правила</button>
-    <button class="btn secondary" type="button" data-jump="#cardsdb">База карт</button>
+    <button class="btn secondary" type="button" onclick="document.querySelector('#calc').scrollIntoView({behavior:'smooth',block:'start'})">Калькулятор</button>
+    <button class="btn secondary" type="button" onclick="document.querySelector('#rules').scrollIntoView({behavior:'smooth',block:'start'})">Правила</button>
+    <button class="btn secondary" type="button" onclick="document.querySelector('#cardsdb').scrollIntoView({behavior:'smooth',block:'start'})">База карт</button>
   </nav>
 
 
   <!-- Always-available memo -->
-  <button class="fab" id="memoBtn" aria-label="Памятка">📌</button>
+  <button class="fab" id="memoBtn" aria-label="Памятка" onclick="window.openMemo && window.openMemo()">📌</button>
 
   <div class="modal" id="memoModal" aria-hidden="true">
     <div class="modal__backdrop" data-close="1"></div>
@@ -473,7 +473,7 @@
 </div>
 
 <script>
-(function(){
+document.addEventListener("DOMContentLoaded", () => {
   "use strict";
 
   // Basic runtime error surface
@@ -1097,7 +1097,7 @@ function renderAll(){
     parsedCache = [];
 
   // Memo (always available)
-  function openMemo(){
+  window.openMemo = function openMemo(){
     $("#memoText").textContent = MEMO;
     const m = $("#memoModal");
     m.classList.add("open");
@@ -1179,17 +1179,22 @@ function renderAll(){
   function initApp(){
 
     renderAll();
+
+  // JS status badge
+  (function(){
+    const b = document.createElement("div");
+    b.textContent = "JS: OK";
+    b.style.cssText = "position:fixed;left:10px;bottom:10px;z-index:45;padding:6px 10px;border:1px solid rgba(33,48,66,.9);border-radius:999px;background:rgba(22,33,50,.7);color:#9ab0c7;font-weight:800;font-size:12px;";
+    document.body.appendChild(b);
+    setTimeout(()=>{ try{ b.remove(); }catch(_){} }, 2500);
+  })();
+
   
   }
+  // Start
+  try{ initApp(); } catch(e){ showFatal(e); }
 
-  // Run after DOM is ready (safe for GitHub Pages)
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => { try{ initApp(); } catch(e){ showFatal(e); } });
-  } else {
-    try{ initApp(); } catch(e){ showFatal(e); }
-  }
-
-})();
+});
 </script>
 </body>
 </html>
