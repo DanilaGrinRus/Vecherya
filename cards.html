@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<title>База карт — Капитализм и Коммунизм</title>
+<style>
+body{margin:0;font-family:system-ui,Arial,sans-serif;background:#0b0f14;color:#e6edf3}
+a{color:#5fb3ff;text-decoration:none}
+header,nav,main,footer{max-width:1100px;margin:0 auto;padding:12px}
+nav a{margin-right:12px;padding:6px 10px;border:1px solid #2a3b52;border-radius:8px}
+nav a.active{background:#1a2636}
+.card{border:1px solid #22324a;border-radius:12px;padding:12px;margin:12px 0;background:#0f1622}
+h1,h2,h3{margin:0 0 8px}
+ul{padding-left:18px}
+input{padding:6px;border-radius:6px;border:1px solid #2a3b52;background:#0b1220;color:#e6edf3}
+button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#122033;color:#e6edf3}
+</style>
+</head>
+<body>
+<header><h1>Капитализм и Коммунизм</h1></header>
+<nav>
+    <a href="index.html#calc">Калькулятор</a>
+  <a href="rules.html">Правила</a>
+  <a href="cards.html">База карт</a>
+</nav>
+<main>
+
+<div class="card">
+  <h2>База данных карт</h2>
+  <p class="small">
+    Здесь собрана справочная база по картам игры. Можно искать по названию/эмодзи и фильтровать по категориям.
+    Если по какой-то карте пока нет описания — помечено как «уточняется».
+  </p>
+
+  <div class="row" style="gap:10px">
+    <label class="small">Поиск</label>
+    <input id="q" type="text" placeholder="Например: ☑️, Рубиновая, Магнит, ТВ..." style="flex:1;min-width:220px;padding:7px 10px;border-radius:10px;border:1px solid #2a3b52;background:#0b1220;color:#e6edf3"/>
+    <label class="small">Категория</label>
+    <select id="cat" style="padding:7px 10px;border-radius:10px;border:1px solid #2a3b52;background:#0b1220;color:#e6edf3">
+      <option value="all">Все</option>
+      <option value="base">Базовые</option>
+      <option value="activation">Активации</option>
+      <option value="tools">Инструменты</option>
+      <option value="other">Прочее</option>
+    </select>
+    <button type="button" id="reset">Сброс</button>
+  </div>
+
+  <div class="row small" style="gap:10px">
+    <span class="pill" id="count" style="display:inline-flex;align-items:center;justify-content:center;min-width:2.2ch;padding:2px 8px;border:1px solid #2a3b52;border-radius:999px;background:rgba(11,18,32,.65);font-variant-numeric:tabular-nums">0</span>
+    <span>карт в выдаче</span>
+  </div>
+</div>
+
+<div id="list"></div>
+
+<div class="card">
+  <h2>Формулы и сборки (кратко)</h2>
+  <ul>
+    <li><b>Лестница ценности:</b> ☑️ → 🟦 → 🟩 → ⬜️ → 🟧 → 💎 → 🚨</li>
+    <li><b>Радужная карта:</b> 💎 + 🟧×3 + ⬜️ + ☮️ + 🃏 + 🟩 + 🟦 + 📜 + ☑️ = 🌈</li>
+    <li><b>ТВ-колесо:</b> стоимость = 1⬜️ + 1 сгорающая комиссия; сборки нет</li>
+    <li><b>⭕ колесо активации:</b> сборки нет</li>
+  </ul>
+</div>
+
+</main>
+<footer>GitHub Pages</footer>
+<script>
+(function(){
+  const DB = [{"emoji": "☑️", "name": "Серая", "cat": "base", "tier": 1, "value": "Базовая единица ценности.", "craft": "3 ☑️ → 1 🟦"}, {"emoji": "🟦", "name": "Синяя", "cat": "base", "tier": 2, "value": "Выше серой.", "craft": "2 🟦 → 1 🟩; разборка: 1 🟦 → 2 ☑️"}, {"emoji": "🟩", "name": "Зелёная", "cat": "base", "tier": 3, "value": "Выше синей.", "craft": "2 🟩 → 1 ⬜️; разборка: 1 🟩 → 2 🟦"}, {"emoji": "⬜️", "name": "Белая", "cat": "base", "tier": 4, "value": "Выше зелёной.", "craft": "2 ⬜️ → 1 🟧; разборка: 1 ⬜️ → 2 🟩"}, {"emoji": "🟧", "name": "Золотая", "cat": "base", "tier": 5, "value": "Выше белой.", "craft": "2 🟧 → 1 💎; разборка: 1 🟧 → 2 ⬜️"}, {"emoji": "💎", "name": "Изумрудная", "cat": "base", "tier": 6, "value": "Почти верх базовой лестницы ценности.", "craft": "3 💎 → 1 🚨; разборка: 1 💎 → 3 🟧"}, {"emoji": "🚨", "name": "Рубиновая", "cat": "activation", "tier": 7, "value": "Карта активации. Верх базовой лестницы ценности.", "craft": "3 💎 → 1 🚨"}, {"emoji": "🃏", "name": "Джокер", "cat": "activation", "tier": null, "value": "Карта активации (описание уточняется).", "craft": "Участвует в сборке 🌈"}, {"emoji": "☮️", "name": "Пацифик", "cat": "activation", "tier": null, "value": "Карта активации (описание уточняется).", "craft": "Участвует в сборке 🌈"}, {"emoji": "Ⓜ️", "name": "Магнит", "cat": "activation", "tier": null, "value": "Карта активации (описание уточняется).", "craft": "—"}, {"emoji": "♎️", "name": "Страшный суд", "cat": "activation", "tier": null, "value": "Карта активации (описание уточняется).", "craft": "—"}, {"emoji": "🧿", "name": "ТВ колесо", "cat": "tools", "tier": null, "value": "Инструмент. Передаётся без комиссии.", "craft": "Стоимость: 1⬜️ + 1 сгорающая комиссия; сборки нет"}, {"emoji": "⭕", "name": "Колесо активации", "cat": "tools", "tier": null, "value": "Инструмент.", "craft": "Не крафтится"}, {"emoji": "📜", "name": "Свиток", "cat": "other", "tier": null, "value": "Прочее (уточняется).", "craft": "Участвует в сборке 🌈"}, {"emoji": "🌈", "name": "Радужная карта", "cat": "other", "tier": null, "value": "Собираемая карта (уточняется).", "craft": "💎 + 🟧×3 + ⬜️ + ☮️ + 🃏 + 🟩 + 🟦 + 📜 + ☑️ = 🌈"}];
+
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  }
+
+  // active nav by filename (keeps existing behavior)
+  document.addEventListener('DOMContentLoaded',()=>{
+    const fn=(location.pathname.split('/').pop()||'index.html');
+    document.querySelectorAll('nav a').forEach(a=>{
+      if(a.getAttribute('href')===fn) a.classList.add('active');
+    });
+
+    const qEl = document.getElementById('q');
+    const catEl = document.getElementById('cat');
+    const listEl = document.getElementById('list');
+    const countEl = document.getElementById('count');
+
+    function norm(s){ return String(s||'').trim().toLowerCase(); }
+    function match(c,q){
+      if(!q) return true;
+      const hay = norm(c.emoji+' '+c.name+' '+(c.value||'')+' '+(c.craft||''));
+      return hay.includes(q);
+    }
+
+    function render(){
+      const q = norm(qEl.value);
+      const cat = catEl.value;
+      const items = DB.filter(c => (cat==='all'||c.cat===cat) && match(c,q));
+      countEl.textContent = String(items.length);
+
+      listEl.innerHTML = items.map(c=>{
+        const tier = (c.tier==null ? '' : `<span style="margin-left:8px;display:inline-flex;align-items:center;justify-content:center;min-width:2.2ch;padding:2px 8px;border:1px solid #2a3b52;border-radius:999px;background:rgba(11,18,32,.65);font-variant-numeric:tabular-nums">уровень ${c.tier}</span>`);
+        const catName = ({base:'Базовые', activation:'Активации', tools:'Инструменты', other:'Прочее'})[c.cat] || 'Прочее';
+        const desc = c.value ? esc(c.value) : 'Описание уточняется.';
+        const craft = (c.craft && c.craft !== '—') ? esc(c.craft) : '—';
+
+        return `
+          <div class="card">
+            <div class="row" style="justify-content:space-between;gap:10px">
+              <div class="row" style="margin:0;gap:10px">
+                <div style="font-size:22px"><b>${esc(c.emoji)}</b></div>
+                <div>
+                  <div style="font-size:18px"><b>${esc(c.name)}</b> ${tier}</div>
+                  <div class="small">${esc(catName)}</div>
+                </div>
+              </div>
+            </div>
+            <div class="small" style="margin-top:8px">${desc}</div>
+            <hr>
+            <div class="small"><b>Сборка/формула:</b> ${craft}</div>
+          </div>
+        `;
+      }).join('');
+
+      if(!items.length){
+        listEl.innerHTML = `<div class="card"><b>Ничего не найдено.</b><div class="small" style="margin-top:6px">Попробуй другой запрос или выбери «Все».</div></div>`;
+      }
+    }
+
+    qEl.addEventListener('input', render);
+    catEl.addEventListener('change', render);
+    document.getElementById('reset').addEventListener('click', ()=>{ qEl.value=''; catEl.value='all'; render(); });
+    render();
+  });
+})();
+</script>
+</body>
+</html>
