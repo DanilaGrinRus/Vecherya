@@ -219,6 +219,20 @@
       font-weight: 800;
     }
 
+  
+    .topnav{
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      padding: 10px 0 12px;
+      margin-bottom: 4px;
+      backdrop-filter: blur(10px);
+    }
+    .topnav .btn{ padding:8px 10px; border-radius: 999px; }
+
   </style>
 </head>
 <body>
@@ -229,6 +243,13 @@
       <div class="sub">Один файл для GitHub Pages: калькулятор, парсер постов A/B, правила и место под базу карт. Профили сохраняются локально (localStorage).</div>
     </div>
   </header>
+
+
+  <nav class="topnav" aria-label="Разделы">
+    <button class="btn secondary" type="button" data-jump="#calc">Калькулятор</button>
+    <button class="btn secondary" type="button" data-jump="#rules">Правила</button>
+    <button class="btn secondary" type="button" data-jump="#cardsdb">База карт</button>
+  </nav>
 
 
   <!-- Always-available memo -->
@@ -454,6 +475,21 @@
 <script>
 (function(){
   "use strict";
+
+  // Basic runtime error surface
+  function showFatal(err){
+    try{
+      const msg = (err && (err.stack || err.message)) ? String(err.stack || err.message) : String(err);
+      const box = document.createElement("pre");
+      box.textContent = "JS ошибка:\n" + msg;
+      box.style.cssText = "white-space:pre-wrap;max-width:980px;margin:12px auto;padding:12px;border:1px solid rgba(255,107,107,.65);border-radius:14px;background:rgba(20,10,10,.55);color:#ffd7d7;";
+      document.body.prepend(box);
+    }catch(_){ /* noop */ }
+  }
+
+  window.addEventListener("error", (e)=> showFatal(e.error || e.message));
+  window.addEventListener("unhandledrejection", (e)=> showFatal(e.reason));
+
 
   const MEMO = '— Всё считается в ☑️ (серых)\n— Лестница валют:\n  ☑️(1) → 🟦(3) → 🟩(6) → ⬜️(12) → 🟧(24) → 💎(48) → 🚨(144)\n  (3 ☑️ = 🟦 · 2 🟦 = 🟩 · 2 🟩 = ⬜️ · 2 ⬜️ = 🟧 · 2 🟧 = 💎 · 3 💎 = 🚨)\n— 🔘 Комиссия нужна для передачи карт и ТВ, выдаёт только Банк, 🔘 сгорает\n— 🧿 ТВ: ⬜️ + 🔘 → 🧿 | ТВ передаётся без комиссии\n— Лимиты: 3 активации/день · передача: 3 карты + 3 🧿 на игрока, 7/7 всего\n— Передача: ВИП чат / Общий чат / ЛС ведущему\n— Сборка/разборка: всегда пишите, что из чего конкретно собираете/разбираете\n\n👉 Думай в ☑️ — остальное вторично';
 
@@ -697,6 +733,15 @@
       setNum(sandbox.inv, id, val);
       sandbox.log = `Изменено: ${META[id].e} → ${val}`;
       renderAll();
+    // Top navigation
+    document.querySelectorAll('[data-jump]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-jump');
+        const el = sel ? document.querySelector(sel) : null;
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
     fillDbTypes();
     renderDb();
 
@@ -1036,9 +1081,12 @@ function renderAll(){
     renderAll();
   });
 
-  $("#parse").addEventListener("click", () => { doParse(); });
-  $("#toProfiles").addEventListener("click", () => { toProfiles(); });
-  $("#clear").addEventListener("click", () => {
+  const el_parse = document.getElementById("parse");
+  if (el_parse) el_parse.addEventListener("click", () => { doParse(); });
+  const el_toProfiles = document.getElementById("toProfiles");
+  if (el_toProfiles) el_toProfiles.addEventListener("click", () => { toProfiles(); });
+  const el_clear = document.getElementById("clear");
+  if (el_clear) el_clear.addEventListener("click", () => {
     $("#pa").value = "";
     $("#pb").value = "";
     $("#pUsers").textContent = "0";
@@ -1128,9 +1176,18 @@ function renderAll(){
   });
 
   // ---------- Init ----------
-  (function init(){
+  function initApp(){
+
     renderAll();
-  })();
+  
+  }
+
+  // Run after DOM is ready (safe for GitHub Pages)
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => { try{ initApp(); } catch(e){ showFatal(e); } });
+  } else {
+    try{ initApp(); } catch(e){ showFatal(e); }
+  }
 
 })();
 </script>
