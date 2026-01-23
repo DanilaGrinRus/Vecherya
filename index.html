@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"/>
-<title>Главная — Капитализм и Коммунизм</title>
+<title>Калькулятор — Капитализм и Коммунизм</title>
 <style>
 body{margin:0;font-family:system-ui,Arial,sans-serif;background:#0b0f14;color:#e6edf3}
 a{color:#5fb3ff;text-decoration:none}
@@ -11,39 +11,107 @@ nav a{margin-right:12px;padding:6px 10px;border:1px solid #2a3b52;border-radius:
 nav a.active{background:#1a2636}
 .card{border:1px solid #22324a;border-radius:12px;padding:12px;margin:12px 0;background:#0f1622}
 h1,h2,h3{margin:0 0 8px}
-ul{padding-left:18px}
-input{padding:6px;border-radius:6px;border:1px solid #2a3b52;background:#0b1220;color:#e6edf3}
-button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#122033;color:#e6edf3}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}
+button{padding:4px 8px;border-radius:6px;border:1px solid #2a3b52;background:#122033;color:#e6edf3;cursor:pointer}
+.result{margin-top:10px;padding:10px;border:1px dashed #2a3b52;border-radius:8px}
+.small{opacity:.8;font-size:13px}
 </style>
 </head>
 <body>
 <header><h1>Капитализм и Коммунизм</h1></header>
 <nav>
-  <a href="index.html">Главная</a>
-  <a href="calc.html">Калькулятор</a>
+    <a href="calc.html" class="active">Калькулятор</a>
   <a href="rules.html">Правила</a>
   <a href="cards.html">База карт</a>
 </nav>
-<main>
 
+<main>
 <div class="card">
-<h2>Разделы сайта</h2>
-<ul>
-<li>Калькулятор — расчёт сборки и разборки карт</li>
-<li>Правила — полное описание игры и всех карт</li>
-<li>База карт — расширенная база (в разработке)</li>
-</ul>
+<h2>Калькулятор сборки / разборки</h2>
+
+<div id="controls"></div>
+
+<div class="row">
+<button onclick="mode='build';recalc()">Сборка ⬆️</button>
+<button onclick="mode='break';recalc()">Разборка ⬇️</button>
 </div>
 
+<div id="out" class="result">—</div>
+
+<p class="small">
+Лимиты: не более 3 карт активации в день.  
+Комиссия возвращается только через Банк.
+</p>
+</div>
 </main>
+
 <footer>GitHub Pages</footer>
+
 <script>
-document.addEventListener('DOMContentLoaded',()=>{
-  const fn=(location.pathname.split('/').pop()||'index.html');
-  document.querySelectorAll('nav a').forEach(a=>{
-    if(a.getAttribute('href')===fn) a.classList.add('active');
+const ladder = [
+  {k:'g', n:'☑️', to:3},
+  {k:'b', n:'🟦', to:2},
+  {k:'gr',n:'🟩', to:2},
+  {k:'w', n:'⬜️', to:2},
+  {k:'o', n:'🟧', to:2},
+  {k:'e', n:'💎', to:3},
+  {k:'r', n:'🚨'}
+];
+
+let state = {g:0,b:0,gr:0,w:0,o:0,e:0,r:0};
+let mode = 'build';
+
+function renderControls(){
+  const c = document.getElementById('controls');
+  c.innerHTML='';
+  ladder.forEach(l=>{
+    c.innerHTML+=`
+      <div class="row">
+        <strong>${l.n}</strong>
+        <button onclick="chg('${l.k}',-1)">−</button>
+        <span>${state[l.k]}</span>
+        <button onclick="chg('${l.k}',1)">+</button>
+      </div>`;
   });
-});
+}
+function chg(k,d){ state[k]=Math.max(0,state[k]+d); recalc(); }
+
+function recalc(){
+  let s = {...state};
+  let log=[];
+  if(mode==='build'){
+    for(let i=0;i<ladder.length-1;i++){
+      const cur=ladder[i], next=ladder[i+1];
+      const c=Math.floor(s[cur.k]/cur.to||0);
+      if(c>0){
+        s[cur.k]-=c*cur.to;
+        s[next.k]+=c;
+        log.push(`${c*cur.to} ${cur.n} → ${c} ${next.n}`);
+      }
+    }
+  } else {
+    for(let i=ladder.length-1;i>0;i--){
+      const cur=ladder[i], prev=ladder[i-1];
+      const c=s[cur.k];
+      if(c>0){
+        s[cur.k]=0;
+        s[prev.k]+=c*prev.to;
+        log.push(`${c} ${cur.n} → ${c*prev.to} ${prev.n}`);
+      }
+    }
+  }
+
+  const res=[];
+  ladder.slice().reverse().forEach(l=>{
+    if(s[l.k]) res.push(`${l.n} ${s[l.k]}`);
+  });
+
+  document.getElementById('out').innerHTML=
+    (log.length?'<b>Операции:</b><br>'+log.join('<br>')+'<hr>':'')+
+    (res.length?'<b>Результат:</b><br>'+res.join('<br>'):'—');
+}
+
+renderControls();
 </script>
 </body>
 </html>
