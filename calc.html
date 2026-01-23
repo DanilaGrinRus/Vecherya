@@ -11,44 +11,59 @@ nav a{margin-right:12px;padding:6px 10px;border:1px solid #2a3b52;border-radius:
 nav a.active{background:#1a2636}
 .card{border:1px solid #22324a;border-radius:12px;padding:12px;margin:12px 0;background:#0f1622}
 h1,h2,h3{margin:0 0 8px}
-ul{padding-left:18px}
-input{padding:6px;border-radius:6px;border:1px solid #2a3b52;background:#0b1220;color:#e6edf3}
-button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#122033;color:#e6edf3}
+input{padding:6px;border-radius:6px;border:1px solid #2a3b52;background:#0b1220;color:#e6edf3;width:80px}
+button{padding:6px 10px;border-radius:8px;border:1px solid #2a3b52;background:#122033;color:#e6edf3;cursor:pointer}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.result{margin-top:10px;padding:10px;border:1px dashed #2a3b52;border-radius:8px}
 </style>
 </head>
 <body>
 <header><h1>Капитализм и Коммунизм</h1></header>
 <nav>
   <a href="index.html">Главная</a>
-  <a href="calc.html">Калькулятор</a>
+  <a href="calc.html" class="active">Калькулятор</a>
   <a href="rules.html">Правила</a>
   <a href="cards.html">База карт</a>
 </nav>
 <main>
-
 <div class="card">
-<h2>Калькулятор сборки</h2>
-<p>Введите количество карт и посмотрите эквиваленты по лестнице.</p>
-<ul>
-<li>3 ☑️ = 🟦</li>
-<li>2 🟦 = 🟩</li>
-<li>2 🟩 = ⬜️</li>
-<li>2 ⬜️ = 🟧</li>
-<li>2 🟧 = 💎</li>
-<li>3 💎 = 🚨</li>
-</ul>
-<p><em>Комиссия не возвращается автоматически. Для получения комиссии обратитесь в чат Банка.</em></p>
+<h2>Калькулятор сборки / разборки</h2>
+<p>Введите количество серых карт (☑️). Калькулятор покажет возможные сборки.</p>
+
+<div class="row">
+  <label>☑️ Серые:</label>
+  <input id="grey" type="number" min="0" value="0">
+  <button onclick="calc()">Рассчитать</button>
 </div>
 
+<div id="out" class="result">—</div>
+
+<p><em>Комиссия автоматически не возвращается. Для получения комиссии обращайтесь в чат Банка.</em></p>
+</div>
 </main>
 <footer>GitHub Pages</footer>
+
 <script>
-document.addEventListener('DOMContentLoaded',()=>{
-  const fn=(location.pathname.split('/').pop()||'index.html');
-  document.querySelectorAll('nav a').forEach(a=>{
-    if(a.getAttribute('href')===fn) a.classList.add('active');
-  });
-});
+function calc(){
+  let g = parseInt(document.getElementById('grey').value||0);
+  let res = [];
+  let b = Math.floor(g/3); g%=3;
+  let gr = Math.floor(b/2); b%=2;
+  let w = Math.floor(gr/2); gr%=2;
+  let o = Math.floor(w/2); w%=2;
+  let e = Math.floor(o/2); o%=2;
+  let r = Math.floor(e/3); e%=3;
+
+  if(r) res.push(`🚨 Рубиновых: ${r}`);
+  if(e) res.push(`💎 Изумрудных: ${e}`);
+  if(o) res.push(`🟧 Золотых: ${o}`);
+  if(w) res.push(`⬜️ Белых: ${w}`);
+  if(gr) res.push(`🟩 Зелёных: ${gr}`);
+  if(b) res.push(`🟦 Синих: ${b}`);
+  if(g) res.push(`☑️ Серых: ${g}`);
+
+  document.getElementById('out').innerHTML = res.length ? res.join("<br>") : "Нечего собрать";
+}
 </script>
 </body>
 </html>
