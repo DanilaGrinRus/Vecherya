@@ -1,117 +1,1668 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8"/>
-<title>Калькулятор — Капитализм и Коммунизм</title>
-<style>
-body{margin:0;font-family:system-ui,Arial,sans-serif;background:#0b0f14;color:#e6edf3}
-a{color:#5fb3ff;text-decoration:none}
-header,nav,main,footer{max-width:1100px;margin:0 auto;padding:12px}
-nav a{margin-right:12px;padding:6px 10px;border:1px solid #2a3b52;border-radius:8px}
-nav a.active{background:#1a2636}
-.card{border:1px solid #22324a;border-radius:12px;padding:12px;margin:12px 0;background:#0f1622}
-h1,h2,h3{margin:0 0 8px}
-.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}
-button{padding:4px 8px;border-radius:6px;border:1px solid #2a3b52;background:#122033;color:#e6edf3;cursor:pointer}
-.result{margin-top:10px;padding:10px;border:1px dashed #2a3b52;border-radius:8px}
-.small{opacity:.8;font-size:13px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎲 "Капитализм и Коммунизм" - Карточная игра</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e6e6e6;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid #00b4d8;
+            box-shadow: 0 10px 30px rgba(0, 180, 216, 0.2);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #00b4d8;
+            text-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #90e0ef;
+            margin-bottom: 25px;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .time-card {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid #0077b6;
+            min-width: 250px;
+        }
+
+        .time-card h3 {
+            color: #90e0ef;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .time-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .time-zone {
+            font-size: 0.9rem;
+            color: #caf0f8;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .categories-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            height: fit-content;
+            border: 1px solid #0096c7;
+        }
+
+        .categories-panel h2 {
+            color: #00b4d8;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0096c7;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-item {
+            margin-bottom: 15px;
+        }
+
+        .category-btn {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 150, 199, 0.2);
+            border: 1px solid #0096c7;
+            border-radius: 8px;
+            color: #e6e6e6;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background: rgba(0, 150, 199, 0.4);
+            transform: translateX(5px);
+            border-color: #00b4d8;
+        }
+
+        .category-btn.active {
+            background: rgba(0, 180, 216, 0.3);
+            border-color: #00b4d8;
+            box-shadow: 0 0 15px rgba(0, 180, 216, 0.3);
+        }
+
+        .cards-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid #0096c7;
+            min-height: 600px;
+        }
+
+        .cards-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #0096c7;
+        }
+
+        .cards-header h2 {
+            color: #00b4d8;
+            font-size: 1.8rem;
+        }
+
+        .cards-count {
+            background: #0077b6;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .cards-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .cards-grid::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .cards-grid::-webkit-scrollbar-thumb {
+            background: #0096c7;
+            border-radius: 10px;
+        }
+
+        .card-item {
+            background: rgba(0, 20, 40, 0.5);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #0077b6;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-item:hover {
+            transform: translateY(-5px);
+            border-color: #00b4d8;
+            box-shadow: 0 10px 20px rgba(0, 180, 216, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .card-emoji {
+            font-size: 2.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border: 2px solid #0096c7;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: #90e0ef;
+            flex-grow: 1;
+        }
+
+        .card-type {
+            background: #0077b6;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .card-content {
+            margin-top: 15px;
+        }
+
+        .card-section {
+            margin-bottom: 15px;
+        }
+
+        .card-section h4 {
+            color: #00b4d8;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-section p {
+            font-size: 0.9rem;
+            color: #caf0f8;
+            padding-left: 20px;
+        }
+
+        .card-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #0096c7, transparent);
+            margin: 15px 0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #90e0ef;
+            font-size: 0.9rem;
+            border-top: 1px solid #0096c7;
+        }
+
+        .search-box {
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #0096c7;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00b4d8;
+            box-shadow: 0 0 15px rgba(0, 180, 216, 0.3);
+        }
+
+        .search-input::placeholder {
+            color: #90e0ef;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            color: #90e0ef;
+            font-size: 1.2rem;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .card-tag {
+            background: rgba(0, 119, 182, 0.3);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #caf0f8;
+            border: 1px solid #0077b6;
+        }
+
+        .card-collection {
+            display: none;
+        }
+
+        .card-collection.active {
+            display: block;
+        }
+
+        .emoji-large {
+            font-size: 3rem;
+        }
+
+        .card-category {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 0.8rem;
+            color: #00b4d8;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid #00b4d8;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 180, 216, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 180, 216, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 180, 216, 0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
 </head>
 <body>
-<header><h1>Капитализм и Коммунизм</h1></header>
-<nav>
-    <a href="index.html#calc" class="active">Калькулятор</a>
-  <a href="rules.html">Правила</a>
-  <a href="cards.html">База карт</a>
-</nav>
+    <div class="container">
+        <header>
+            <h1>🎲 "Капитализм и Коммунизм"</h1>
+            <div class="subtitle">Карточная игра с уникальной механикой карт и сборок</div>
+            
+            <div class="time-display">
+                <div class="time-card">
+                    <h3>🕐 Москва (MSK)</h3>
+                    <div class="time-value" id="moscow-time">--:--:--</div>
+                    <div class="time-zone">MSK (UTC+3)</div>
+                </div>
+                <div class="time-card">
+                    <h3>🌍 Всемирное время (UTC)</h3>
+                    <div class="time-value" id="utc-time">--:--:--</div>
+                    <div class="time-zone">Координированное всемирное время</div>
+                </div>
+                <div class="time-card">
+                    <h3>📅 Дата</h3>
+                    <div class="time-value" id="current-date">-- --- ----</div>
+                    <div class="time-zone" id="day-of-week">------</div>
+                </div>
+            </div>
+        </header>
 
-<main>
-<div class="card">
-<h2>Калькулятор сборки / разборки</h2>
+        <div class="main-content">
+            <div class="categories-panel">
+                <h2>📁 Категории карт</h2>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" id="search-input" placeholder="🔍 Поиск карт...">
+                </div>
+                
+                <ul class="category-list">
+                    <li class="category-item">
+                        <button class="category-btn active" data-category="all">
+                            🃏 Все карты <span class="cards-count">(150+)</span>
+                        </button>
+                    </li>
+                    <li class="category-item">
+                        <button class="category-btn" data-category="wheel">
+                            ⭕️ Колеса активации
+                        </button>
+                    </li>
+                    <li class="category-item">
+                        <button class="category-btn" data-category="regular">
+                            🀄️ Обычные карты
+                        </button>
+                    </li>
+                    <li class="category-item">
+                        <button class="category-btn" data-category="activation">
+                            🎴 Карты активаций
+                        </button>
+                    </li>
+                    <li class="category-item">
+                        <button class="category-btn" data-category="violation">
+                            🧧 Карты нарушений
+                        </button>
+                    </li>
+                    <li class="category-item">
+                        <button class="category-btn" data-category="dangerous">
+                            📱 Опасные карты
+                        </button>
+                    </li>
+                    <li class="category-item">
+                        <button class="category-btn" data-category="super">
+                            🪟 Супер карты
+                        </button>
+                    </li>
+                    <li class="category-item">
+                        <button class="category-btn" data-category="mythical">
+                            🎆 Мифические карты
+                        </button>
+                    </li>
+                </ul>
+            </div>
 
-<div id="controls"></div>
+            <div class="cards-container">
+                <div class="cards-header">
+                    <h2 id="current-category">Все карты</h2>
+                    <div class="cards-count" id="cards-count">0 карт</div>
+                </div>
 
-<div class="row">
-<button onclick="mode='build';recalc()">Сборка ⬆️</button>
-<button onclick="mode='break';recalc()">Разборка ⬇️</button>
-</div>
+                <div class="cards-grid" id="cards-grid">
+                    <!-- Карты будут загружены через JavaScript -->
+                </div>
+            </div>
+        </div>
 
-<div id="out" class="result">—</div>
+        <footer>
+            <p>🎲 Игра "Капитализм и Коммунизм" • База данных карт • Обновлено: Февраль 2026</p>
+            <p>Для участия в игре присоединяйтесь к <a href="https://t.me/autoupda" style="color:#00b4d8;">Telegram-каналу</a></p>
+            <p style="margin-top:10px; font-size:0.8rem; color:#90e0ef;">Калькулятор карт и инвентарь: <a href="https://danilagrinrus.github.io/Vecherya/" style="color:#90e0ef;">danilagrinrus.github.io/Vecherya/</a></p>
+        </footer>
+    </div>
 
-<p class="small">
-Лимиты: не более 3 карт активации в день.  
-Комиссия возвращается только через Банк.
-</p>
-</div>
-</main>
+    <script>
+        // Данные карт из вашего HTML
+        const cardsData = [
+            {
+                emoji: "⭕️",
+                name: "Колесо Активации",
+                category: "wheel",
+                type: "🧿 Колесо",
+                effects: "Даёт возможность выиграть любую карту🎴🪟, ♦️🎲Кости или 🧿ТВ колесо.",
+                application: "1⭕️ в день.",
+                obtaining: "Топ спонсоры. 🚹Топ Лиги🚺. Топ Батлы. Дни Рождения. 🧿ТВ колесо. Передача. 💒🏆🦎",
+                features: "Только супер карты. При активации 🪣Егора генерирует у себя 1 💎 карту.",
+                removedBy: "⚫️↩️🎴👹",
+                takenBy: "♎️",
+                assembly: "Нет",
+                tags: ["Колесо", "Активация", "Розыгрыш"]
+            },
+            {
+                emoji: "🧿",
+                name: "ТВ колесо",
+                category: "wheel",
+                type: "🧿 Колесо",
+                effects: "Даёт возможность выиграть любую карту, подарок или ⭕️🧿ТВ колесо.",
+                application: "Не более 3 🧿 колёс в день.",
+                obtaining: "Топ спонсоры. 🚹Топ Лиги🚺. Топ зрители. Топ Батлы. Передача. Первый спонсор за эфир. Вип подписка. День Рождения. Флешмобы. 🛐🏧🌋💒♻️🦎💣",
+                features: "Риск",
+                removedBy: "⚫️↩️🎴👹",
+                takenBy: "♎️",
+                assembly: "Нет",
+                tags: ["Колесо", "Розыгрыш", "ТВ"]
+            },
+            {
+                emoji: "🎲",
+                name: "Кость",
+                category: "wheel",
+                type: "🎲 Кость",
+                effects: "Умножает вашу одну обычную 🀄️карту или 🧿ТВ колесо из инвентаря при броске кубика.",
+                application: "1 раз во время вращения 🧿ТВ колеса.",
+                obtaining: "🧿ТВ колесо.",
+                features: "Даёт дополнительную игру. Значения при бросках: 1 - 0 карт, 2 - 1 карта, 3 - 2 карты, 4 - 3 карты, 5 - 4 карты, 6 - 5 карт. Коэффициент: 1-х1🀄️🧿",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Кость", "Игра", "Множитель"]
+            },
+            {
+                emoji: "♦️",
+                name: "Рубиновая кость",
+                category: "wheel",
+                type: "🎲 Кость",
+                effects: "Умножает вашу одну Рубиновую 🚨карту из инвентаря при броске 🎲кубика.",
+                application: "1 раз во время вращения 🧿ТВ колеса.",
+                obtaining: "🧿ТВ колесо.",
+                features: "Даёт дополнительную игру. Значения при бросках: 1 - 1 карта, 2 - 2 карты, 3 - 3 карты, 4 - 4 карты, 5 - 5 карт, 6 - 6 карт. Коэффициент: 1-+1🚨",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Кость", "Рубиновая", "Множитель"]
+            },
+            {
+                emoji: "🪣",
+                name: "Ведро Егора",
+                category: "wheel",
+                type: "🪟 Ведро",
+                effects: "Ведущий забирает 1 обычную🀄️карту у любого спикера и кладёт себе в ведро.",
+                application: "Сразу же при выпадении.",
+                obtaining: "🧿ТВ колесо. 🌋Преисподняя. 🛐⭕️🏆",
+                features: "Безлимитное накопление, активация, складывание, передача, разделение, накладывание на спикеров, хранение 🎴🀄️ карт.",
+                removedBy: "Нет",
+                takenBy: "Ⓜ️♎️",
+                assembly: "Нет",
+                tags: ["Ведро", "Хранение", "Ведущий"]
+            },
+            {
+                emoji: "🔘",
+                name: "Комиссия",
+                category: "regular",
+                type: "🀄️ Обычная",
+                effects: "Оплата переводов карт между спикерами, транзакций из 🏧💒Банков и 🛐Храма. Конвертаций карт в 🧿ТВ колёса.",
+                application: "В любое время.",
+                obtaining: "Разделение 1 ☑️. 🧿ТВ колесо.",
+                features: "Можно только собрать самому.",
+                removedBy: "⚫️",
+                takenBy: "Нет",
+                assembly: "Разделение ☑️🟰🔘🔘",
+                tags: ["Комиссия", "Платеж", "Транзакция"]
+            },
+            {
+                emoji: "☑️",
+                name: "Серая",
+                category: "regular",
+                type: "🀄️ Базовая",
+                effects: "Съём всех спикеров на 12 минут. Съём одного спикера на 12 минут. Только при просьбе к монологу на 12 минут. Карта так же создаёт комиссии 🔘.",
+                application: "1 раз за эфир от каждого. Комиссии🔘 без лимита.",
+                obtaining: "1 час продления. Топ месяца. Топ зрители. Топ Лиги🚹🚺. 🧿ТВ колесо. Первый на эфире. Передача. 🛐🏧💒",
+                features: "Создаёт комиссии. Способна к конвертации.",
+                removedBy: "🅱️⚫️🌋",
+                takenBy: "Ⓜ️♎️",
+                assembly: "Нет",
+                tags: ["Базовая", "Съем", "Комиссия"]
+            },
+            {
+                emoji: "🟦",
+                name: "Синяя",
+                category: "regular",
+                type: "🀄️ Обычная",
+                effects: "Снимает 🟨",
+                application: "На 🟨",
+                obtaining: "Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. Получить. Собрать🧿ТВ колесо. 🛐🏧💒",
+                features: "Состоит из 3 карт.",
+                removedBy: "🅱️⚫️🌋",
+                takenBy: "Ⓜ️♎️",
+                assembly: "☑️➕☑️➕☑️🟰🟦",
+                tags: ["Защита", "Снятие", "Желтая"]
+            },
+            {
+                emoji: "🟩",
+                name: "Зелёная",
+                category: "regular",
+                type: "🀄️ Обычная",
+                effects: "Снимает 🟥 карту.",
+                application: "На 🟥.",
+                obtaining: "Топ месяца. Топ зритель. Топ Батлы. Топ Лиги. Получить.Собрать. 🧿ТВ колесо. 🛐🏧💒",
+                features: "Возвращает доступ к эфиру.",
+                removedBy: "🅱️⚫️🌋",
+                takenBy: "Ⓜ️♎️",
+                assembly: "🟦➕🟦🟰🟩",
+                tags: ["Защита", "Снятие", "Красная"]
+            },
+            {
+                emoji: "⬜️",
+                name: "Белая",
+                category: "regular",
+                type: "🀄️ Обычная",
+                effects: "Снимает ⬛️. Либо продлевает эфир на 30 минут.",
+                application: "Каждый день. Продление 1 раз за эфир.",
+                obtaining: "Топ зрители. Топ Батлы. Топ Лиги. Получить. Собрать. 🧿ТВ колесо. 🛐🏧",
+                features: "Конвертация. Превращается в 🟪🟥🟨🟫⬛️🧿",
+                removedBy: "🅱️⚫️💣🌋",
+                takenBy: "Ⓜ️♎️🪣",
+                assembly: "🟩➕🟩🟰⬜️",
+                tags: ["Белая", "Продление", "Снятие"]
+            },
+            {
+                emoji: "🟧",
+                name: "Золотая",
+                category: "regular",
+                type: "🀄️ Обычная",
+                effects: "Модерка на сутки. Раздача карт нарушений. Иммунитет к правилам.",
+                application: "Каждый день. Вместо модерки продление 1 раз за эфир на 1 час.",
+                obtaining: "Топ спонсоры. Топ зрители. Топ Батлы. Топ Лиги. Получить. 🧿ТВ колесо. 🛐🏧💒",
+                features: "Работает как модер с 💎🔲🚨 (Раздача Безлимитного количества данных карт🟪🟥🟨🟫нарушения🧧)",
+                removedBy: "🅱️⚫️💣🌋",
+                takenBy: "♎️Ⓜ️",
+                assembly: "⬜️➕⬜️🟰🟧",
+                tags: ["Золотая", "Модер", "Иммунитет"]
+            },
+            {
+                emoji: "💎",
+                name: "Изумрудная",
+                category: "regular",
+                type: "🀄️ Обычная",
+                effects: "Модерка на сутки. Раздача карт нарушений. Иммунитет к правилам.",
+                application: "1 раз в 2 дня. Продление эфира на 3 часа.",
+                obtaining: "Топ месяца. Топ зрители. Топ Батлы. 🚹Топ Лиги🚺. Получить. Собрать. 🧿ТВ колесо. 🛐🏧💒",
+                features: "Работает как модер с 🟧Золотой и 🚨Рубиновой. (Раздача Безлимитного количества данных карт 🟪🚾🟥🟨🟫 нарушения🧧)",
+                removedBy: "🅱️⚫️🔲💣🌋",
+                takenBy: "♎️Ⓜ️",
+                assembly: "🟧➕🟧🟰💎",
+                tags: ["Изумрудная", "Модер", "Продление"]
+            },
+            {
+                emoji: "🚨",
+                name: "Рубиновая",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Соведущий на 3 дня. Продление на 10 ч в запасное время.",
+                application: "Активация 1 раз в 5 дней.",
+                obtaining: "Топ спонсор. 🚹Топ Лиги🚺. Топ зритель. Топ Батлы. Получить. 🧿ТВ колесо. 🛐💒",
+                features: "Работает как модер с 🟧💎. (Раздача Безлимитного количества данных карт 🟪🚾🟥🟨🟫⬛️ нарушения🧧). Так же используется для строительства сооружений.",
+                removedBy: "🅱️⚫️💣🌋",
+                takenBy: "♎️Ⓜ️",
+                assembly: "💎➕💎➕💎🟰🚨",
+                tags: ["Рубиновая", "Соведущий", "Модер"]
+            },
+            {
+                emoji: "Ⓜ️",
+                name: "Магнит",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Крадёт чужие 🀄️🎴карты кроме ⭕️🧿ТВ колёс, у любых разных спикеров, активные или нет. Залазит в инвентарь.",
+                application: "Всего доступно 3️⃣ кражи. По 1️⃣ карте у разных спикеров. У 1️⃣ спикера производить все 3️⃣ кражи запрещено.",
+                obtaining: "🧿ТВ колесо. 🛐💒. Передача.",
+                features: "Ⓜ️Магия переноса. Может переносить активную 🀄️🎴🧧карту спикера на себя, либо на другого спикера. Учитывается в лимит краж.",
+                removedBy: "🅱️⚫️💣🅰️🎆🌋",
+                takenBy: "♎️🅰️🎆",
+                assembly: "Нет",
+                tags: ["Магнит", "Кража", "Перенос"]
+            },
+            {
+                emoji: "🅱️",
+                name: "Бита",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Разбивает, снимает, деактивирует почти все 🀄️🎴🧧карты. Залазит в инвентарь.",
+                application: "Разрешено 4️⃣ удара Битой по карте. Передаётся с остатком ударов. После удара часы с карты сгорают. Нельзя разбивать карту которую выдали сами.",
+                obtaining: "⭕️🧿ТВ колесо. Собрать. Получить. 🛐💒🏆.",
+                features: "1️⃣ Удар - 9 часов. 2️⃣ Удар - 7 часов. 3️⃣Удар - 5 часов . 4️⃣Удар - 3 часа в запас.",
+                removedBy: "⚫️🌋🅰️🎆💣(Часы)",
+                takenBy: "Ⓜ️♎️🅰️🎆",
+                assembly: "🔲➕🌈➕🚨➕💎➕🟧➕⬜️➕🎦➕🎹➕🃏➕🚾➕📜➕☮️➕🟩➕🟦➕☑️🟰 🅱️",
+                tags: ["Бита", "Разрушение", "Снятие"]
+            },
+            {
+                emoji: "♎️",
+                name: "Страшный Суд",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Крадёт все 🎴🀄️карточки и ⭕️🧿ТВ колёса у 1 любого спикера.",
+                application: "1 кража",
+                obtaining: "🧿ТВ колесо. ⭕️Колесо Активации. 🏆🛐💒. Передача.",
+                features: "Если карта у спикера активна, то при краже ♎️ надевает её на вас. Если у вас другая карта уже активирована, то ♎️ заменяет вашу на новую украденную карту.",
+                removedBy: "⚫️🌋🅰️💣(Часы)",
+                takenBy: "🅰️🎆",
+                assembly: "Нет",
+                tags: ["Суд", "Кража", "Всекарты"]
+            },
+            {
+                emoji: "♻️",
+                name: "Конвертер",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Конвертирует 10 ☑️ карт в 10 🧿ТВ колёс в собственном инвентаре. Можно дробить.",
+                application: "По желанию",
+                obtaining: "🧿ТВ колесо. 🛐. Покупка.",
+                features: "Нельзя передавать карту.",
+                removedBy: "🅱️⚫️🌋",
+                takenBy: "Ⓜ️♎️",
+                assembly: "Нет",
+                tags: ["Конвертер", "Обмен", "Колеса"]
+            },
+            {
+                emoji: "🃏",
+                name: "Джокер",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Ваша карта деактивируется. Батл карта, позволяет нарушать правила по отношению к тем у кого активирована эта карта. Используется для батлов спикеров. Кручение 🧿ТВ колеса с защитой. Допуску к экрану и Микрофону.",
+                application: "Действует 20 минут батла и 24 часа обход правил к 🃏 и нарушений 🧿ТВ колес.",
+                obtaining: "Топ Батлы. Топ Лиги. Топ Зритель. Топ Месяц. Получить. Собрать. 🧿ТВ колесо. 🛐💒",
+                features: "Нельзя выключать микрофон. Запретить экран🚾. Активируется не более двух за эфир при наличии такой же карты у оппонента.",
+                removedBy: "🅱️⚫️🌋",
+                takenBy: "Ⓜ️♎️",
+                assembly: "🟧➕⬜️➕🟩➕☑️🟰🃏",
+                tags: ["Джокер", "Батл", "Защита"]
+            },
+            {
+                emoji: "☮️",
+                name: "Пацифик",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Ваша карта🎴 деактивируется. Снимает 🟫🟥. Даёт иммунитет к 🟫🟥 и 🅾️обнулению на 24 часа. Крутит 🧿ТВ колесо с защитой.",
+                application: "Действует 24 часа.",
+                obtaining: "Топ Батлы. Топ Лиги. Топ зритель. Топ месяца. Получить. Собрать. 🧿ТВ колесо. 🛐💒",
+                features: "Возвращает доступ к чату и гостевому при 🅾️Обнулении. В 🧿ТВ колесе защищает от 🟥🟫🅾️♠️.",
+                removedBy: "🅱️⚫️🌋",
+                takenBy: "Ⓜ️♎️",
+                assembly: "⬜️➕🟩➕🟦➕📜🟰☮️",
+                tags: ["Пацифик", "Иммунитет", "Снятие"]
+            },
+            {
+                emoji: "📜",
+                name: "Пергамент",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Снимает 🟫 карту и даёт иммунитет на 24 часа к 🟫.",
+                application: "Многократно",
+                obtaining: "Топ зрители. Получить. Сборка. 🧿ТВ колесо. 🛐💒",
+                features: "Защищает от 🟫 с 🧿ТВ колеса. 2️⃣Магия почкования для спикеров.",
+                removedBy: "💠🅾️🅱️⚫️🌋",
+                takenBy: "Ⓜ️♎️",
+                assembly: "🟩➕🟦➕☑️🟰📜",
+                tags: ["Пергамент", "Иммунитет", "Коричневая"]
+            },
+            {
+                emoji: "🚾",
+                name: "Антиэкран",
+                category: "activation",
+                type: "🎴↩️🧧 Активация",
+                effects: "Запрещает спикеру проситься на экран во время эфира и крутить ⭕️🧿ТВ колесо.",
+                application: "Каждый раз при активации.",
+                obtaining: "Топ зрители. Получить. Собрать. 🧿ТВ колесо. 🛐💒 Нарушение правил. От 💎🚨🔲",
+                features: "Одновременно карта нарушения и карта Активации.🎴↩️🧧",
+                removedBy: "🔋🃏🅱️⚫️🛐🪽",
+                takenBy: "Ⓜ️♎️",
+                assembly: "🟩➕🟦➕☑️➕☑️🟰🚾",
+                tags: ["Антиэкран", "Запрет", "Нарушение"]
+            },
+            {
+                emoji: "🔲",
+                name: "Чёрно-Белая карта",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Соведущий на 1 неделю. Продление на 3 ч. 7 дней подряд.",
+                application: "Активация 1 раз в 10 дней.",
+                obtaining: "Получить. Собрать. 🧿ТВ колесо. 🛐💒",
+                features: "Работает с 🌈🟧🃏☮️🪽 (Безлимитное количество карт нарушений 🟪🚾🟥🟨🟫⬛️🅾️💠🪓)",
+                removedBy: "🅱️⚫️💣🌋",
+                takenBy: "Ⓜ️♎️",
+                assembly: "🚨➕💎➕💎➕💎➕🟧➕⬜️➕🃏➕🟩➕🟦➕🚾➕☑️🟰🔲",
+                tags: ["Черно-белая", "Соведущий", "Продление"]
+            },
+            {
+                emoji: "🌈",
+                name: "Радужная карта",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Иммунитет ко всем картам нарушения не от ведущего на 1 неделю. + 5 часов в запасное время.",
+                application: "При наличии карты.",
+                obtaining: "Топ Батлы. Получить. Собрать. 🧿ТВ колесо. 🛐💒",
+                features: "Иммунитет. В 🧿ТВ колесе защищает от 🟫🟥⬛️🅾️👹🪓♥️♠️.",
+                removedBy: "🌋⚫️💣",
+                takenBy: "♎️",
+                assembly: "💎➕🟧➕🟧➕🟧➕⬜️➕☮️➕🃏➕🟩➕🟦➕📜➕☑️🟰🌈",
+                tags: ["Радужная", "Иммунитет", "Защита"]
+            },
+            {
+                emoji: "🎦",
+                name: "Карта контента",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Просмотр видеоматериала не более 1.30 ч по времени.",
+                application: "1 раз за эфир. Продлевает на эфир на время просмотра. Допустим 1 материал.",
+                obtaining: "Топ Батлы. 🚹Топ Лиги🚺. Получить. Собрать. 🧿ТВ колесо. 🛐💒",
+                features: "Нельзя снять",
+                removedBy: "⚫️🌋💣↩️🎴",
+                takenBy: "♎️Ⓜ️",
+                assembly: "🟧➕⬜️➕☑️🟰🎦",
+                tags: ["Контент", "Видео", "Просмотр"]
+            },
+            {
+                emoji: "🎹",
+                name: "Музыкальная карта",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Прослушивание вашей музыки не более 30 мин.",
+                application: "1 раз за эфир. Продлевает эфир на время прослушивания.",
+                obtaining: "Топ Батлы. 🚹Топ Лиги🚺. Получить. Собрать. 🧿ТВ колесо. 🛐💒",
+                features: "Нельзя снять",
+                removedBy: "⚫️🌋💣",
+                takenBy: "♎️Ⓜ️",
+                assembly: "⬜️➕☑️🟰🎹",
+                tags: ["Музыка", "Прослушивание", "Продление"]
+            },
+            {
+                emoji: "🔋",
+                name: "Энергетик",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Снимает 💠🚾. Ваша 🎴🀄️🧧🪟активная карта деактивируется. Спикеру разрешено передавать 5 карт и 5🧿ТВ колёс за эфир 1 неделю вне лимита. Крутить 5🧿ТВ колёс после передачи карт за эфир.",
+                application: "При активации. 1 неделю или до выпадения или получения 💠",
+                obtaining: "🧿ТВ колесо.",
+                features: "При выпадении следующих карт в 🧿ТВ колесе: 🧿🔲🌈💎🟧⬜️🎦🎹Ⓜ️♎️♻️🚨🃏☮️🟦🟩☑️📜🚾🔘 выигрыш умножается на х2.",
+                removedBy: "💠. 🔋Энергетик деактивируется. Заморозка не выдаётся.",
+                takenBy: "Ⓜ️Магия Переноса. ♎️Неактивные карты",
+                assembly: "Нет",
+                tags: ["Энергетик", "Снятие", "Передача"]
+            },
+            {
+                emoji: "♠️",
+                name: "Капиталист",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Вы забираете по 1 🀄️🎴🧿 карте у всех спикеров кто в гостевом (Вне лимита). Все карты должны быть разные. Спикеров должно быть 8 вместе с вами.",
+                application: "При выпадении с 🧿ТВ колес. Активация.",
+                obtaining: "🧿ТВ колесо. Сборка. Получение.",
+                features: "Если у спикера нет карт в инвентаре, вы должны передать ему 1 любую карту выше ☑️.",
+                removedBy: "⚫️🌋",
+                takenBy: "♎️",
+                assembly: "🧿🧿🧿➕☮️➕🃏",
+                tags: ["Капиталист", "Кража", "Забор"]
+            },
+            {
+                emoji: "♥️",
+                name: "Коммунист",
+                category: "activation",
+                type: "🎴 Активация",
+                effects: "Вы должны раздать по 1 🀄️🎴🧿 карте всем спикерам кто в гостевом (Вне лимита). Все карты должны быть разные. Спикеров должно быть 8 вместе с вами.",
+                application: "При выпадении с 🧿ТВ колес. Активация.",
+                obtaining: "🧿ТВ колесо. Сборка. Получение.",
+                features: "Если ваш инвентарь пуст, вы передаёте карту из ↩️🏧💒Банков.↩️🗄Сейфа.↩️🛐Храма.↩️🎰Джекпота(Остаётся запакован).",
+                removedBy: "⚫️🌋",
+                takenBy: "♎️",
+                assembly: "🧿🧿🧿➕☮️➕🃏",
+                tags: ["Коммунист", "Раздача", "Дарение"]
+            },
+            {
+                emoji: "🟪",
+                name: "Розовая",
+                category: "violation",
+                type: "🎴↩️🧧 Нарушение",
+                effects: "Как предупреждение. Вас спускают вниз. Вы можете зайти повторно.",
+                application: "До 🟨",
+                obtaining: "Нарушение правил. От ⬜️🟧💎🚨🔲. 🌋. 🧿ТВ колесо.",
+                features: "Беспонтовая карта. одновременно карта нарушения и карта Активации.🎴↩️🧧",
+                removedBy: "☑️🛐🪽🅱️",
+                takenBy: "Нет",
+                assembly: "☑️➕☑️🟰🟪",
+                tags: ["Розовая", "Предупреждение", "Нарушение"]
+            },
+            {
+                emoji: "🟥",
+                name: "Красная",
+                category: "violation",
+                type: "🧧 Нарушение",
+                effects: "Запрет в гостевой до конца эфира. При выпадении с 🧿ТВ колеса действует на всех кроме 🪽Ангела.",
+                application: "После 🟨",
+                obtaining: "Нарушение правил эфира. От ⬜️🟧💎🚨🔲. 🌋 🧿ТВ колесо.",
+                features: "Можно писать в чате.",
+                removedBy: "🅱️🟩🛐🪽",
+                takenBy: "Нет",
+                assembly: "⬜️🟰🟥",
+                tags: ["Красная", "Запрет", "Гостевая"]
+            },
+            {
+                emoji: "🟨",
+                name: "Жёлтая",
+                category: "violation",
+                type: "🧧 Нарушение",
+                effects: "Вас спускают вниз на 30 минут. Вы можете зайти повторно.",
+                application: "До 🟥",
+                obtaining: "Нарушение правил. От ⬜️🟧💎🚨🔲🌋. 🧿ТВ колесо.",
+                features: "Карта похожа на золотой дождь от которого нужно пол часа обсыхать.",
+                removedBy: "🅱️🟦🛐🪽",
+                takenBy: "Нет",
+                assembly: "⬜️",
+                tags: ["Желтая", "Спуск", "Нарушение"]
+            },
+            {
+                emoji: "⬛️",
+                name: "Чёрная",
+                category: "violation",
+                type: "🧧 Нарушение",
+                effects: "Ваша карта не деактивируется. Вы получаете бан в стриме на 1 неделю. При выпадении с 🧿ТВ колеса действует на всех кроме 🪽Ангела.",
+                application: "1 раз.",
+                obtaining: "Нарушение правил эфира. От ⬜️🚨🔲. 🧿ТВ колесо. 🌋",
+                features: "Если одета карта активации с аватаркой, то карта не деактивируется как в случае с обнулением 🅾️",
+                removedBy: "🅱️⬜️🛐🪽",
+                takenBy: "Нет",
+                assembly: "⬜️🟰⬛️",
+                tags: ["Черная", "Бан", "Неделя"]
+            },
+            {
+                emoji: "🟫",
+                name: "Коричневая",
+                category: "violation",
+                type: "🧧 Нарушение",
+                effects: "Отключение чата до конца эфира.",
+                application: "Безлимитно.",
+                obtaining: "Нарушение правил эфира. От ⬜️🟧💎🚨🔲🅾️🌋. 🧿ТВ колесо.",
+                features: "Действует на 1 аккаунт.",
+                removedBy: "🅱️📜☮️🛐🪽",
+                takenBy: "Нет",
+                assembly: "⬜️",
+                tags: ["Коричневая", "Чат", "Отключение"]
+            },
+            {
+                emoji: "🅾️",
+                name: "Обнуление",
+                category: "violation",
+                type: "🧧↩️🎴 Нарушение",
+                effects: "Ваша карта деактивируется. Отключение чата, запрет в гостевой на 4 недели. При выпадении с 🧿ТВ колеса действует на всех кроме 🌈 и 🪽Ангела.",
+                application: "До снятия ограничений.",
+                obtaining: "Нарушение правил эфира. Собрать. От 🔲. 🧿ТВ колесо. 🌋",
+                features: "Можно открыть чат и гостевой картой ☮️. Является картой 🧧↩️🎴.",
+                removedBy: "🅱️🌈🛐🪽",
+                takenBy: "Ⓜ️Магия переноса",
+                assembly: "🟧➕⬜️➕🚾➕☮️➕🟩➕🟦➕☑️🟰🅾️",
+                tags: ["Обнуление", "Запрет", "4недели"]
+            },
+            {
+                emoji: "💠",
+                name: "Заморозка",
+                category: "violation",
+                type: "🧧↩️🎴 Нарушение",
+                effects: "Ваша активная карта деактивируется. Спикеру запрещено, использовать, активировать, передавать 🎆🪟🀄️🎴карты и ⭕️🧿ТВ колёса 4 недели. При выпадении с 🧿ТВ колеса действует на всех кроме 🪽Ангела.",
+                application: "При активации, при выпадении с 🧿ТВ колеса.",
+                obtaining: "От 🔲. Нарушение правил. Собрать. 🧿ТВ колесо. 🌋🎆",
+                features: "При выпадении с 🧿ТВ колеса действует на всех и вам выдаётся 1 🧿ТВ колесо которое можно крутить сразу или через 4 недели.",
+                removedBy: "🅱️🛐🌈🪽🔋🎆",
+                takenBy: "Ⓜ️Магия переноса.",
+                assembly: "1 🚨",
+                tags: ["Заморозка", "Запрет", "4недели"]
+            },
+            {
+                emoji: "🪓",
+                name: "Топор",
+                category: "violation",
+                type: "🧧↩️🎴 Нарушение",
+                effects: "Вам запрещено разделять, собирать, продавать, покупать, выкупать, слиять, конвертировать, распаковывать карты, крутить ⭕️Колесо Активации. Вам запрещено Пользоваться 🗄🏧💒🛐🌋🏆",
+                application: "Активна 1️⃣ неделю.",
+                obtaining: "🧿ТВ колесо. 🌋.От 🔲 карты. Нарушение правил.",
+                features: "При выпадении с 🧿ТВ колеса 🪓Топор ловят все кто в гостевом. Все кто словил 🪓Топор, получают по 1 🧿ТВ колесу.",
+                removedBy: "💎🌈🪽🛐🅱️.",
+                takenBy: "Ⓜ️Магия переноса.",
+                assembly: "💎➕⬜️➕🟩",
+                tags: ["Топор", "Запрет", "Ограничения"]
+            },
+            {
+                emoji: "⚫️",
+                name: "Банкрот",
+                category: "dangerous",
+                type: "📱 Опасная",
+                effects: "Забирает все ваши карты, кроме колёс, при выпадении с 🧿ТВ колеса.",
+                application: "1 раз.",
+                obtaining: "🧿ТВ колесо. 🌋⚫️↩️🎴",
+                features: "При выпадении с 🧿ТВ колеса, если ваш инвентарь карт 🎴🀄️пуст, превращается в карту активации⚫️↩️🎴, падает в ваш инвентарь, и вы можете уничтожить все карты и ⭕️🧿 у одного спикера.",
+                removedBy: "🌋🎆",
+                takenBy: "♎️",
+                assembly: "Нет",
+                tags: ["Банкрот", "Кража", "Уничтожение"]
+            },
+            {
+                emoji: "💣",
+                name: "Экстерминатус",
+                category: "dangerous",
+                type: "📱 Опасная",
+                effects: "Эфир завершается. Запасное время исчезает. Вы получаете 🅾️ и 10 🧿ТВ колёс. Прошлый донатер получает 5🧿ТВ колес.",
+                application: "1 раз. Как карту 💣↩️🎴активации, при наличии запасного времени больше 3 часов.",
+                obtaining: "🧿ТВ колесо. 🌋Преисподняя 💣↩️🎴.",
+                features: "Нельзя снять. Во время вращения 🧿ТВ колеса, при отсутствии запасного времени, превращается в карту 🎴активации без 🅾️.",
+                removedBy: "Ведущим",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Экстерминатус", "Завершение", "Эфир"]
+            },
+            {
+                emoji: "🥷",
+                name: "Грабители",
+                category: "dangerous",
+                type: "📱 Опасная",
+                effects: "Грабит 🏧Банк в котором больше всего 🀄️🎴🪟карт и 🧿ТВ колёс. Крадёт половину или больше половины карт и 🧿ТВ колёс. Украденные карты исчезают. Ограбленный получает 1 ⭕️ Колесо Активации.",
+                application: "1 раз. Активируется с 🧿ТВ колеса. Активируется при сборке.",
+                obtaining: "🧿ТВ колесо. Сборка. Получение. 🅰️Дом Анархии. 🎆",
+                features: "Можно снять залогом. 🥷 Может использовать ведущий.",
+                removedBy: "залогом 3🚨 от одного спикера после вращения 🧿колеса.",
+                takenBy: "🎆🅰️",
+                assembly: "⚫️↩️🎴➕💣↩️🎴🟰🥷",
+                tags: ["Грабители", "Кража", "Банк"]
+            },
+            {
+                emoji: "👹",
+                name: "Пожиратель колёс",
+                category: "dangerous",
+                type: "📱 Опасная",
+                effects: "Пожирает все ⭕️🧿ТВ колёса в инвентаре у всех, у кого они в наличии.",
+                application: "Активируется при выпадении с 🧿ТВ колеса",
+                obtaining: "🧿ТВ колесо.",
+                features: "Те, у кого надеты карты 💎🚨🟧🔲🃏🌈🪽 и 🗄. Защищены от пожирателя.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Пожиратель", "Колеса", "Уничтожение"]
+            },
+            {
+                emoji: "⌛️",
+                name: "Минус Час",
+                category: "dangerous",
+                type: "📱 Опасная",
+                effects: "Забирает 1 час из запасного времени.",
+                application: "1 раз.",
+                obtaining: "🧿ТВ колесо. Передача. Сборка.",
+                features: "При сборке превращается в карту активации ⌛️↩️🎴. После активации из запасного времени уходит 1 час, последний донатер получает 3 🧿ТВ колеса.",
+                removedBy: "🌋Собранную карту.",
+                takenBy: "♎️Собранную карту.",
+                assembly: "🟧➕🟧➕🟧🟰⌛️↩️🎴",
+                tags: ["Минус", "Время", "Час"]
+            },
+            {
+                emoji: "⌛️",
+                name: "Минус 3 часа",
+                category: "dangerous",
+                type: "📱 Опасная",
+                effects: "Забирает 3 часа из запасного времени.",
+                application: "1 раз.",
+                obtaining: "🧿ТВ колесо. Передача. Сборка.",
+                features: "При сборке превращается в карту активации ⌛️↩️🎴. После активации из запасного времени уходит 3 часа, последний донатер получает 5 🧿ТВ колес.",
+                removedBy: "Нет",
+                takenBy: "♎️🌋",
+                assembly: "💎➕💎➕💎🟰⌛️↩️🎴",
+                tags: ["Минус", "Время", "3часа"]
+            },
+            {
+                emoji: "🪽",
+                name: "Ангел",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Иммунитет ко всем картам нарушения не от ведущего, из 🧿ТВ колеса в том числе. Способна снимать следующие ограничения со спикеров 🟪🚾🟥🟨🟫⬛️🅾️💠🪓.",
+                application: "Работает 3 дня. Может снять 3 нарушения за один эфир с трёх разных спикеров.",
+                obtaining: "Собрать. 🧿ТВ колесо. 🛐.",
+                features: "Запрещено выключать 🎙микрофон. Разрешено нарушать правила. Если выключить 🪽Ангелу микрофон вы лишаетесь своей активной карты.",
+                removedBy: "🌋💣",
+                takenBy: "Нет",
+                assembly: "♎️➕🅱️➕🔲➕🌈➕🚨➕💎➕🟧➕⬜️➕🟩➕🟦➕☑️🟰🪽",
+                tags: ["Ангел", "Иммунитет", "Снятие"]
+            },
+            {
+                emoji: "🎰",
+                name: "Джекпот",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Вам выпадает 12 карт. 🔲🅱️🌈💎🚨🟧🃏☮️🔋Ⓜ️♎️♻️ ➕ 20 🧿ТВ колёс➕3⭕️Колеса Активации и 🎲♦️",
+                application: "После распаковки.",
+                obtaining: "🧿ТВ колесо. Покупка. 💒🏆. ⭕️Колесо активации.",
+                features: "Необходима распаковка. Стоимость распаковки 1 🚨.",
+                removedBy: "🅰️🎆",
+                takenBy: "🅰️🎆",
+                assembly: "Нет",
+                tags: ["Джекпот", "Выигрыш", "Набор"]
+            },
+            {
+                emoji: "🍫",
+                name: "Сладкий подарок",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Сладкий подарок от ведущего почтой.",
+                application: "Отправка через 30 дней после выпадения.",
+                obtaining: "🧿ТВ колесо.",
+                features: "Отправка только в 🇧🇾Беларусь и 🇷🇺Россию.",
+                removedBy: "Ведущим",
+                takenBy: "Ведущим",
+                assembly: "Нет",
+                tags: ["Подарок", "Сладкий", "Ведущий"]
+            },
+            {
+                emoji: "🎁",
+                name: "Супер подарок",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Настоящий подарок от ведущего почтой.",
+                application: "Отправка через 45 дней после выпадения.",
+                obtaining: "🧿ТВ колесо.",
+                features: "Отправка только в 🇧🇾Беларусь и 🇷🇺Россию.",
+                removedBy: "Ведущим",
+                takenBy: "Ведущим",
+                assembly: "Нет",
+                tags: ["Подарок", "Супер", "Ведущий"]
+            },
+            {
+                emoji: "🆎",
+                name: "Серп и Молот",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Строит спикерам или вам здания за пол цены. Покупает, продаёт в том числе. Восстанавливает уничтоженные здания.",
+                application: "При активации. Строятся 🏧🛐🌋.",
+                obtaining: "⭕️🧿ТВ колесо. 💒🏆",
+                features: "Нельзя строить здания тем, кому постройка запрещена.",
+                removedBy: "⚫️🌋🅰️🎆",
+                takenBy: "♎️🅰️🎆",
+                assembly: "Нет",
+                tags: ["Серп", "Молот", "Строительство"]
+            },
+            {
+                emoji: "🗄",
+                name: "Сейф",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Защищает ваши 🧿⭕️🀄️🎴 карты от 🥷Грабителей в 🏧Банке. В инвентаре от ⚫️Ⓜ️♎️🪣🌋🦎🅱️👹.",
+                application: "При установке. Комиссия в месяц 1 💎 сразу после установки.",
+                obtaining: "🧿ТВ колесо. Покупка. Установка.",
+                features: "Можно хранить до 3 🀄️🎴карт и 5⭕️🧿ТВ колес в сейфе, с учётом лимитов 🏧Банка.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Установка Да. 3🚨.",
+                tags: ["Сейф", "Защита", "Хранение"]
+            },
+            {
+                emoji: "🧰",
+                name: "Рубиновый Кошелёк",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Защищает ваши ⭕️Колёса Активации и 🚨карты в инвентаре от ⚫️Ⓜ️♎️🪣🌋🦎🅱️👹🅰️🎆♠️♥️.",
+                application: "При установке. Комиссия в месяц 1🚨 сразу после установки.",
+                obtaining: "Покупка. Лимит 2️⃣0️⃣0️⃣.",
+                features: "Можно хранить до 200⭕️Колёс и🚨карт в общей сумме.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "1 вариант. Установка. 20🚨 ➕🗄🗄🗄",
+                tags: ["Кошелек", "Рубиновый", "Защита"]
+            },
+            {
+                emoji: "🛐",
+                name: "Храм",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Хранит, генерирует, раздаёт карты.",
+                application: "После активации.",
+                obtaining: "🧿ТВ колесо. Построить.",
+                features: "Можно построить за 20 🚨. Передача только через 6 месяцев",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Да. 20 🚨 только 1 раз.",
+                tags: ["Храм", "Генерация", "Хранение"]
+            },
+            {
+                emoji: "🏧",
+                name: "Банк",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Хранит, страхует, умножает карты. Лимит 1️⃣2️⃣",
+                application: "После активации.",
+                obtaining: "🧿ТВ колесо.",
+                features: "Можно построить за 12 🚨 только 1 раз. Передача только раз в 3 месяца. Не защищён от Грабителей.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Да. 12 🚨 только 1 раз.",
+                tags: ["Банк", "Хранение", "Умножение"]
+            },
+            {
+                emoji: "💒",
+                name: "Рубиновый Банк",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Хранит, умножает, генерирует 🎴🀄️🪟 и 🧿ТВ колёса.",
+                application: "до лимита 6️⃣",
+                obtaining: "Сборка. Покупка. Получение.",
+                features: "Защищён от грабителей. Удваивает 🚨 карты с 🧿ТВ колёс.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "🏧➕🏧➕🏧➕12🚨➕🗄🟰💒",
+                tags: ["Банк", "Рубиновый", "Генерация"]
+            },
+            {
+                emoji: "🌋",
+                name: "Преисподняя",
+                category: "super",
+                type: "📱 Опасная",
+                effects: "Уничтожает, переносит в 🪣ведро 🀄️🎴карты всех спикеров. Генерирует карты 🧧📱.",
+                application: "Ведущим при выпадении с 🧿ТВ колеса или строительстве. Спикерами при строительстве. Покупке. Получении.",
+                obtaining: "🧿ТВ колесо. Постройка. Покупка. Получение.",
+                features: "Работает по принципу 🏧Банка и 🛐Храма. Может использовать как ведущий так и спикеры. Можно построить за 6 🚨.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "6 🚨",
+                tags: ["Преисподняя", "Уничтожение", "Генерация"]
+            },
+            {
+                emoji: "🏆",
+                name: "Олимп",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Генерирует 🎴Карты активаций и ⭕️Колёса активаций. Генерирует 🎆'Мифические карты' и раздаёт их.",
+                application: "После слияния и постройки.",
+                obtaining: "Построить.",
+                features: "Создаёт особые 🎆 карты, которые нигде больше получить нельзя.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Да. 🛐🛐🛐 ➕ 20🚨 карт ➕ 🪽🪽🪽 Ангела. Только 1 раз.",
+                tags: ["Олимп", "Генерация", "Мифические"]
+            },
+            {
+                emoji: "🅰️",
+                name: "Дом Анархии",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Генерирует, производит и копит различные мощные эффекты.",
+                application: "После слияния и постройки. Наличие второго владельца.",
+                obtaining: "Построить.",
+                features: "Даёт возможность играть с напарником имея особые эффекты. Строить игру по 'Своим правилам'.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Да. 🌋🌋🌋🌋 ➕ 12🚨 карт ➕ 🗄🗄🗄 ➕🆎🆎🆎 Только 1 раз.",
+                tags: ["Анархия", "Дом", "Эффекты"]
+            },
+            {
+                emoji: "🔮",
+                name: "Белая Магия",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Умножает на х2 все ⬜️ карты в инвентаре у всех, у кого они в наличии. При умножении 🪣 генерирует 1 🟧 карту.",
+                application: "Активируется при выпадении с 🧿ТВ колеса",
+                obtaining: "🧿ТВ колесо.",
+                features: "Если 🧿ТВ колесо крутит 🪽. Умножаются все 🟧 карты. При умножении 🪣 генерирует 1 💎 карту.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Магия", "Белая", "Умножение"]
+            },
+            {
+                emoji: "🦎",
+                name: "Хамелеон",
+                category: "super",
+                type: "🪟↩️📱 Супер",
+                effects: "Все ☑️ карты игроков, у кого их меньше 10 штук, преобразуются в 🧿ТВ колёса. Все 💎 карты игроков становятся 🟧, все 🟧↪️⬜️↪️🟩↪️🟦↪️☑️.",
+                application: "Автоматически. Активируется 1 раз за эфир.",
+                obtaining: "🧿ТВ колесо.",
+                features: "🪟↩️📱Тотальная конвертация",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Хамелеон", "Конвертация", "Трансформация"]
+            },
+            {
+                emoji: "2️⃣",
+                name: "Множитель",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Умножает все ваши обычные 🀄️карты на х2.",
+                application: "При выпадении с 🧿ТВ колеса.",
+                obtaining: "🧿ТВ колесо.",
+                features: "Если в 🗄сейфе 🏧Банка или инвентаря есть карты 🎴 активации, они умножаются на х2.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Множитель", "Умножение", "х2"]
+            },
+            {
+                emoji: "🔷",
+                name: "Золотая М",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Даёт каждому игроку кто состоит в чате 🚹Лиги М 🟧 карту.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "🟧 карты выдаются только в том случае, если Лига 🚹 лидирует.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Золотая", "Лига", "Мужская"]
+            },
+            {
+                emoji: "🟣",
+                name: "Золотая Ж",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Даёт каждому игроку кто состоит в чате 🚺Лиги Ж 🟧 карту.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "🟧 карты выдаются только в том случае, если Лига 🚺 лидирует.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Золотая", "Лига", "Женская"]
+            },
+            {
+                emoji: "🏮",
+                name: "Рубиновая Магия",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "У всех у кого есть в инвентаре 🚨 карты, они умножаются на х2. Вы получаете 3 ⭕️Колеса Активации.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "Все кто в Гостевом получают по 1 🧿ТВ колесу.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Магия", "Рубиновая", "Умножение"]
+            },
+            {
+                emoji: "🚦",
+                name: "Радужная Магия",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "У всех у кого есть в инвентаре 🌈 карты, они умножаются на х2. Вы получаете ☑️🟦🟩⬜️🟧💎🚨 карты.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "Все у кого были 🚨 карты получают по 1 ⭕️Колесу Активации",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Магия", "Радужная", "Умножение"]
+            },
+            {
+                emoji: "♟",
+                name: "Шахматная Магия",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "У всех у кого есть в инвентаре 🔲 карты, они умножаются на х2. Вы получает 10 ⬜️Карт.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "Все у кого были ⬜️ карты получают по 1 🧿ТВ колесу.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Магия", "Шахматная", "Умножение"]
+            },
+            {
+                emoji: "🕹",
+                name: "Супер Выбор",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Вы можете сделать выбор. 🎰🎰🎰 , 🏧Банк, 🛐Храм или 🌋Преисподняя.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "В момент выбора, вы можете оставить себе, либо раздать приз другим, но только участникам своей Лиги🚹🚺",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Выбор", "Супер", "Приз"]
+            },
+            {
+                emoji: "🪙",
+                name: "Магия конструктора",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Все кто находится в гостевом получают по 100 ☑️ карт каждый. При получении 🪣 генерирует 1 💎 карту.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "Все у кого были в инвентаре до вращения колеса серые карты, получают по 1 🧿ТВ колесу.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Магия", "Конструктор", "Генерация"]
+            },
+            {
+                emoji: "🟢",
+                name: "Зелёная Магия",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Умножает на х2 все 🟩 карты в инвентаре у всех, у кого они в наличии. При умножении 🪣 генерирует 1 ⬜️ карту.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "Все кто находится в гостевом получают по 1 🧿ТВ колесу. Конвертер ♻️",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Магия", "Зеленая", "Умножение"]
+            },
+            {
+                emoji: "🟠",
+                name: "Золотая Магия",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Умножает на х3 все 🟧 карты в инвентаре у всех, у кого они в наличии. При умножении 🪣 генерирует 1 💎 карту.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "Все кто находится в гостевом получают по 1 🧿ТВ колесу.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Магия", "Золотая", "Умножение"]
+            },
+            {
+                emoji: "🔵",
+                name: "Синяя Магия",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Умножает на х2 все 🟦 карты в инвентаре у всех, у кого они в наличии. При умножении 🪣 генерирует 1 🟩 карту.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "Все кто находится в гостевом получают по 1 🧿ТВ колесу и Антиэкран 🚾.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Магия", "Синяя", "Умножение"]
+            },
+            {
+                emoji: "🆒",
+                name: "Супер Множитель",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Умножает все ваши карты активаций 🎴на х2.",
+                application: "Автоматически",
+                obtaining: "⭕️Колесо Активации",
+                features: "Если у вас есть запакованный 🎰ДжекПот без вмешательства ♥️♠️. Он умножается на два.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Множитель", "Супер", "Умножение"]
+            },
+            {
+                emoji: "🩷",
+                name: "Изумрудная Ж",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Даёт каждому игроку кто состоит в чате 🚺Лиги Ж 💎 карту.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "💎 карты выдаются только в том случае, если Лига 🚺 лидирует.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Изумрудная", "Лига", "Женская"]
+            },
+            {
+                emoji: "💙",
+                name: "Изумрудная М",
+                category: "super",
+                type: "🪟 Супер",
+                effects: "Даёт каждому игроку кто состоит в чате 🚹Лиги М 💎 карту.",
+                application: "Автоматически.",
+                obtaining: "⭕️Колесо Активации",
+                features: "💎 карты выдаются только в том случае, если Лига 🚹 лидирует.",
+                removedBy: "Нет",
+                takenBy: "Нет",
+                assembly: "Нет",
+                tags: ["Изумрудная", "Лига", "Мужская"]
+            },
+            {
+                emoji: "⚡️",
+                name: "Гроза Зевса",
+                category: "mythical",
+                type: "🎆 Мифическая",
+                effects: "Мифическая карта из Олимпа",
+                application: "Особое применение",
+                obtaining: "Только через 🏆Олимп",
+                features: "Особые мифические свойства",
+                removedBy: "Особые условия",
+                takenBy: "Особые условия",
+                assembly: "Только через генерацию",
+                tags: ["Мифическая", "Зевс", "Олимп"]
+            },
+            {
+                emoji: "🪭",
+                name: "Рубин Афродиты",
+                category: "mythical",
+                type: "🎆 Мифическая",
+                effects: "Мифическая карта из Олимпа",
+                application: "Особое применение",
+                obtaining: "Только через 🏆Олимп",
+                features: "Особые мифические свойства",
+                removedBy: "Особые условия",
+                takenBy: "Особые условия",
+                assembly: "Только через генерацию",
+                tags: ["Мифическая", "Афродита", "Олимп"]
+            },
+            {
+                emoji: "🐍",
+                name: "Взгляд Горгоны",
+                category: "mythical",
+                type: "🎆 Мифическая",
+                effects: "Мифическая карта из Олимпа",
+                application: "Особое применение",
+                obtaining: "Только через 🏆Олимп",
+                features: "Особые мифические свойства",
+                removedBy: "Особые условия",
+                takenBy: "Особые условия",
+                assembly: "Только через генерацию",
+                tags: ["Мифическая", "Горгона", "Олимп"]
+            }
+        ];
 
-<footer>GitHub Pages</footer>
+        // Категории для отображения
+        const categoryNames = {
+            "all": "Все карты",
+            "wheel": "⭕️ Колеса активации",
+            "regular": "🀄️ Обычные карты",
+            "activation": "🎴 Карты активаций",
+            "violation": "🧧 Карты нарушений",
+            "dangerous": "📱 Опасные карты",
+            "super": "🪟 Супер карты",
+            "mythical": "🎆 Мифические карты"
+        };
 
-<script>
-const ladder = [
-  {k:'g', n:'☑️', to:3},
-  {k:'b', n:'🟦', to:2},
-  {k:'gr',n:'🟩', to:2},
-  {k:'w', n:'⬜️', to:2},
-  {k:'o', n:'🟧', to:2},
-  {k:'e', n:'💎', to:3},
-  {k:'r', n:'🚨'}
-];
+        // Таймер времени
+        function updateTime() {
+            const now = new Date();
+            
+            // Московское время (UTC+3)
+            const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+            const moscowTimeStr = moscowTime.toISOString().substr(11, 8);
+            document.getElementById('moscow-time').textContent = moscowTimeStr;
+            
+            // UTC время
+            const utcTimeStr = now.toISOString().substr(11, 8);
+            document.getElementById('utc-time').textContent = utcTimeStr;
+            
+            // Дата
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+            const dayStr = now.toLocaleDateString('ru-RU', { weekday: 'long' });
+            
+            document.getElementById('current-date').textContent = dateStr;
+            document.getElementById('day-of-week').textContent = dayStr.charAt(0).toUpperCase() + dayStr.slice(1);
+        }
 
-let state = {g:0,b:0,gr:0,w:0,o:0,e:0,r:0};
-let mode = 'build';
+        // Отображение карт
+        function displayCards(cards) {
+            const cardsGrid = document.getElementById('cards-grid');
+            const cardsCount = document.getElementById('cards-count');
+            
+            if (cards.length === 0) {
+                cardsGrid.innerHTML = '<div class="no-results">Карты не найдены. Попробуйте изменить поиск или выберите другую категорию.</div>';
+                cardsCount.textContent = '0 карт';
+                return;
+            }
+            
+            cardsCount.textContent = `${cards.length} карт`;
+            
+            cardsGrid.innerHTML = cards.map(card => `
+                <div class="card-item">
+                    <div class="card-category">${categoryNames[card.category] || card.category}</div>
+                    <div class="card-header">
+                        <div class="card-emoji">${card.emoji}</div>
+                        <div>
+                            <div class="card-title">${card.name}</div>
+                            <div class="card-type">${card.type}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-content">
+                        <div class="card-section">
+                            <h4>🎯 Эффекты:</h4>
+                            <p>${card.effects}</p>
+                        </div>
+                        
+                        <div class="card-divider"></div>
+                        
+                        <div class="card-section">
+                            <h4>📋 Применение:</h4>
+                            <p>${card.application}</p>
+                        </div>
+                        
+                        <div class="card-section">
+                            <h4>🎁 Получение:</h4>
+                            <p>${card.obtaining}</p>
+                        </div>
+                        
+                        <div class="card-section">
+                            <h4>⚡️ Особенности:</h4>
+                            <p>${card.features}</p>
+                        </div>
+                        
+                        <div class="card-section">
+                            <h4>❌ Снимается:</h4>
+                            <p>${card.removedBy}</p>
+                        </div>
+                        
+                        <div class="card-section">
+                            <h4>👥 Забирается:</h4>
+                            <p>${card.takenBy}</p>
+                        </div>
+                        
+                        <div class="card-section">
+                            <h4>🧩 Сборка:</h4>
+                            <p>${card.assembly}</p>
+                        </div>
+                        
+                        <div class="card-tags">
+                            ${card.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-function renderControls(){
-  const c = document.getElementById('controls');
-  c.innerHTML='';
-  ladder.forEach(l=>{
-    c.innerHTML+=`
-      <div class="row">
-        <strong>${l.n}</strong>
-        <button onclick="chg('${l.k}',-1)">−</button>
-        <span>${state[l.k]}</span>
-        <button onclick="chg('${l.k}',1)">+</button>
-      </div>`;
-  });
-}
-function chg(k,d){ state[k]=Math.max(0,state[k]+d); recalc(); }
+        // Фильтрация карт
+        function filterCards() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+            const currentCategoryElement = document.getElementById('current-category');
+            
+            // Обновляем заголовок категории
+            currentCategoryElement.textContent = categoryNames[activeCategory];
+            
+            let filteredCards = cardsData;
+            
+            // Фильтрация по категории
+            if (activeCategory !== 'all') {
+                filteredCards = filteredCards.filter(card => card.category === activeCategory);
+            }
+            
+            // Фильтрация по поиску
+            if (searchTerm) {
+                filteredCards = filteredCards.filter(card => 
+                    card.name.toLowerCase().includes(searchTerm) ||
+                    card.effects.toLowerCase().includes(searchTerm) ||
+                    card.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+                    card.type.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            displayCards(filteredCards);
+        }
 
-function recalc(){
-  let s = {...state};
-  let log=[];
-  if(mode==='build'){
-    for(let i=0;i<ladder.length-1;i++){
-      const cur=ladder[i], next=ladder[i+1];
-      const c=Math.floor(s[cur.k]/cur.to||0);
-      if(c>0){
-        s[cur.k]-=c*cur.to;
-        s[next.k]+=c;
-        log.push(`${c*cur.to} ${cur.n} → ${c} ${next.n}`);
-      }
-    }
-  } else {
-    for(let i=ladder.length-1;i>0;i--){
-      const cur=ladder[i], prev=ladder[i-1];
-      const c=s[cur.k];
-      if(c>0){
-        s[cur.k]=0;
-        s[prev.k]+=c*prev.to;
-        log.push(`${c} ${cur.n} → ${c*prev.to} ${prev.n}`);
-      }
-    }
-  }
-
-  const res=[];
-  ladder.slice().reverse().forEach(l=>{
-    if(s[l.k]) res.push(`${l.n} ${s[l.k]}`);
-  });
-
-  document.getElementById('out').innerHTML=
-    (log.length?'<b>Операции:</b><br>'+log.join('<br>')+'<hr>':'')+
-    (res.length?'<b>Результат:</b><br>'+res.join('<br>'):'—');
-}
-
-renderControls();
-</script>
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обновляем время каждую секунду
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Показываем все карты по умолчанию
+            displayCards(cardsData);
+            
+            // Обработчики для категорий
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterCards();
+                });
+            });
+            
+            // Обработчик поиска
+            document.getElementById('search-input').addEventListener('input', filterCards);
+            
+            // Показываем общее количество карт
+            document.querySelector('.category-btn[data-category="all"] .cards-count').textContent = `(${cardsData.length})`;
+        });
+    </script>
 </body>
 </html>
